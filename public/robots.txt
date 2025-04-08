@@ -1,0 +1,32 @@
+# robots.txt for First Card Competition (FCC) Website
+
+#  \_\
+#    (_**)
+#   __) #_      "I'm not a robot, but I know how they think.
+#  ( )...()      Please crawl responsibly or I'll get jealous!"
+#  || | |I|
+#  || | |()__/
+#  /\(___)
+# _-"""""""-_
+# -,,,,,,,,- 
+# 
+
+# Allow all user agents
+User-agent: *
+
+# Disallow access to user account pages
+Disallow: /signin
+Disallow: /signup
+Disallow: /account/
+Disallow: /user/
+Disallow: /profile/
+Disallow: /admin/
+
+# Allow access to these paths
+Allow: /
+Allow: /about
+Allow: /privacy
+Allow: /cards
+
+# Crawl delay to prevent overloading the server
+Crawl-delay: 10

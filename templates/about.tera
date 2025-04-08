@@ -1,0 +1,222 @@
+{% extends "base.tera" %}
+
+{% block head %}
+{{ super() }}
+<style>
+    /* About-specific styles */
+    .about-section p {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+    
+    .account-levels {
+        margin: 3rem 0;
+    }
+    
+    .account-type {
+        background-color: var(--background-primary);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: var(--transition);
+        border: 1px solid rgba(95, 190, 203, 0.2);
+    }
+    
+    .account-type:hover {
+        transform: translateY(-5px);
+    }
+    
+    .account-type h3 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .account-type ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+        flex: 1;
+    }
+    
+    .account-type li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .team-info {
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(95, 190, 203, 0.2);
+    }
+    
+    .team-link {
+        font-weight: 600;
+    }
+    
+    .team-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        margin-top: 2rem;
+    }
+    
+    .phoenix-logo-container {
+        position: relative;
+        height: 350px;
+        perspective: 1000px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .phoenix-logo {
+        width: 80%;
+        height: auto;
+        transform: rotateY(10deg);
+        transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.8s ease;
+        filter: drop-shadow(0 10px 20px rgba(95, 190, 203, 0.4));
+    }
+    
+    .phoenix-logo-container:hover .phoenix-logo {
+        transform: rotateY(0deg) scale(1.05);
+    }
+    
+    .team-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+        .team-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .team-text {
+            order: 1;
+        }
+        
+        .phoenix-logo-container {
+            order: 2;
+            height: 250px;
+        }
+    }
+</style>
+{% endblock head %}
+
+{% block title %}About{% endblock title %}
+
+{% block content %}
+<section class="section" aria-labelledby="about-heading">
+    <div class="container">
+        <div class="content-container rich-text">
+            <div class="text-center">
+                <h1 id="about-heading" class="gradient-text">About FCC</h1>
+                <p>
+                    The <i>FIRST</i> Card Competition (FCC) is an innovative platform that combines robotics and augmented reality. 
+                    Our mission is to create a unique experience for robotics enthusiasts by allowing them to collect, trade, 
+                    and explore robotics cards in a whole new way.
+                </p>
+                <p>
+                    FCC is open source and community-driven. We believe in empowering the robotics community by providing tools 
+                    and resources to showcase their creativity and achievements.
+                </p>
+            </div>
+            
+            <div class="account-levels" aria-labelledby="account-levels-heading">
+                <h2 id="account-levels-heading" class="section-title">User Account Levels</h2>
+                
+                <div class="grid grid-3">
+                    <div class="account-type">
+                        <h3>
+                            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="var(--primary)"/>
+                            </svg>
+                            Without an Account
+                        </h3>
+                        <ul>
+                            <li>Scan any card to view its AR content and information</li>
+                            <li>Explore card details during the current session</li>
+                            <li>Cannot collect or save cards to view later</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="account-type">
+                        <h3>
+                            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 5C13.66 5 15 6.34 15 8C15 9.66 13.66 11 12 11C10.34 11 9 9.66 9 8C9 6.34 10.34 5 12 5ZM12 19.2C9.5 19.2 7.29 17.92 6 15.98C6.03 13.99 10 12.9 12 12.9C13.99 12.9 17.97 13.99 18 15.98C16.71 17.92 14.5 19.2 12 19.2Z" fill="var(--primary)"/>
+                            </svg>
+                            With an Account
+                        </h3>
+                        <ul>
+                            <li>Scan cards and automatically add them to your permanent collection</li>
+                            <li>Access your collection anytime from any device</li>
+                            <li>Generate new card designs for your team</li>
+                            <li>Cannot submit generated cards to the official database</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="account-type">
+                        <h3>
+                            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="var(--primary)"/>
+                            </svg>
+                            Team-Linked Account
+                        </h3>
+                        <ul>
+                            <li>All features of a standard account</li>
+                            <li>Submit official cards to the database for your team</li>
+                            <li>Edit or update your team's cards after submission</li>
+                            <li>Represent your team in the FCC community</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Current Limitations</h3>
+                    <p>Currently, each team is limited to creating one official card per year. We're actively working on expanding this in the future with additional cards and special edition releases.</p>
+                    <p>The FCC platform is still a work in progress, and we appreciate your support as we continue to develop new features.</p>
+                </div>
+            </div>
+            
+            <div class="team-info">
+                <h2 class="icon-heading">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="var(--primary)"/>
+                    </svg>
+                    Created by Team 4533 Phoenix
+                </h2>
+                
+                <div class="team-content">
+                    <div class="team-text">
+                        <p>
+                            The <i>FIRST</i> Card Competition cards were originally created by <a href="https://phoenix4533.org" target="_blank" class="team-link">Team 4533 Phoenix</a> 
+                            as a way to celebrate and document robots from competitions. Years later, the same team developed this website to bring the cards into 
+                            the digital age with augmented reality features.
+                        </p>
+                        <p>
+                            Team 4533 Phoenix is a <i>FIRST</i> Robotics Competition team from Oshkosh, Wisconsin, dedicated to inspiring young people to be science 
+                            and technology leaders through mentor-based programs that build skills and foster innovation.
+                        </p>
+                    </div>
+                    
+                    <div class="phoenix-logo-container" aria-label="Team 4533 Phoenix logo">
+                        <img src="/static/phoenix.svg" alt="Team 4533 Phoenix logo" class="phoenix-logo">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center button-container">
+                <a href="https://github.com" class="btn btn-primary" aria-label="Contribute to FCC on GitHub">Contribute on GitHub</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

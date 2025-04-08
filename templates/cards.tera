@@ -1,0 +1,672 @@
+{% extends "base.tera" %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: var(--secondary);
+    }
+    
+    .gradient-section.cards-hero {
+        position: relative;
+        padding: 5rem 0;
+        overflow: hidden;
+    }
+    
+    .gradient-section.cards-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, rgba(95, 190, 203, 0.3) 0%, rgba(47, 110, 118, 0.2) 100%);
+        opacity: 0.5;
+        z-index: -1;
+    }
+    
+    .cards-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 1.5rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary);
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text);
+        opacity: 0.8;
+    }
+    
+    /* Featured cards */
+    .featured-cards {
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background-color: var(--background-primary);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .featured-cards::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: var(--gradient-primary);
+        opacity: 0.3;
+        border-radius: 0 0 0 100%;
+        z-index: 0;
+    }
+    
+    .featured-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .featured-title {
+        font-size: 1.5rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .featured-carousel {
+        display: flex;
+        gap: 1.2rem;
+        overflow-x: auto;
+        padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+        scrollbar-width: thin;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .featured-carousel::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .featured-carousel::-webkit-scrollbar-track {
+        background: rgba(95, 190, 203, 0.1);
+        border-radius: 10px;
+    }
+    
+    .featured-carousel::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+    
+    /* Collection cards */
+    .collection-card {
+        position: relative;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+        aspect-ratio: 2.5 / 3.5;
+        height: auto;
+        width: 100%;
+    }
+    
+    .collection-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--gradient-primary);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 2;
+    }
+    
+    /* Filters */
+    .filter-container {
+        background: linear-gradient(to right, var(--background-primary), rgba(95, 190, 203, 0.05), var(--background-primary));
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .view-options {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .view-option {
+        padding: 5px 10px;
+        border: 1px solid rgba(95, 190, 203, 0.3);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: var(--background-primary);
+        color: var(--text);
+        opacity: 0.8;
+    }
+    
+    .view-option.active {
+        background: rgba(95, 190, 203, 0.1);
+        border-color: var(--primary);
+        color: var(--primary);
+        opacity: 1;
+    }
+    
+    .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+    
+    .clear-filters {
+        font-size: 0.9rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+    }
+    
+    .year-counter {
+        background: rgba(95, 190, 203, 0.1);
+        color: var(--primary);
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+    
+    /* Grid sizes */
+    .grid-large { 
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.8rem;
+    }
+    
+    .grid-medium { 
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .grid-small { 
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+        gap: 1rem;
+    }
+
+    .featured-carousel .collection-card {
+        min-width: 200px;
+        max-width: 260px;
+        width: 260px;
+    }
+
+    /* Card text sizes */
+    .grid-large .collection-card-title { font-size: 1.2rem; }
+    .grid-medium .collection-card-title { font-size: 1.1rem; }
+    .grid-small .collection-card-title { font-size: 0.9rem; }
+    .grid-small .collection-card-subtitle { font-size: 0.8rem; }
+</style>
+{% endblock head %}
+
+{% block title %}Cards Collection{% endblock title %}
+
+{% block content %}
+<!-- Hero section with enhanced styling -->
+<section class="gradient-section cards-hero">
+    <div class="container">
+        <h1 class="gradient-text">Cards Collection</h1>
+        <p>Browse our collection of robot cards from past seasons</p>
+        
+        <div class="cards-stats">
+            <div class="stat-item">
+                <div class="stat-value">42</div>
+                <div class="stat-label">Total Cards</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Teams Featured</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Seasons</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <!-- Featured cards section -->
+        <div class="featured-cards">
+            <div class="featured-header">
+                <h2 class="featured-title">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z" fill="var(--primary)"/>
+                    </svg>
+                    Featured Cards
+                </h2>
+                <span class="featured-subtitle">Highlighted robots from our collection</span>
+            </div>
+            
+            <div class="featured-carousel" aria-label="Featured cards carousel">
+                <div class="collection-card" style="background: linear-gradient(135deg, #cc9f4b 0%, #d4af37 100%); min-width: 260px;" onclick="showCardDetails(254, 2023)">
+                    <span class="card-badge">Championship Winner</span>
+                    <div class="collection-card-info">
+                        <p class="collection-card-title">Team 254</p>
+                        <p class="collection-card-subtitle">The Cheesy Poofs</p>
+                    </div>
+                </div>
+                <div class="collection-card" style="background: linear-gradient(135deg, #a3a3a3 0%, #d5d5d7 100%); min-width: 260px;" onclick="showCardDetails(118, 2023)">
+                    <span class="card-badge">Finalist</span>
+                    <div class="collection-card-info">
+                        <p class="collection-card-title">Team 118</p>
+                        <p class="collection-card-subtitle">The Robonauts</p>
+                    </div>
+                </div>
+                <div class="collection-card" style="background: linear-gradient(135deg, #b87252 0%, #e79a6b 100%); min-width: 260px;" onclick="showCardDetails(3538, 2023)">
+                    <span class="card-badge">Innovation Award</span>
+                    <div class="collection-card-info">
+                        <p class="collection-card-title">Team 3538</p>
+                        <p class="collection-card-subtitle">RoboJackets</p>
+                    </div>
+                </div>
+                <div class="collection-card" style="background: linear-gradient(135deg, #5c4ee8 0%, #8075ff 100%); min-width: 260px;" onclick="showCardDetails(1678, 2023)">
+                    <div class="collection-card-info">
+                        <p class="collection-card-title">Team 1678</p>
+                        <p class="collection-card-subtitle">Citrus Circuits</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced filter UI -->
+        <div class="filter-container">
+            <div class="filter-header">
+                <h2 class="filter-title">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" fill="var(--primary)"/>
+                    </svg>
+                    Filter Cards
+                </h2>
+                <div class="view-options">
+                    <button class="view-option active" id="large-grid" aria-label="Large grid view">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 3v8h8V3H3zm10 0v8h8V3h-8zM3 13v8h8v-8H3zm10 0v8h8v-8h-8z"/>
+                        </svg>
+                        Large
+                    </button>
+                    <button class="view-option" id="medium-grid" aria-label="Medium grid view">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 3v5h5V3H3zm7 0v5h5V3h-5zm7 0v5h5V3h-5zM3 10v5h5v-5H3zm7 0v5h5v-5h-5zm7 0v5h5v-5h-5zM3 17v5h5v-5H3zm7 0v5h5v-5H9zm7 0v5h5v-5h-5z"/>
+                        </svg>
+                        Medium
+                    </button>
+                    <button class="view-option" id="small-grid" aria-label="Small grid view">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 3v4h4V3H3zm6 0v4h4V3H9zm6 0v4h4V3h-4zm6 0v4h4V3h-4zM3 9v4h4V9H3zm6 0v4h4V9H9zm6 0v4h4V9h-4zm6 0v4h4V9h-4zM3 15v4h4v-4H3zm6 0v4h4v-4H9zm6 0v4h4v-4h-4zm6 0v4h4v-4h-4z"/>
+                        </svg>
+                        Small
+                    </button>
+                </div>
+            </div>
+            
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="yearFilter">Year</label>
+                    <select id="yearFilter">
+                        <option value="all">All Years</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="teamFilter">Team Number</label>
+                    <input type="text" id="teamFilter" placeholder="e.g. 4533">
+                </div>
+                <div class="filter-group">
+                    <label for="awardFilter">Award Type</label>
+                    <select id="awardFilter">
+                        <option value="all">All Cards</option>
+                        <option value="winners">Championship Winners</option>
+                        <option value="finalists">Finalists</option>
+                        <option value="innovation">Innovation Award</option>
+                        <option value="design">Design Award</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <a href="#" class="clear-filters" id="clearFilters">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                    Clear Filters
+                </a>
+            </div>
+        </div>
+
+        <!-- 2025 Cards Section - Newest first -->
+        <div class="section-divider">
+            <h2 class="section-divider-title">2025</h2>
+            <span class="year-counter">3 cards</span>
+        </div>
+        <div class="grid grid-cards">
+            <!-- Card items for 2025 -->
+            <div class="collection-card" style="background: linear-gradient(135deg, #8a2387 0%, #e94057 50%, #f27121 100%);" onclick="showCardDetails(1241, 2025)">
+                <span class="card-badge">Championship Winner</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 1241</p>
+                    <p class="collection-card-subtitle">Theory6</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #0cebeb 0%, #20e3b2 50%, #29ffc6 100%);" onclick="showCardDetails(180, 2025)">
+                <span class="card-badge">Finalist</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 180</p>
+                    <p class="collection-card-subtitle">S.P.A.M.</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #b91d73 0%, #f953c6 100%);" onclick="showCardDetails(67, 2025)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 67</p>
+                    <p class="collection-card-subtitle">The HOT Team</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 2024 Cards Section -->
+        <div class="section-divider">
+            <h2 class="section-divider-title">2024</h2>
+            <span class="year-counter">6 cards</span>
+        </div>
+        <div class="grid grid-cards">
+            <!-- Card items for 2024 -->
+            <div class="collection-card" style="background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);" onclick="showCardDetails(3847, 2024)">
+                <span class="card-badge">Championship Winner</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 3847</p>
+                    <p class="collection-card-subtitle">Spectrum</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);" onclick="showCardDetails(1323, 2024)">
+                <span class="card-badge">Finalist</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 1323</p>
+                    <p class="collection-card-subtitle">MadTown Robotics</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #50c9c3 0%, #96deda 100%);" onclick="showCardDetails(195, 2024)">
+                <span class="card-badge">Design Award</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 195</p>
+                    <p class="collection-card-subtitle">CyberKnights</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #614385 0%, #516395 100%);" onclick="showCardDetails(4533, 2024)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 4533</p>
+                    <p class="collection-card-subtitle">Phoenix</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #42275a 0%, #734b6d 100%);" onclick="showCardDetails(971, 2024)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 971</p>
+                    <p class="collection-card-subtitle">Spartan Robotics</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);" onclick="showCardDetails(2767, 2024)">
+                <span class="card-badge">Innovation Award</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 2767</p>
+                    <p class="collection-card-subtitle">Stryke Force</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2023 Cards Section -->
+        <div class="section-divider">
+            <h2 class="section-divider-title">2023</h2>
+            <span class="year-counter">12 cards</span>
+        </div>
+        <div class="grid grid-cards">
+            <!-- Card items for 2023 -->
+            <div class="collection-card" style="background: linear-gradient(135deg, #5fbecb 0%, #2f6e76 100%);" onclick="showCardDetails(4533, 2023)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 4533</p>
+                    <p class="collection-card-subtitle">Phoenix</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #6a8caf 0%, #345775 100%);" onclick="showCardDetails(5024, 2023)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 5024</p>
+                    <p class="collection-card-subtitle">Raider Robotics</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #7a67a6 0%, #3d3364 100%);" onclick="showCardDetails(6328, 2023)">
+                <span class="card-badge">Rookie Award</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 6328</p>
+                    <p class="collection-card-subtitle">Mechanical Advantage</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2022 Cards Section -->
+        <div class="section-divider">
+            <h2 class="section-divider-title">2022</h2>
+            <span class="year-counter">15 cards</span>
+        </div>
+        <div class="grid grid-cards">
+            <!-- Card items for 2022 -->
+            <div class="collection-card" style="background: linear-gradient(135deg, #d66853 0%, #9a3924 100%);" onclick="showCardDetails(33, 2022)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 33</p>
+                    <p class="collection-card-subtitle">Killer Bees</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #f9a03f 0%, #c06a16 100%);" onclick="showCardDetails(254, 2022)">
+                <span class="card-badge">Championship Winner</span>
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 254</p>
+                    <p class="collection-card-subtitle">The Cheesy Poofs</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #59a77f 0%, #2c7150 100%);" onclick="showCardDetails(1114, 2022)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 1114</p>
+                    <p class="collection-card-subtitle">Simbotics</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #e15554 0%, #9e2b2a 100%);" onclick="showCardDetails(4533, 2022)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 4533</p>
+                    <p class="collection-card-subtitle">Phoenix</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2021 Cards Section - Oldest last -->
+        <div class="section-divider">
+            <h2 class="section-divider-title">2021</h2>
+            <span class="year-counter">8 cards</span>
+        </div>
+        <div class="grid grid-cards">
+            <!-- Card items for 2021 -->
+            <div class="collection-card" style="background: linear-gradient(135deg, #3a86ff 0%, #0043ce 100%);" onclick="showCardDetails(1678, 2021)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 1678</p>
+                    <p class="collection-card-subtitle">Citrus Circuits</p>
+                </div>
+            </div>
+            <div class="collection-card" style="background: linear-gradient(135deg, #8338ec 0%, #4b0fb2 100%);" onclick="showCardDetails(2056, 2021)">
+                <div class="collection-card-info">
+                    <p class="collection-card-title">Team 2056</p>
+                    <p class="collection-card-subtitle">OP Robotics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const yearFilter = document.getElementById('yearFilter');
+        const teamFilter = document.getElementById('teamFilter');
+        const awardFilter = document.getElementById('awardFilter');
+        const yearSections = document.querySelectorAll('.section-divider, .grid-cards, .empty-year');
+        const clearFiltersBtn = document.getElementById('clearFilters');
+        const largeGridBtn = document.getElementById('large-grid');
+        const mediumGridBtn = document.getElementById('medium-grid');
+        const smallGridBtn = document.getElementById('small-grid');
+        const viewOptions = document.querySelectorAll('.view-option');
+        const cardsContainer = document.querySelectorAll('.grid-cards');
+        
+        // Event listeners
+        yearFilter.addEventListener('change', filterCards);
+        teamFilter.addEventListener('input', filterCards);
+        awardFilter.addEventListener('change', filterCards);
+        
+        clearFiltersBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            yearFilter.value = 'all';
+            teamFilter.value = '';
+            awardFilter.value = 'all';
+            filterCards();
+        });
+        
+        largeGridBtn.addEventListener('click', function() {
+            setViewMode('large-grid');
+        });
+        
+        mediumGridBtn.addEventListener('click', function() {
+            setViewMode('medium-grid');
+        });
+        
+        smallGridBtn.addEventListener('click', function() {
+            setViewMode('small-grid');
+        });
+        
+        function setViewMode(mode) {
+            // First reset all buttons
+            viewOptions.forEach(btn => btn.classList.remove('active'));
+            
+            // Set the active class on the selected button
+            document.getElementById(mode).classList.add('active');
+            
+            // Apply the appropriate grid class
+            cardsContainer.forEach(container => {
+                container.className = 'grid';
+                
+                switch(mode) {
+                    case 'large-grid':
+                        container.classList.add('grid-large');
+                        break;
+                    case 'medium-grid':
+                        container.classList.add('grid-medium');
+                        break;
+                    case 'small-grid':
+                        container.classList.add('grid-small');
+                        break;
+                }
+            });
+        }
+        
+        // Initialize with large grid by default
+        setViewMode('large-grid');
+        
+        // Filter implementation
+        function filterCards() {
+            const selectedYear = yearFilter.value;
+            const teamQuery = teamFilter.value.toLowerCase();
+            const selectedAward = awardFilter.value;
+            
+            // Show/hide year sections based on filter
+            let yearVisible = false;
+            let currentYearSection = null;
+            let currentCardsGrid = null;
+            
+            for (let i = 0; i < yearSections.length; i++) {
+                const section = yearSections[i];
+                
+                if (section.classList.contains('section-divider')) {
+                    const yearTitle = section.querySelector('.section-divider-title').textContent;
+                    currentYearSection = section;
+                    currentCardsGrid = yearSections[i + 1];
+                    
+                    yearVisible = selectedYear === 'all' || yearTitle === selectedYear;
+                }
+                
+                if (currentYearSection && currentCardsGrid) {
+                    const cards = currentCardsGrid.querySelectorAll('.collection-card');
+                    let hasVisibleCards = false;
+                    
+                    cards.forEach(card => {
+                        const teamNumber = card.querySelector('.collection-card-title').textContent.toLowerCase();
+                        const teamName = card.querySelector('.collection-card-subtitle').textContent.toLowerCase();
+                        const cardBadge = card.querySelector('.card-badge') ? card.querySelector('.card-badge').textContent.toLowerCase() : '';
+                        
+                        const matchesTeam = teamQuery === '' || 
+                                            teamNumber.includes(teamQuery) || 
+                                            teamName.includes(teamQuery);
+                                            
+                        const matchesAward = selectedAward === 'all' || 
+                                             (cardBadge && cardBadge.includes(selectedAward));
+                        
+                        card.style.display = yearVisible && matchesTeam && matchesAward ? 'block' : 'none';
+                        
+                        if (yearVisible && matchesTeam && matchesAward) {
+                            hasVisibleCards = true;
+                        }
+                    });
+                    
+                    currentYearSection.style.display = hasVisibleCards ? 'flex' : 'none';
+                    currentCardsGrid.style.display = hasVisibleCards ? 'grid' : 'none';
+                    
+                    currentYearSection = null;
+                    currentCardsGrid = null;
+                }
+            }
+        }
+    });
+    
+    function showCardDetails(teamNumber, year) {
+        // Placeholder for card detail view functionality
+        console.log(`Viewing Team ${teamNumber} from ${year}`);
+        // In a real implementation, this would open a modal or navigate to a detail page
+        alert(`Viewing card for Team ${teamNumber} (${year})`);
+    }
+</script>
+{% endblock content %}

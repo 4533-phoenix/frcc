@@ -1,0 +1,97 @@
+{% extends "base.tera" %}
+
+{% block head %}
+{{ super() }}
+<style>
+    /* Only page-specific styles */
+    .auth-form .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin: 0;
+        margin-top: 0.2rem;
+    }
+    
+    .password-requirements {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        color: var(--secondary);
+    }
+</style>
+{% endblock head %}
+
+{% block title %}Sign Up{% endblock title %}
+
+{% block content %}
+<section class="auth-section" aria-labelledby="signup-heading">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1 id="signup-heading" class="gradient-text">Sign Up</h1>
+                <p>Create your FCC account</p>
+            </div>
+            
+            <form class="auth-form" action="/signup" method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" autocomplete="username" required>
+                </div>
+                
+                <!-- Email field removed as requested -->
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" required>
+                    <p class="password-requirements">Password must be at least 8 characters long</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a></label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary submit-btn">Create Account</button>
+            </form>
+            
+            <div class="auth-separator">
+                <span>OR</span>
+            </div>
+            
+            <div class="auth-alt">
+                <p>Already have an account? <a href="/signin">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.auth-form');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        
+        form.addEventListener('submit', function(event) {
+            if (password.value !== confirmPassword.value) {
+                event.preventDefault();
+                confirmPassword.setCustomValidity("Passwords don't match");
+                confirmPassword.reportValidity();
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        });
+        
+        confirmPassword.addEventListener('input', function() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Passwords don't match");
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        });
+    });
+</script>
+{% endblock content %}

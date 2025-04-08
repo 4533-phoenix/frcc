@@ -1,0 +1,51 @@
+{% extends "base.tera" %}
+
+{% block head %}
+{{ super() }}
+{% endblock head %}
+
+{% block title %}Sign In{% endblock title %}
+
+{% block content %}
+<section class="auth-section" aria-labelledby="signin-heading">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1 id="signin-heading" class="gradient-text">Sign In</h1>
+                <p>Welcome back to FCC</p>
+            </div>
+            
+            <form class="auth-form" action="/signin" method="post">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary submit-btn">Sign In</button>
+                
+                <div class="form-footer">
+                    <a href="/forgot-password">Forgot password?</a>
+                </div>
+            </form>
+            
+            <div class="auth-separator">
+                <span>OR</span>
+            </div>
+            
+            <div class="auth-alt">
+                <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

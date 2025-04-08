@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %} - FCC</title>
+    {% endblock head %}
+
+    {% include "style.tera" %}
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header role="banner">
+        <div class="container">
+            <div class="logo">
+                <h1><a href="/" style="text-decoration: none; color: inherit;" class="wavy-text" aria-label="FCC Home">
+                    <span aria-hidden="true">F</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
+                </a></h1>
+            </div>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/cards">Cards</a></li>
+                    <li><a href="/scan">Scan</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/signin" class="btn btn-primary">Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" role="main">
+        {% block content %}{% endblock content %}
+    </main>
+
+    <footer role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2 class="wavy-text" aria-label="FCC">
+                        <span aria-hidden="true">F</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
+                    </h2>
+                    <p><i>FIRST</i> Card Competition</p>
+                </div>
+                <div class="footer-links">
+                    <h3 id="footer-links-heading">Links</h3>
+                    <ul aria-labelledby="footer-links-heading">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/cards">Cards</a></li>
+                        <li><a href="/account">Account</a></li>
+                        <li><a href="/privacy">Privacy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-open-source">
+                    <h3>Open Source</h3>
+                    <p>FCC is open source! <a href="#" aria-label="View FCC source code on GitHub">View on GitHub</a></p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; {{ now() | date(format="%Y") }} <i>FIRST</i> Card Competition. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

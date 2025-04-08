@@ -1,0 +1,440 @@
+{% extends "base.tera" %}
+
+{% block head %}
+{{ super() }}
+
+<style>
+    /* Hero-specific styles that aren't in the main stylesheet */
+    .hero {
+        padding: 6rem 0 8rem;
+        overflow: hidden;
+    }
+
+    .hero .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        color: var(--secondary);
+    }
+
+    /* 3D Card Display - Specific to the hero page */
+    .hero-cards {
+        position: relative;
+        height: 400px;
+        perspective: 1500px;
+    }
+
+    .hero-card {
+        position: absolute;
+        width: 280px;
+        height: 400px;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        transform-style: preserve-3d;
+        overflow: hidden;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.8s ease;
+    }
+
+    .hero-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-front {
+        transform: rotateY(25deg) translateZ(50px);
+        z-index: 2;
+    }
+
+    .card-back {
+        transform: rotateY(-15deg) translateZ(-50px) translateX(100px);
+        z-index: 1;
+        filter: brightness(0.8);
+    }
+    
+    .hero-cards:hover .card-front {
+        transform: rotateY(15deg) translateZ(30px);
+    }
+    
+    .hero-cards:hover .card-back {
+        transform: rotateY(0deg) translateZ(0) translateX(250px);
+        filter: brightness(0.9);
+    }
+
+    /* Card switch button */
+    .card-switch-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 420px;  /* Position below the cards */
+    }
+
+    .card-switch-btn {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .card-switch-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .card-switch-icon {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        background-color: currentColor;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7.11 8.53L5.7 7.11C4.8 8.27 4.24 9.61 4.07 11h2.02c.14-.87.49-1.72 1.02-2.47zM6.09 13H4.07c.17 1.39.72 2.73 1.62 3.89l1.41-1.42c-.52-.75-.87-1.59-1.01-2.47zm1.01 5.32c1.16.9 2.51 1.44 3.9 1.61V17.9c-.87-.15-1.71-.49-2.46-1.03L7.1 18.32zM13 4.07V1L8.45 5.55 13 10V6.09c2.84.48 5 2.94 5 5.91s-2.16 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93s-3.05-7.44-7-7.93z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7.11 8.53L5.7 7.11C4.8 8.27 4.24 9.61 4.07 11h2.02c.14-.87.49-1.72 1.02-2.47zM6.09 13H4.07c.17 1.39.72 2.73 1.62 3.89l1.41-1.42c-.52-.75-.87-1.59-1.01-2.47zm1.01 5.32c1.16.9 2.51 1.44 3.9 1.61V17.9c-.87-.15-1.71-.49-2.46-1.03L7.1 18.32zM13 4.07V1L8.45 5.55 13 10V6.09c2.84.48 5 2.94 5 5.91s-2.16 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93s-3.05-7.44-7-7.93z'/%3E%3C/svg%3E");
+        mask-size: contain;
+        -webkit-mask-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-position: center;
+        transition: transform 0.5s ease;
+    }
+
+    .card-switch-btn.active .card-switch-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Special positions for swapped state */
+    .hero-cards.swapped .card-front {
+        transform: rotateY(-15deg) translateZ(-50px) translateX(100px);
+        z-index: 1;
+        filter: brightness(0.8);
+    }
+
+    .hero-cards.swapped .card-back {
+        transform: rotateY(25deg) translateZ(50px);
+        z-index: 2;
+        filter: brightness(1);
+    }
+
+    /* Hover effects for swapped state */
+    .hero-cards.swapped:hover .card-front {
+        transform: rotateY(0deg) translateZ(0) translateX(250px);
+        filter: brightness(0.9);
+    }
+    
+    .hero-cards.swapped:hover .card-back {
+        transform: rotateY(15deg) translateZ(30px);
+        filter: brightness(1);
+    }
+
+    /* Account Info Section */
+    .account-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .account-text h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .account-text p {
+        margin-bottom: 1.5rem;
+    }
+
+    .account-image .gradient-card {
+        height: 350px;
+    }
+
+    /* Location Section */
+    .location-section {
+        padding: 3rem 0;
+        background: linear-gradient(to bottom, var(--background-primary), var(--background-secondary));
+    }
+    
+    .location-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+    }
+    
+    .location-text {
+        margin-bottom: 1rem;
+    }
+    
+    .location-heading {
+        font-size: 1.8rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    
+    .location-map {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .sc-map {
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 5px 15px rgba(95, 190, 203, 0.3));
+    }
+    
+    .sc-outline {
+        fill: var(--primary);
+        stroke: var(--secondary);
+        stroke-width: 1;
+    }
+    
+    .location-star {
+        fill: #fff;
+        stroke: var(--secondary);
+        stroke-width: 1;
+        filter: drop-shadow(0 0 5px var(--primary));
+    }
+    
+    @media (max-width: 768px) {
+        .location-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock head %}
+
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+<section class="hero" aria-labelledby="hero-heading">
+    <div class="container">
+        <div class="hero-content">
+            <h1 id="hero-heading" class="gradient-text"><i>FIRST</i> Card Competition</h1>
+            <p class="hero-subtitle">Collect, Share, and Experience Robotics in Augmented Reality</p>
+            <div class="flex flex-gap hero-buttons">
+                <a href="/signup" class="btn btn-primary" aria-label="Get started with FIRST Card Competition">Get Started</a>
+                <a href="/about" class="btn btn-secondary" aria-label="Learn more about FIRST Card Competition">Learn More</a>
+            </div>
+        </div>
+        <div class="hero-cards" aria-label="Interactive card display">
+            <div class="hero-card card-front" onclick="openModal('/static/front.webp')" tabindex="0" role="button" aria-label="View front of FCC card" onkeydown="handleCardKeyDown(event, '/static/front.webp')">
+                <img src="/static/front.webp" alt="FIRST Card Competition card front - showing robot design and team information">
+            </div>
+            <div class="hero-card card-back" onclick="openModal('/static/back.webp')" tabindex="0" role="button" aria-label="View back of FCC card" onkeydown="handleCardKeyDown(event, '/static/back.webp')">
+                <img src="/static/back.webp" alt="FIRST Card Competition card back - showing statistical information and QR code">
+            </div>
+            <div class="card-switch-container">
+                <button class="card-switch-btn" id="cardSwitchBtn" aria-label="Switch card positions">
+                    <span class="card-switch-icon"></span>
+                    Flip Cards
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-alt text-center" aria-labelledby="features-heading">
+    <div class="container">
+        <h2 id="features-heading" class="section-title">Discover FCC Cards</h2>
+        <div class="grid grid-3">
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">📱</div>
+                <h3>Augmented Reality</h3>
+                <p>Scan any card with your phone to see bots come to life in AR with detailed information.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🤖</div>
+                <h3>Bot Stats</h3>
+                <p>Each card contains essential information about robotics teams and their incredible creations.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🔄</div>
+                <h3>Trade & Collect</h3>
+                <p>Build your collection by trading with other robotics enthusiasts at competitions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" aria-labelledby="account-heading">
+    <div class="container">
+        <div class="account-content">
+            <div class="account-text">
+                <h2 id="account-heading">Experience FCC Your Way</h2>
+                <p>Anyone can scan and view cards without an account. Experience the AR features and learn about the amazing bots in the competition.</p>
+                <p>Create a free account to collect, save, and upload new cards. Join our community of robotics enthusiasts!</p>
+                <a href="#" class="btn btn-primary" aria-label="Create your FCC account">Create Account</a>
+            </div>
+            <div class="account-image" aria-hidden="true">
+                <div class="gradient-card shimmer"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-alt text-center" aria-labelledby="open-source-heading">
+    <div class="container">
+        <h2 id="open-source-heading">Open Source Project</h2>
+        <p>FCC is an open-source project dedicated to the robotics community. Contribute to our development on GitHub.</p>
+        <a href="#" class="btn btn-secondary" aria-label="View FCC source code on GitHub">View Source Code</a>
+    </div>
+</section>
+
+<!-- Location Section -->
+<section class="location-section" aria-labelledby="location-heading">
+    <div class="container">
+        <div class="location-container">
+            <div class="location-map" aria-label="Map of South Carolina with Mount Pleasant highlighted">
+                <svg class="sc-map" viewBox="100 100 300 300" xmlns="http://www.w3.org/2000/svg">
+                    <!-- South Carolina outline -->
+                    <path class="sc-outline" fill-rule="evenodd" d="M96 47 34 60c-5 2-8 5-16 18-11 18-11 22-1 30 23 21 25 22 37 17h3l13 22c60 96 54 87 70 101 15 12 15 12 17 29 1 18 2 21 14 44 13 25 16 27 31 31 9 2 12 1 31-15 17-16 20-19 16-27l-2-2 44-31c53-37 50-34 60-55 10-19 10-19 25-29 15-11 17-16 12-23-4-6-82-82-86-84l-4-2h-77v-4c0-15-17-29-27-23-2 2-3 2-4-1-2-4-6-6-11-8-3-1-68-2-83-1m81 13c1 0 3 2 3 4 4 6 11 9 17 5l4-2 4 5 5 5-1 5 1 9c3 5 2 5 46 5h40l42 41 40 39-3 3c-23 15-23 15-33 36s-6 16-58 53c-30 20-46 32-47 34-2 3-2 9 0 12l1 2-14 12c-16 14-16 14-23 11-8-2-8-3-19-23-12-24-11-22-14-41-2-21-3-22-16-33-17-15-18-16-32-39l-55-87c-4-4-9-5-16-2-5 2-4 3-17-9-6-4-10-8-10-9 0-2 13-23 16-24a371 371 0 0 1 139-12"/>
+                    
+                    <!-- Circle for Mount Pleasant -->
+                    <circle class="location-star" cx="300" cy="260" r="8" />
+                    
+                    <!-- Text labels -->
+                    <text x="330" y="280" text-anchor="middle" fill="var(--primary)" font-size="8" font-weight="bold">Mount Pleasant</text>
+                </svg>
+            </div>
+            <div class="location-text">
+                <h2 id="location-heading" class="location-heading">Crafted in Mount Pleasant, South Carolina</h2>
+                <p>The <i>FIRST</i> Card Competition website is developed near Charleston, in beautiful Mount Pleasant, South Carolina. Our team is proud to contribute to both the robotics and tech communities in the Lowcountry.</p>
+                <p>Mount Pleasant offers a perfect blend of southern hospitality and technological innovation, inspiring our work on this platform.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for fullscreen image view -->
+<div class="modal" id="imageModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-content" role="document">
+        <button class="close-modal" onclick="closeModal()" aria-label="Close image view">&times;</button>
+        <h2 id="modalTitle" class="sr-only">Card Image View</h2>
+        <img id="modalImage" src="" alt="Card full view">
+    </div>
+</div>
+
+<script>
+    // Modal functionality
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    let lastFocus = null;
+    
+    function openModal(imgSrc) {
+        modalImg.src = imgSrc;
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+        
+        // Store the element that had focus before opening modal
+        lastFocus = document.activeElement;
+        
+        // Focus on the close button
+        setTimeout(() => {
+            document.querySelector('.close-modal').focus();
+        }, 50);
+    }
+    
+    function closeModal() {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = ''; // Restore scrolling
+        
+        // Return focus to the element that had focus before the modal was opened
+        if (lastFocus) {
+            lastFocus.focus();
+        }
+    }
+    
+    // Close modal when clicking outside of the image
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    // Handle keyboard interaction with cards
+    function handleCardKeyDown(event, imgSrc) {
+        // If Enter or Space key is pressed
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openModal(imgSrc);
+        }
+    }
+
+    // Card switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const heroCards = document.querySelector('.hero-cards');
+        const switchBtn = document.getElementById('cardSwitchBtn');
+        
+        switchBtn.addEventListener('click', function() {
+            // Toggle swapped class
+            heroCards.classList.toggle('swapped');
+            // Toggle active class on button for visual feedback
+            this.classList.toggle('active');
+            
+            // Update accessibility label
+            const isSwapped = heroCards.classList.contains('swapped');
+            this.setAttribute('aria-label', isSwapped ? 'Return cards to original positions' : 'Switch card positions');
+            
+            // Optional: Announce to screen readers that cards were swapped
+            const announcement = document.createElement('div');
+            announcement.className = 'sr-only';
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.textContent = isSwapped ? 'Cards have been flipped' : 'Cards have returned to original positions';
+            document.body.appendChild(announcement);
+            
+            // Remove announcement after it's been read
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 1000);
+        });
+    });
+</script>
+
+<!-- Add screen reader only styles -->
+<style>
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+</style>
+{% endblock content %}
