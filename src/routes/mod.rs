@@ -24,6 +24,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/signin", get(signin))
         .route("/signup", get(signup))
         .route("/cards", get(cards))
+        .route("/scan", get(scan))
         .nest("/api", get_api_router(state))
         .fallback_service(ServeDir::new(PathBuf::from("public")))
 }
@@ -37,6 +38,14 @@ pub fn get_api_router(state: AppState) -> Router {
         //.route("/collection", get(get_collection).put(add_to_collection))
         .route("/invites", put(create_invite_code))
         .with_state(state)
+}
+
+async fn scan() -> impl IntoResponse {
+    let content = TEMPLATES.render("scan.tera", &Context::new()).unwrap();
+    Response::builder()
+        .header("Content-Type", "text/html")
+        .body(content)
+        .unwrap()
 }
 
 async fn hero() -> impl IntoResponse {

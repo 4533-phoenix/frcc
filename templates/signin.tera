@@ -12,13 +12,13 @@
         <div class="auth-container">
             <div class="auth-header">
                 <h1 id="signin-heading" class="gradient-text">Sign In</h1>
-                <p>Welcome back to FCC</p>
+                <p>Access your card collection</p>
             </div>
             
             <form class="auth-form" action="/api/login" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" autocomplete="email" required>
+                    <input type="text" id="username" name="username" required autofocus>
                 </div>
                 
                 <div class="form-group">
@@ -26,21 +26,8 @@
                     <input type="password" id="password" name="password" required>
                 </div>
                 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Remember me</label>
-                </div>
-                
                 <button type="submit" class="btn btn-primary submit-btn">Sign In</button>
-                
-                <div class="form-footer">
-                    <a href="/forgot-password">Forgot password?</a>
-                </div>
             </form>
-            
-            <div class="auth-separator">
-                <span>OR</span>
-            </div>
             
             <div class="auth-alt">
                 <p>Don't have an account? <a href="/signup">Sign Up</a></p>
