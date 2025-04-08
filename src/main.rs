@@ -1,7 +1,19 @@
+#[macro_use]
+extern crate serde;
+#[macro_use]
+extern crate nanoid;
+#[macro_use]
+extern crate log;
+extern crate tokio;
+extern crate axum;
+extern crate tera;
+extern crate once_cell;
+extern crate env_logger;
+extern crate tower_http;
+extern crate toasty;
+
 use std::env;
 
-use axum::Router;
-use log::{debug, error, info};
 use state::AppState;
 use tokio::net::TcpListener;
 use tower_http::compression::CompressionLayer;
@@ -9,6 +21,7 @@ use tower_http::compression::CompressionLayer;
 mod routes;
 mod state;
 mod templates;
+mod db;
 
 #[tokio::main]
 async fn main() {
@@ -28,7 +41,7 @@ async fn main() {
         .gzip(true)
         .zstd(true);
 
-    let state = AppState::default();
+    let state = AppState::new().await;
     let app = routes::get_router(state).layer(comression_layer);
     let listener = TcpListener::bind(&addr).await.unwrap();
 
