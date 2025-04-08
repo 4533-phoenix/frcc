@@ -1,0 +1,531 @@
+{% extends "base.tera" %}
+
+{% block head %}
+{{ super() }}
+<style>
+    /* Scan page specific styles */
+    .scan-container {
+        display: flex;
+        height: calc(100vh - 120px); /* Account for header/footer */
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .camera-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background-color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .info-panel {
+        width: 350px;
+        background-color: var(--background-primary);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+        z-index: 10;
+    }
+    
+    .camera-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .control-btn {
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .control-btn:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.05);
+    }
+    
+    .control-icon {
+        width: 24px;
+        height: 24px;
+        background-color: white;
+    }
+    
+    .switch-camera-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+        mask-size: contain;
+        -webkit-mask-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-position: center;
+    }
+    
+    /* Loading animation */
+    .camera-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-align: center;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s ease-in-out infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Card detected animation */
+    .card-detected {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gradient-primary);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 5;
+    }
+    
+    .card-detected.visible {
+        opacity: 1;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(95, 190, 203, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(95, 190, 203, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(95, 190, 203, 0); }
+    }
+    
+    /* Info panel content styles */
+    .scan-instructions {
+        text-align: center;
+        padding: 2rem 0;
+    }
+    
+    .scan-instructions img {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1rem;
+        opacity: 0.7;
+    }
+    
+    .card-info {
+        display: none;
+    }
+    
+    .card-info.visible {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .card-image {
+        width: 100%;
+        height: 200px;
+        background: var(--gradient-primary);
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-stats {
+        margin-top: 1.5rem;
+    }
+    
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
+    }
+    
+    .stat-label {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    /* Mobile styles */
+    @media (max-width: 768px) {
+        .scan-container {
+            flex-direction: column;
+            height: calc(100vh - 70px); /* Account for smaller header on mobile */
+        }
+        
+        .info-panel {
+            width: 100%;
+            height: 40%;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(85%);
+            position: absolute;
+            bottom: 0;
+            border-radius: 20px 20px 0 0;
+            padding-top: 1rem;
+        }
+        
+        .info-panel.expanded {
+            transform: translateY(0);
+        }
+        
+        .drag-handle {
+            width: 50px;
+            height: 5px;
+            background-color: var(--background-secondary);
+            border-radius: 10px;
+            margin: 0 auto 1rem;
+        }
+        
+        /* Scroll indicators for mobile */
+        .scroll-indicator {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+        
+        .scroll-up {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .scroll-down {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .scroll-left {
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .scroll-right {
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .scroll-icon {
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary);
+            mask-size: contain;
+            -webkit-mask-size: contain;
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            mask-position: center;
+            -webkit-mask-position: center;
+        }
+        
+        .arrow-icon {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
+        }
+        
+        .arrow-up { transform: rotate(-90deg); }
+        .arrow-down { transform: rotate(90deg); }
+        .arrow-left { transform: rotate(180deg); }
+        .arrow-right { transform: rotate(0); }
+    }
+</style>
+{% endblock head %}
+
+{% block title %}Scan Cards{% endblock title %}
+
+{% block content %}
+<section class="scan-container" id="scanContainer">
+    <div class="camera-container">
+        <!-- Camera feed will be displayed here -->
+        <video id="video" autoplay playsinline></video>
+        
+        <!-- Loading indicator -->
+        <div class="camera-loading" id="cameraLoading">
+            <div class="loading-spinner"></div>
+            <p>Initializing camera...</p>
+        </div>
+        
+        <!-- Card detected notification -->
+        <div class="card-detected" id="cardDetected">
+            Card Detected!
+        </div>
+        
+        <!-- Camera controls -->
+        <div class="camera-controls">
+            <button class="control-btn" id="switchCameraBtn" aria-label="Switch camera">
+                <span class="control-icon switch-camera-icon"></span>
+            </button>
+        </div>
+        
+        <!-- Mobile scroll indicators -->
+        <div class="scroll-indicator scroll-up" id="scrollUp">
+            <span class="scroll-icon arrow-icon arrow-up"></span>
+        </div>
+        <div class="scroll-indicator scroll-right" id="scrollRight">
+            <span class="scroll-icon arrow-icon arrow-right"></span>
+        </div>
+        <div class="scroll-indicator scroll-down" id="scrollDown">
+            <span class="scroll-icon arrow-icon arrow-down"></span>
+        </div>
+        <div class="scroll-indicator scroll-left" id="scrollLeft">
+            <span class="scroll-icon arrow-icon arrow-left"></span>
+        </div>
+    </div>
+    
+    <div class="info-panel" id="infoPanel">
+        <!-- Mobile drag handle -->
+        <div class="drag-handle" id="dragHandle"></div>
+        
+        <!-- Default instructions -->
+        <div class="scan-instructions" id="scanInstructions">
+            <img src="/static/scan-icon.svg" alt="Scan icon" aria-hidden="true">
+            <h2>Scan a Card</h2>
+            <p>Point your camera at any FCC card to view its details and AR content.</p>
+        </div>
+        
+        <!-- Card information (hidden by default) -->
+        <div class="card-info" id="cardInfo">
+            <h2 id="teamName">Team Name</h2>
+            <h3 id="teamNumber">Team Number</h3>
+            
+            <div class="card-image" id="cardImage"></div>
+            
+            <p id="cardDescription">Information about the team and their robot will appear here when you scan a card.</p>
+            
+            <div class="card-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Year</span>
+                    <span id="cardYear">2023</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Competition</span>
+                    <span id="cardCompetition">Championship</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Awards</span>
+                    <span id="cardAwards">Innovation Award</span>
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <button class="btn btn-primary" id="viewArBtn">View in AR</button>
+                <button class="btn btn-secondary" id="addToCollectionBtn">Add to Collection</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM Elements
+        const video = document.getElementById('video');
+        const cameraLoading = document.getElementById('cameraLoading');
+        const cardDetected = document.getElementById('cardDetected');
+        const switchCameraBtn = document.getElementById('switchCameraBtn');
+        const infoPanel = document.getElementById('infoPanel');
+        const scanInstructions = document.getElementById('scanInstructions');
+        const cardInfo = document.getElementById('cardInfo');
+        const dragHandle = document.getElementById('dragHandle');
+        
+        // Mobile scroll indicators (only shown on mobile)
+        const scrollIndicators = document.querySelectorAll('.scroll-indicator');
+        const isMobile = window.innerWidth <= 768;
+        
+        // Camera variables
+        let currentStream = null;
+        let availableCameras = [];
+        let currentCameraIndex = 0;
+        
+        // Hide scroll indicators on desktop
+        if (!isMobile) {
+            scrollIndicators.forEach(indicator => {
+                indicator.style.display = 'none';
+            });
+        }
+        
+        // Initialize camera
+        async function initCamera() {
+            try {
+                // Get available cameras
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                availableCameras = devices.filter(device => device.kind === 'videoinput');
+                
+                // If no cameras found
+                if (availableCameras.length === 0) {
+                    throw new Error('No cameras found');
+                }
+                
+                // Start with the first camera (usually back camera on mobile)
+                await startCamera();
+                
+                // Hide loading indicator
+                cameraLoading.style.display = 'none';
+                
+                // Show switch camera button only if there are multiple cameras
+                switchCameraBtn.style.display = availableCameras.length > 1 ? 'flex' : 'none';
+            } catch (error) {
+                console.error('Error initializing camera:', error);
+                cameraLoading.innerHTML = `
+                    <p>Camera access error</p>
+                    <p class="error-message">${error.message}</p>
+                    <button class="btn btn-primary" id="retryBtn">Retry</button>
+                `;
+                document.getElementById('retryBtn').addEventListener('click', initCamera);
+            }
+        }
+        
+        // Start camera with given device ID
+        async function startCamera() {
+            // Stop any existing stream
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            
+            const constraints = {
+                video: {
+                    deviceId: availableCameras.length > 0 ? { exact: availableCameras[currentCameraIndex].deviceId } : undefined,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'environment' // Prefer back camera initially
+                }
+            };
+            
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                // Here you would initialize your tag detection logic
+                // For now, we'll just simulate detection with a timeout
+                simulateDetection();
+            } catch (error) {
+                console.error('Error starting camera:', error);
+                throw error;
+            }
+        }
+        
+        // Switch between available cameras
+        async function switchCamera() {
+            currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+            await startCamera();
+        }
+        
+        // For demo purposes - simulate detection
+        function simulateDetection() {
+            // This would be replaced by actual detection logic
+            setTimeout(() => {
+                // Show detected notification
+                cardDetected.classList.add('visible');
+                
+                // Hide instructions and show card info
+                scanInstructions.style.display = 'none';
+                cardInfo.classList.add('visible');
+                
+                // On mobile, expand info panel
+                if (isMobile) {
+                    infoPanel.classList.add('expanded');
+                }
+                
+                // Hide notification after 3 seconds
+                setTimeout(() => {
+                    cardDetected.classList.remove('visible');
+                }, 3000);
+            }, 5000); // Simulate detection after 5 seconds
+        }
+        
+        // Event listeners
+        switchCameraBtn.addEventListener('click', switchCamera);
+        
+        // Mobile: Panel expansion
+        if (isMobile) {
+            let startY = 0;
+            let currentY = 0;
+            
+            dragHandle.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+                infoPanel.style.transition = 'none'; // Disable transition during drag
+            });
+            
+            dragHandle.addEventListener('touchmove', function(e) {
+                currentY = e.touches[0].clientY;
+                const deltaY = currentY - startY;
+                
+                // Calculate new transform
+                const newTransform = Math.max(0, Math.min(85, 85 - (deltaY / infoPanel.offsetHeight * 100)));
+                infoPanel.style.transform = `translateY(${newTransform}%)`;
+            });
+            
+            dragHandle.addEventListener('touchend', function() {
+                infoPanel.style.transition = 'transform 0.3s ease';
+                
+                // If dragged more than halfway, expand fully
+                const deltaY = currentY - startY;
+                if (deltaY < 0) { // Dragged upward
+                    infoPanel.classList.add('expanded');
+                    infoPanel.style.transform = 'translateY(0)';
+                } else { // Dragged downward
+                    infoPanel.classList.remove('expanded');
+                    infoPanel.style.transform = 'translateY(85%)';
+                }
+            });
+            
+            // Handle scroll indicator fade-out
+            setTimeout(() => {
+                scrollIndicators.forEach(indicator => {
+                    indicator.style.opacity = 0;
+                    indicator.style.transition = 'opacity 1s ease';
+                });
+            }, 3000);
+        }
+        
+        // Initialize camera when page loads
+        initCamera();
+    });
+</script>
+{% endblock content %}
