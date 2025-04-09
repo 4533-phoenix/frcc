@@ -34,52 +34,28 @@
         width: 100% !important;
         height: 100% !important;
         object-fit: cover !important;
+        z-index: 1;
     }
     
     #reader__scan_region {
         display: flex;
         justify-content: center;
         align-items: center;
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     
     #reader__scan_region img {
-        display: none; /* Hide the default QR frame image */
+        display: none !important; /* Hide the default QR frame image */
     }
     
-    .scan-frame {
-        position: absolute;
-        width: 250px;
-        height: 250px;
-        border: 2px solid var(--primary);
-        border-radius: 15px;
-        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.3);
-        z-index: 2;
+    #reader__scan_region > * {
+        display: none !important;
     }
     
-    .scan-frame::before, .scan-frame::after {
-        content: "";
-        position: absolute;
-        width: 30px;
-        height: 30px;
-        border-color: var(--primary);
-        border-style: solid;
-        border-width: 0;
-    }
-    
-    .scan-frame::before {
-        top: -2px;
-        left: -2px;
-        border-top-width: 4px;
-        border-left-width: 4px;
-        border-top-left-radius: 15px;
-    }
-    
-    .scan-frame::after {
-        bottom: -2px;
-        right: -2px;
-        border-bottom-width: 4px;
-        border-right-width: 4px;
-        border-bottom-right-radius: 15px;
+    #reader__dashboard_section {
+        display: none !important;
     }
     
     /* Info panel */
@@ -319,9 +295,6 @@
         <!-- Replace the video element with a container for the QR scanner -->
         <div id="reader"></div>
         
-        <!-- Add a custom scanning frame -->
-        <div class="scan-frame" id="scanFrame"></div>
-        
         <!-- Loading indicator -->
         <div class="camera-loading" id="cameraLoading">
             <div class="loading-spinner"></div>
@@ -456,7 +429,6 @@
         const scanInstructions = document.getElementById('scanInstructions');
         const cardInfo = document.getElementById('cardInfo');
         const dragHandle = document.getElementById('dragHandle');
-        const scanFrame = document.getElementById('scanFrame');
         
         // State variables
         let html5QrCode = null;
@@ -520,19 +492,18 @@
                 // Get current camera ID
                 currentCamera = availableCameras[currentCameraIndex].id;
                 
-                // Configure scanner with improved settings
+                // Configure scanner with no QR box
                 const config = {
                     fps: 15,
-                    qrbox: { width: 250, height: 250 },
+                    qrbox: { width: 500, height: 500 },
                     aspectRatio: window.innerWidth / window.innerHeight,
                     formatsToSupport: [
                         Html5QrcodeSupportedFormats.AZTEC,
-                        Html5QrcodeSupportedFormats.QR_CODE,
-                        Html5QrcodeSupportedFormats.DATA_MATRIX
                     ],
-                    // Hide default scan type UI
+                    // Disable all UI elements
                     showTorchButtonIfSupported: false,
-                    showZoomSliderIfSupported: false
+                    showZoomSliderIfSupported: false,
+                    supportedScanTypes: []
                 };
                 
                 // Start scanning
@@ -543,13 +514,22 @@
                     handleScanError
                 );
                 
+                // Remove QR overlay after short delay (in case it gets added dynamically)
+                setTimeout(() => {
+                    const scanRegion = document.getElementById('reader__scan_region');
+                    if (scanRegion) {
+                        scanRegion.style.background = 'none';
+                        scanRegion.style.border = 'none';
+                        Array.from(scanRegion.children).forEach(child => {
+                            if (child.tagName !== 'VIDEO') {
+                                child.style.display = 'none';
+                            }
+                        });
+                    }
+                }, 300);
+                
                 isScanning = true;
                 cameraLoading.style.display = 'none';
-                
-                // Position scan frame correctly after the camera starts
-                setTimeout(() => {
-                    scanFrame.style.display = 'block';
-                }, 1000);
                 
             } catch (error) {
                 cameraLoading.innerHTML = `
