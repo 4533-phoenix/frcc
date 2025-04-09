@@ -1,3 +1,5 @@
+use std::fs::File;
+
 use toasty::stmt::Id;
 
 #[toasty::model]
@@ -112,6 +114,7 @@ pub struct Card {
 }
 
 pub async fn init_db() -> toasty::Db {
+    let fresh = !std::fs::exists("frcc.db").unwrap();
     let db = toasty::Db::builder()
         .register::<Team>()
         .register::<User>()
@@ -123,7 +126,9 @@ pub async fn init_db() -> toasty::Db {
         .await
         .unwrap();
 
-    db.reset_db().await.unwrap();
+    if fresh {
+        db.reset_db().await.unwrap();
+    }
 
     db
 }

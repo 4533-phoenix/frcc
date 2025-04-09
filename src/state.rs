@@ -14,7 +14,9 @@ impl AppState {
         let db = Arc::new(init_db().await);
         let state = Self { db };
 
-        state.create_user(None, "admin", "admin").await;
+        if User::get_by_username(&state.db, "admin").await.is_err() {
+            state.create_user(None, "admin", "admin").await;
+        }
 
 
         state

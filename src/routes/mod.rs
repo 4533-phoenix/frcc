@@ -240,7 +240,7 @@ async fn create_card(
     mut multipart: Multipart,
 ) -> impl IntoResponse {
     if let Some(team_num) = user.team_number {
-        let id = nanoid!(16);
+        let id = nanoid!(33);
 
         let mut bot_name = None;
         let mut photo = None;
