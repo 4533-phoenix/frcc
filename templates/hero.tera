@@ -351,11 +351,11 @@
 <section class="hero" aria-labelledby="hero-heading">
     <div class="container">
         <div class="hero-content">
-            <h1 id="hero-heading" class="gradient-text"><i>FIRST</i> Card Competition</h1>
+            <h1 id="hero-heading" class="gradient-text"><i>FIRST</i> Robotics Card Competition</h1>
             <p class="hero-subtitle">Collect, Share, and Experience Robotics in Augmented Reality</p>
             <div class="flex flex-gap hero-buttons">
-                <a href="/signup" class="btn btn-primary" aria-label="Get started with FIRST Card Competition">Get Started</a>
-                <a href="/about" class="btn btn-secondary" aria-label="Learn more about FIRST Card Competition">Learn More</a>
+                <a href="/signup" class="btn btn-primary" aria-label="Get started with FIRST Robotics Card Competition">Get Started</a>
+                <a href="/about" class="btn btn-secondary" aria-label="Learn more about FIRST Robotics Card Competition">Learn More</a>
             </div>
         </div>
         
@@ -369,11 +369,11 @@
             </div>
             
             <div class="hero-cards" aria-label="Interactive card display">
-                <div class="hero-card card-front" onclick="openModal('/static/front.webp')" tabindex="0" role="button" aria-label="View front of FCC card" onkeydown="handleCardKeyDown(event, '/static/front.webp')">
-                    <img src="/static/front.webp" alt="FIRST Card Competition card front - showing robot design and team information">
+                <div class="hero-card card-front" onclick="openModal('/static/front.webp')" tabindex="0" role="button" aria-label="View front of FRCC card" onkeydown="handleCardKeyDown(event, '/static/front.webp')">
+                    <img src="/static/front.webp" alt="FIRST Robotics Card Competition card front - showing robot design and team information">
                 </div>
-                <div class="hero-card card-back" onclick="openModal('/static/back.svg')" tabindex="0" role="button" aria-label="View back of FCC card" onkeydown="handleCardKeyDown(event, '/static/back.svg')">
-                    <img src="/static/back.svg" alt="FIRST Card Competition card back - showing statistical information and QR code">
+                <div class="hero-card card-back" onclick="openModal('/static/back.svg')" tabindex="0" role="button" aria-label="View back of FRCC card" onkeydown="handleCardKeyDown(event, '/static/back.svg')">
+                    <img src="/static/back.svg" alt="FIRST Robotics Card Competition card back - showing statistical information and QR code">
                 </div>
             </div>
         </div>
@@ -382,7 +382,7 @@
 
 <section class="section-alt text-center" aria-labelledby="features-heading">
     <div class="container">
-        <h2 id="features-heading" class="section-title">Discover FCC Cards</h2>
+        <h2 id="features-heading" class="section-title">Discover FRCC Cards</h2>
         <div class="grid grid-3">
             <div class="feature-card">
                 <div class="feature-icon" aria-hidden="true">📱</div>
@@ -407,10 +407,10 @@
     <div class="container">
         <div class="account-content">
             <div class="account-text">
-                <h2 id="account-heading">Experience FCC Your Way</h2>
+                <h2 id="account-heading">Experience FRCC Your Way</h2>
                 <p>Anyone can scan and view cards without an account. Experience the AR features and learn about the amazing bots in the competition.</p>
                 <p>Create a free account to collect, save, and upload new cards. Join our community of robotics enthusiasts!</p>
-                <a href="#" class="btn btn-primary" aria-label="Create your FCC account">Create Account</a>
+                <a href="#" class="btn btn-primary" aria-label="Create your FRCC account">Create Account</a>
             </div>
             <div class="account-image" aria-hidden="true">
                 <div class="gradient-card shimmer"></div>
@@ -422,8 +422,8 @@
 <section class="section-alt text-center" aria-labelledby="open-source-heading">
     <div class="container">
         <h2 id="open-source-heading">Open Source Project</h2>
-        <p>FCC is an open-source project dedicated to the robotics community. Contribute to our development on GitHub.</p>
-        <a href="#" class="btn btn-secondary" aria-label="View FCC source code on GitHub">View Source Code</a>
+        <p>FRCC is an open-source project dedicated to the robotics community. Contribute to our development on GitHub.</p>
+        <a href="#" class="btn btn-secondary" aria-label="View FRCC source code on GitHub">View Source Code</a>
     </div>
 </section>
 
@@ -445,7 +445,7 @@
             </div>
             <div class="location-text">
                 <h2 id="location-heading" class="location-heading">Crafted in Mount Pleasant, South Carolina</h2>
-                <p>The <i>FIRST</i> Card Competition website is developed near Charleston, in beautiful Mount Pleasant, South Carolina. Our team is proud to contribute to both the robotics and tech communities in the Lowcountry.</p>
+                <p>The <i>FIRST</i> Robotics Card Competition website is developed near Charleston, in beautiful Mount Pleasant, South Carolina. Our team is proud to contribute to both the robotics and tech communities in the Lowcountry.</p>
                 <p>Mount Pleasant offers a perfect blend of southern hospitality and technological innovation, inspiring our work on this platform.</p>
             </div>
         </div>

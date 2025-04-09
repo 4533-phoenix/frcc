@@ -4,7 +4,7 @@
     {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock title %} - FCC</title>
+    <title>{% block title %}{% endblock title %} - FRCC</title>
     {% endblock head %}
 
     {% include "style.tera" %}
@@ -13,8 +13,8 @@
     <header role="banner">
         <div class="container">
             <div class="logo">
-                <h1><a href="/" style="text-decoration: none; color: inherit;" class="wavy-text" aria-label="FCC Home">
-                    <span aria-hidden="true">F</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
+                <h1><a href="/" style="text-decoration: none; color: inherit;" class="wavy-text" aria-label="FRCC Home">
+                    <span aria-hidden="true">F</span><span aria-hidden="true">R</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
                 </a></h1>
             </div>
             <nav role="navigation" aria-label="Main navigation">
@@ -40,10 +40,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <h2 class="wavy-text" aria-label="FCC">
-                        <span aria-hidden="true">F</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
+                    <h2 class="wavy-text" aria-label="FRCC">
+                        <span aria-hidden="true">F</span><span aria-hidden="true">R</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
                     </h2>
-                    <p><i>FIRST</i> Card Competition</p>
+                    <p><i>FIRST</i> Robotics Card Competition</p>
                 </div>
                 <div class="footer-links">
                     <h3 id="footer-links-heading">Links</h3>
@@ -56,11 +56,11 @@
                 </div>
                 <div class="footer-open-source">
                     <h3>Open Source</h3>
-                    <p>FCC is open source! <a href="#" aria-label="View FCC source code on GitHub">View on GitHub</a></p>
+                    <p>FRCC is open source! <a href="#" aria-label="View FRCC source code on GitHub">View on GitHub</a></p>
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; {{ now() | date(format="%Y") }} <i>FIRST</i> Card Competition. All rights reserved.</p>
+                <p>&copy; {{ now() | date(format="%Y") }} <i>FIRST</i> Robotics Card Competition. All rights reserved.</p>
             </div>
         </div>
     </footer>

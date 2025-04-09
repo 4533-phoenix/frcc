@@ -28,7 +28,7 @@
         <div class="auth-container">
             <div class="auth-header">
                 <h1 id="signup-heading" class="gradient-text">Sign Up</h1>
-                <p>Create your FCC account</p>
+                <p>Create your FRCC account</p>
             </div>
             
             <form class="auth-form" action="/api/register" method="post">

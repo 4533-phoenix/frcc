@@ -118,14 +118,14 @@
     <div class="container">
         <div class="content-container rich-text">
             <div class="text-center">
-                <h1 id="about-heading" class="gradient-text">About FCC</h1>
+                <h1 id="about-heading" class="gradient-text">About FRCC</h1>
                 <p>
-                    The <i>FIRST</i> Card Competition (FCC) is an innovative platform that combines robotics and augmented reality. 
+                    The <i>FIRST</i> Robotics Card Competition (FRCC) is an innovative platform that combines robotics and augmented reality. 
                     Our mission is to create a unique experience for robotics enthusiasts by allowing them to collect, trade, 
                     and explore robotics cards in a whole new way.
                 </p>
                 <p>
-                    FCC is open source and community-driven. We believe in empowering the robotics community by providing tools 
+                    FRCC is open source and community-driven. We believe in empowering the robotics community by providing tools 
                     and resources to showcase their creativity and achievements.
                 </p>
             </div>
@@ -174,7 +174,7 @@
                             <li>All features of a standard account</li>
                             <li>Submit official cards to the database for your team</li>
                             <li>Edit or update your team's cards after submission</li>
-                            <li>Represent your team in the FCC community</li>
+                            <li>Represent your team in the FRCC community</li>
                         </ul>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                 <div class="info-box">
                     <h3>Current Limitations</h3>
                     <p>Currently, each team is limited to creating one official card per year. We're actively working on expanding this in the future with additional cards and special edition releases.</p>
-                    <p>The FCC platform is still a work in progress, and we appreciate your support as we continue to develop new features.</p>
+                    <p>The FRCC platform is still a work in progress, and we appreciate your support as we continue to develop new features.</p>
                 </div>
             </div>
             
@@ -197,7 +197,7 @@
                 <div class="team-content">
                     <div class="team-text">
                         <p>
-                            The <i>FIRST</i> Card Competition cards were originally created by <a href="https://phoenix4533.org" target="_blank" class="team-link">Team 4533 Phoenix</a> 
+                            The <i>FIRST</i> Robotics Card Competition cards were originally created by <a href="https://phoenix4533.org" target="_blank" class="team-link">Team 4533 Phoenix</a> 
                             as a way to celebrate and document robots from competitions. Years later, the same team developed this website to bring the cards into 
                             the digital age with augmented reality features.
                         </p>
@@ -214,7 +214,7 @@
             </div>
             
             <div class="text-center button-container">
-                <a href="https://github.com" class="btn btn-primary" aria-label="Contribute to FCC on GitHub">Contribute on GitHub</a>
+                <a href="https://github.com" class="btn btn-primary" aria-label="Contribute to FRCC on GitHub">Contribute on GitHub</a>
             </div>
         </div>
     </div>

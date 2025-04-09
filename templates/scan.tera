@@ -327,7 +327,7 @@
         <div class="scan-instructions" id="scanInstructions">
             <img src="/static/scan-icon.svg" alt="Scan icon" aria-hidden="true">
             <h2>Scan a Card</h2>
-            <p>Point your camera at any FCC card to view its details and AR content.</p>
+            <p>Point your camera at any FRCC card to view its details and AR content.</p>
         </div>
         
         <!-- Card information (hidden by default) -->
