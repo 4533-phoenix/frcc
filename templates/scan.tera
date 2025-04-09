@@ -2,29 +2,7 @@
 
 {% block head %}
 {{ super() }}
-<!-- Load zxing-wasm library properly with initialization check -->
-<script>
-    // Load ZXing WASM dynamically
-    let zxingLoaded = false;
-    let ZXingWASM = null;
-    
-    function loadZXingLibrary() {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = "https://unpkg.com/@zxing/library@latest";
-            script.onload = () => {
-                console.log("ZXing library loaded successfully");
-                zxingLoaded = true;
-                resolve();
-            };
-            script.onerror = () => {
-                console.error("Failed to load ZXing library");
-                reject(new Error("Failed to load barcode scanning library"));
-            };
-            document.head.appendChild(script);
-        });
-    }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/zxing-wasm@2.1.0/dist/iife/reader/index.js"></script>
 <style>
     .scan-container {
         display: flex;
@@ -203,95 +181,6 @@
         font-weight: 600;
         color: var(--primary);
     }
-    
-    @media (max-width: 768px) {
-        .scan-container {
-            flex-direction: column;
-            height: calc(100vh - 70px);
-        }
-        
-        .info-panel {
-            width: 100%;
-            height: 40%;
-            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
-            transform: translateY(85%);
-            position: absolute;
-            bottom: 0;
-            border-radius: 20px 20px 0 0;
-            padding-top: 1rem;
-        }
-        
-        .info-panel.expanded {
-            transform: translateY(0);
-        }
-        
-        .drag-handle {
-            width: 50px;
-            height: 5px;
-            background-color: var(--background-secondary);
-            border-radius: 10px;
-            margin: 0 auto 1rem;
-        }
-        
-        .scroll-indicator {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-        }
-        
-        .scroll-up {
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .scroll-down {
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .scroll-left {
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .scroll-right {
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .scroll-icon {
-            width: 20px;
-            height: 20px;
-            background-color: var(--primary);
-            mask-size: contain;
-            -webkit-mask-size: contain;
-            mask-repeat: no-repeat;
-            -webkit-mask-repeat: no-repeat;
-            mask-position: center;
-            -webkit-mask-position: center;
-        }
-        
-        .arrow-icon {
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
-        }
-        
-        .arrow-up { transform: rotate(-90deg); }
-        .arrow-down { transform: rotate(90deg); }
-        .arrow-left { transform: rotate(180deg); }
-        .arrow-right { transform: rotate(0); }
-    }
 </style>
 {% endblock head %}
 
@@ -316,26 +205,11 @@
                 <span class="control-icon switch-camera-icon"></span>
             </button>
         </div>
-        
-        <div class="scroll-indicator scroll-up" id="scrollUp">
-            <span class="scroll-icon arrow-icon arrow-up"></span>
-        </div>
-        <div class="scroll-indicator scroll-right" id="scrollRight">
-            <span class="scroll-icon arrow-icon arrow-right"></span>
-        </div>
-        <div class="scroll-indicator scroll-down" id="scrollDown">
-            <span class="scroll-icon arrow-icon arrow-down"></span>
-        </div>
-        <div class="scroll-indicator scroll-left" id="scrollLeft">
-            <span class="scroll-icon arrow-icon arrow-left"></span>
-        </div>
     </div>
     
     <div class="info-panel" id="infoPanel">
-        <div class="drag-handle" id="dragHandle"></div>
-        
         <div class="scan-instructions" id="scanInstructions">
-            <img src="/static/scan-icon.svg" alt="Scan icon" aria-hidden="true">
+            <img src="/images/aztec.svg" alt="Scan icon" aria-hidden="true">
             <h2>Scan a Card</h2>
             <p>Point your camera at any FCC card to view its details and AR content.</p>
         </div>
@@ -373,58 +247,64 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const video = document.getElementById('video');
-        const cameraLoading = document.getElementById('cameraLoading');
-        const cardDetected = document.getElementById('cardDetected');
-        const switchCameraBtn = document.getElementById('switchCameraBtn');
-        const infoPanel = document.getElementById('infoPanel');
-        const scanInstructions = document.getElementById('scanInstructions');
-        const cardInfo = document.getElementById('cardInfo');
-        const dragHandle = document.getElementById('dragHandle');
+        const elements = {
+            video: document.getElementById('video'),
+            loading: document.getElementById('cameraLoading'),
+            detected: document.getElementById('cardDetected'),
+            switchBtn: document.getElementById('switchCameraBtn'),
+            instructions: document.getElementById('scanInstructions'),
+            cardInfo: document.getElementById('cardInfo'),
+            teamName: document.getElementById('teamName'),
+            teamNumber: document.getElementById('teamNumber'),
+            description: document.getElementById('cardDescription'),
+            year: document.getElementById('cardYear'),
+            competition: document.getElementById('cardCompetition'),
+            awards: document.getElementById('cardAwards'),
+            arButton: document.getElementById('viewArBtn'),
+            collectionButton: document.getElementById('addToCollectionBtn')
+        };
         
-        const teamName = document.getElementById('teamName');
-        const teamNumber = document.getElementById('teamNumber');
-        const cardDescription = document.getElementById('cardDescription');
-        const cardYear = document.getElementById('cardYear');
-        const cardCompetition = document.getElementById('cardCompetition');
-        const cardAwards = document.getElementById('cardAwards');
+        const state = {
+            stream: null,
+            scanInterval: null,
+            cameras: [],
+            currentCamera: 0,
+            scanning: false,
+            lastScannedId: null,
+            lastScanTime: 0
+        };
+
+        // ===== CAMERA INITIALIZATION =====
         
-        const scrollIndicators = document.querySelectorAll('.scroll-indicator');
-        const isMobile = window.innerWidth <= 768;
-        
-        let currentStream = null;
-        let availableCameras = [];
-        let currentCameraIndex = 0;
-        let scanInterval = null;
-        let isScanning = false;
-        let scannerInitialized = false;
-        let codeReader = null;
-        
-        if (!isMobile) {
-            scrollIndicators.forEach(indicator => {
-                indicator.style.display = 'none';
-            });
+        async function start() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                initCamera();
+            } catch (error) {
+                elements.loading.innerHTML = `
+                    <p>Camera permission denied</p>
+                    <p class="error-message">Please allow camera access to scan cards.</p>
+                    <button class="btn btn-primary" id="retryBtn">Retry</button>
+                `;
+                document.getElementById('retryBtn').addEventListener('click', start);
+            }
         }
         
         async function initCamera() {
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
-                availableCameras = devices.filter(device => device.kind === 'videoinput');
+                state.cameras = devices.filter(device => device.kind === 'videoinput');
                 
-                if (availableCameras.length === 0) {
+                if (state.cameras.length === 0) {
                     throw new Error('No cameras found');
                 }
                 
                 await startCamera();
-                
-                cameraLoading.style.display = 'none';
-                
-                switchCameraBtn.style.display = availableCameras.length > 1 ? 'flex' : 'none';
-                
-                startBarcodeScanning();
+                elements.loading.style.display = 'none';
+                elements.switchBtn.style.display = state.cameras.length > 1 ? 'flex' : 'none';
+                startScanning();
             } catch (error) {
-                console.error('Error initializing camera:', error);
-                cameraLoading.innerHTML = `
+                elements.loading.innerHTML = `
                     <p>Camera access error</p>
                     <p class="error-message">${error.message}</p>
                     <button class="btn btn-primary" id="retryBtn">Retry</button>
@@ -434,274 +314,195 @@
         }
         
         async function startCamera() {
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
             }
             
-            if (scanInterval) {
-                clearInterval(scanInterval);
-                scanInterval = null;
+            if (state.scanInterval) {
+                clearInterval(state.scanInterval);
+                state.scanInterval = null;
             }
             
             try {
-                let constraints = {
+                const constraints = {
                     video: {
-                        facingMode: 'environment'
+                        facingMode: 'environment',
+                        deviceId: state.cameras.length > 0 && state.currentCamera >= 0 ? 
+                            { ideal: state.cameras[state.currentCamera].deviceId } : undefined
                     }
                 };
                 
-                if (availableCameras.length > 0 && currentCameraIndex >= 0 && currentCameraIndex < availableCameras.length) {
-                    constraints.video.deviceId = { ideal: availableCameras[currentCameraIndex].deviceId };
-                }
-                
-                try {
-                    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                } catch (deviceIdError) {
-                    console.warn('Could not access specific camera, trying without deviceId', deviceIdError);
-                    constraints = { video: { facingMode: 'environment' } };
-                    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                }
-                
-                video.srcObject = currentStream;
+                state.stream = await navigator.mediaDevices.getUserMedia(constraints);
+                elements.video.srcObject = state.stream;
                 
                 const devices = await navigator.mediaDevices.enumerateDevices();
-                availableCameras = devices.filter(device => device.kind === 'videoinput');
-                switchCameraBtn.style.display = availableCameras.length > 1 ? 'flex' : 'none';
+                state.cameras = devices.filter(device => device.kind === 'videoinput');
+                elements.switchBtn.style.display = state.cameras.length > 1 ? 'flex' : 'none';
                 
-                if (currentCameraIndex >= availableCameras.length) {
-                    currentCameraIndex = 0;
+                if (state.currentCamera >= state.cameras.length) {
+                    state.currentCamera = 0;
                 }
-                
-                video.onloadedmetadata = () => {
-                    if (video.readyState >= 2) {
-                        if (!isScanning) {
-                            startBarcodeScanning();
-                        }
-                    }
-                };
             } catch (error) {
-                console.error('Error starting camera:', error);
                 throw error;
             }
         }
         
         async function switchCamera() {
-            currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
-            isScanning = false;
+            state.currentCamera = (state.currentCamera + 1) % state.cameras.length;
+            state.scanning = false;
             await startCamera();
+            startScanning();
         }
         
-        function startBarcodeScanning() {
-            isScanning = true;
-            
-            scanInterval = setInterval(() => {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    // Only attempt to scan if the library is initialized
-                    if (scannerInitialized) {
-                        scanBarcode();
-                    } else {
-                        // If library isn't loaded yet, just simulate for demo
-                        simulateDetection();
-                    }
+        // ===== BARCODE SCANNING =====
+        
+        function startScanning() {
+            state.scanning = true;
+            state.scanInterval = setInterval(() => {
+                if (elements.video.readyState === elements.video.HAVE_ENOUGH_DATA) {
+                    scanBarcode();
                 }
             }, 500);
         }
         
         async function scanBarcode() {
-            if (!scannerInitialized) {
-                return;
-            }
+            if (!elements.video.videoWidth) return;
             
             try {
-                // Create canvas and get image data
                 const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                canvas.width = elements.video.videoWidth;
+                canvas.height = elements.video.videoHeight;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(elements.video, 0, 0, canvas.width, canvas.height);
                 
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 
-                // Use the ZXing library for decoding
                 try {
-                    if (!window.ZXing) {
-                        // Initialize ZXing if needed
-                        window.ZXing = await new Promise((resolve) => {
-                            const tick = () => {
-                                if (window.ZXing) {
-                                    resolve(window.ZXing);
-                                } else {
-                                    setTimeout(tick, 100);
-                                }
-                            };
-                            tick();
-                        });
+                    const results = await ZXingWASM.readBarcodes(imageData, {
+                        formats: ["Aztec"],
+                        tryHarder: true
+                    });
+                    
+                    if (results && results.length > 0) {
+                        processDetectedCode(results[0].text, results[0].format);
                     }
-                    
-                    // Create the reader if we haven't yet
-                    if (!codeReader) {
-                        const ZXing = window.ZXing;
-                        codeReader = new ZXing.BrowserMultiFormatReader();
-                    }
-                    
-                    // Process with the native ZXing library
-                    const hints = new Map();
-                    hints.set(2, true); // TRY_HARDER hint
-                    
-                    const result = codeReader.decodeFromImageData(imageData, hints);
-                    
-                    if (result) {
-                        console.log("Barcode detected:", result);
-                        handleBarcodeData(result.text, result.format);
-                    }
-                } catch (zxingError) {
-                    // Fallback to simpler detection for demo purposes
-                    console.warn("ZXing decoding failed, using fallback:", zxingError);
-                    simulateDetection();
+                } catch (error) {
+                    // Silent fail - barcode scanning errors are expected
                 }
             } catch (error) {
-                console.error('Error scanning barcode:', error);
+                // Silent fail - frame capture errors are expected
             }
         }
         
-        // Simulate detection for demo purposes when scanner fails
-        function simulateDetection() {
-            // Check if we should simulate a detection (20% chance)
-            if (Math.random() < 0.02) { // Lower probability to avoid constant detections
-                console.log("Simulating a barcode detection");
-                const demoData = {
-                    team_name: "FRC Team 4533",
-                    team_number: "4533",
-                    description: "A competitive robotics team from Mount Pleasant, SC, founded in 2013.",
-                    year: "2023",
-                    competition: "FIRST Championship - Houston",
-                    awards: "Innovation Award"
-                };
-                showCardDetected(demoData);
-            }
-        }
+        // ===== CARD DATA PROCESSING =====
         
-        function handleBarcodeData(data, format) {
+        function processDetectedCode(text, format) {
             try {
-                let cardData;
-                try {
-                    cardData = JSON.parse(data);
-                } catch (e) {
-                    cardData = { id: data, format: format };
+                if (!text.startsWith('FRCC-')) return;
+                
+                const cardId = text.substring(5);
+                
+                // Debounce scanning - don't process same card repeatedly
+                const now = Date.now();
+                if (state.lastScannedId === cardId && now - state.lastScanTime < 5000) {
+                    return;
                 }
                 
-                showCardDetected(cardData);
+                // Update debounce tracking
+                state.lastScannedId = cardId;
+                state.lastScanTime = now;
                 
+                requestCardData(cardId);
             } catch (error) {
-                console.error('Error processing barcode data:', error);
+                // Silent fail
             }
         }
         
-        function showCardDetected(cardData) {
-            if (cardData.team_name) teamName.textContent = cardData.team_name;
-            if (cardData.team_number) teamNumber.textContent = `Team ${cardData.team_number}`;
-            if (cardData.description) cardDescription.textContent = cardData.description;
-            if (cardData.year) cardYear.textContent = cardData.year;
-            if (cardData.competition) cardCompetition.textContent = cardData.competition;
-            if (cardData.awards) cardAwards.textContent = cardData.awards;
+        function requestCardData(cardId) {
+            elements.detected.textContent = "Card Found!";
+            elements.detected.classList.add('visible');
             
-            cardDetected.classList.add('visible');
+            // Simulate network delay
+            setTimeout(() => {
+                const cardData = getCardData(cardId);
+                displayCardData(cardData);
+            }, 500);
+        }
+        
+        function getCardData(cardId) {
+            // Generate data based on card ID
+            const teamNumber = cardId.replace(/\D/g, '') || Math.floor(Math.random() * 9000) + 1000;
             
-            scanInstructions.style.display = 'none';
-            cardInfo.classList.add('visible');
+            const defaultData = {
+                team_name: `Team ${teamNumber}`,
+                team_number: teamNumber,
+                description: `This is team ${teamNumber}'s robot for the 2023 season.`,
+                year: "2023",
+                competition: "FIRST Championship",
+                awards: "Innovation Award"
+            };
             
-            if (isMobile) {
-                infoPanel.classList.add('expanded');
-            }
+            // Special team data
+            const specialTeams = {
+                "254": {
+                    team_name: "The Cheesy Poofs",
+                    description: "Team 254, The Cheesy Poofs, is a FIRST Robotics Competition (FRC) team from San Jose, California. Known for their excellence in robot design and competitive success.",
+                    awards: "Championship Winners"
+                },
+                "0254": {
+                    team_name: "The Cheesy Poofs",
+                    description: "Team 254, The Cheesy Poofs, is a FIRST Robotics Competition (FRC) team from San Jose, California. Known for their excellence in robot design and competitive success.",
+                    awards: "Championship Winners"
+                },
+                "4533": {
+                    team_name: "Phoenix",
+                    description: "Team 4533, Phoenix, from Mount Pleasant, South Carolina. Creators of the FRCC card system and website.",
+                    year: "2024"
+                }
+            };
+            
+            return specialTeams[cardId] ? { ...defaultData, ...specialTeams[cardId] } : defaultData;
+        }
+        
+        function displayCardData(cardData) {
+            elements.teamName.textContent = cardData.team_name || "Team Name";
+            elements.teamNumber.textContent = cardData.team_number ? `Team ${cardData.team_number}` : "Team Number";
+            elements.description.textContent = cardData.description || "No description available";
+            elements.year.textContent = cardData.year || "N/A";
+            elements.competition.textContent = cardData.competition || "N/A";
+            elements.awards.textContent = cardData.awards || "None";
+            
+            elements.instructions.style.display = 'none';
+            elements.cardInfo.classList.add('visible');
+            
+            clearInterval(state.scanInterval);
+            state.scanInterval = null;
+            
+            setupCardButtons(cardData);
             
             setTimeout(() => {
-                cardDetected.classList.remove('visible');
-            }, 3000);
-            
-            clearInterval(scanInterval);
-            scanInterval = null;
-            
-            setTimeout(() => {
-                if (!scanInterval && isScanning) {
-                    startBarcodeScanning();
+                if (state.scanning) {
+                    startScanning();
                 }
             }, 5000);
         }
         
-        async function requestPermissions() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                initCamera();
-            } catch (error) {
-                console.error('Permission error:', error);
-                cameraLoading.innerHTML = `
-                    <p>Camera permission denied</p>
-                    <p class="error-message">Please allow camera access to scan cards.</p>
-                    <button class="btn btn-primary" id="retryBtn">Retry</button>
-                `;
-                document.getElementById('retryBtn').addEventListener('click', requestPermissions);
-            }
+        function setupCardButtons(cardData) {
+            elements.collectionButton.onclick = function() {
+                this.disabled = true;
+                this.textContent = "Added to Collection";
+                this.classList.remove('btn-secondary');
+                this.classList.add('btn-primary');
+            };
+            
+            elements.arButton.onclick = function() {
+                alert(`AR view for Team ${cardData.team_number} would launch here`);
+            };
         }
         
-        // Load ZXing library
-        loadZXingLibrary()
-            .then(() => {
-                console.log("ZXing library initialized and ready");
-                scannerInitialized = true;
-            })
-            .catch(error => {
-                console.error("Error initializing ZXing:", error);
-                cameraLoading.innerHTML = `
-                    <p>Failed to load barcode scanner</p>
-                    <p class="error-message">${error.message}</p>
-                    <button class="btn btn-primary" id="reloadBtn">Reload Scanner</button>
-                `;
-                document.getElementById('reloadBtn').addEventListener('click', () => {
-                    window.location.reload();
-                });
-            });
+        elements.switchBtn.addEventListener('click', switchCamera);
         
-        switchCameraBtn.addEventListener('click', switchCamera);
-        
-        if (isMobile) {
-            let startY = 0;
-            let currentY = 0;
-            
-            dragHandle.addEventListener('touchstart', function(e) {
-                startY = e.touches[0].clientY;
-                infoPanel.style.transition = 'none';
-            });
-            
-            dragHandle.addEventListener('touchmove', function(e) {
-                currentY = e.touches[0].clientY;
-                const deltaY = currentY - startY;
-                
-                const newTransform = Math.max(0, Math.min(85, 85 - (deltaY / infoPanel.offsetHeight * 100)));
-                infoPanel.style.transform = `translateY(${newTransform}%)`;
-            });
-            
-            dragHandle.addEventListener('touchend', function() {
-                infoPanel.style.transition = 'transform 0.3s ease';
-                
-                const deltaY = currentY - startY;
-                if (deltaY < 0) {
-                    infoPanel.classList.add('expanded');
-                    infoPanel.style.transform = 'translateY(0)';
-                } else {
-                    infoPanel.classList.remove('expanded');
-                    infoPanel.style.transform = 'translateY(85%)';
-                }
-            });
-            
-            setTimeout(() => {
-                scrollIndicators.forEach(indicator => {
-                    indicator.style.opacity = 0;
-                    indicator.style.transition = 'opacity 1s ease';
-                });
-            }, 3000);
-        }
-        
-        requestPermissions();
+        start();
     });
 </script>
 {% endblock content %}
