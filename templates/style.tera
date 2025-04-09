@@ -720,6 +720,265 @@
         font-size: 0.95rem;
     }
 
+    /* Page Headers */
+    .page-header {
+        background: var(--gradient-primary);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        box-shadow: var(--card-shadow);
+        color: white;
+    }
+    
+    /* Profile Components */
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .user-info h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Badge Components */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .badge-icon {
+        margin-right: 0.5rem;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background-color: currentColor;
+        mask-size: contain;
+        -webkit-mask-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-position: center;
+    }
+    
+    .badge.success {
+        background: rgba(77, 218, 110, 0.2);
+    }
+    
+    .badge.success .badge-icon {
+        background-color: rgba(77, 218, 110, 1);
+    }
+    
+    .badge.warning {
+        background: rgba(255, 193, 7, 0.2);
+    }
+    
+    .badge.warning .badge-icon {
+        background-color: rgba(255, 193, 7, 1);
+    }
+    
+    /* Stats Cards Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Stat Card */
+    .stat-card {
+        background-color: var(--background-primary);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: var(--gradient-primary);
+        opacity: 0.1;
+        border-radius: 0 0 0 100%;
+        z-index: 0;
+    }
+    
+    .stat-card-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        color: var(--secondary);
+    }
+    
+    .stat-card-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card-desc {
+        font-size: 0.9rem;
+        color: var(--text);
+        opacity: 0.7;
+    }
+    
+    /* Action Cards Grid */
+    .action-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Action Card */
+    .action-card {
+        background-color: var(--background-primary);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .action-card-header {
+        padding: 1.5rem;
+        background: var(--gradient-primary);
+        color: white;
+        position: relative;
+    }
+    
+    .action-card-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .action-card-header svg {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: 24px;
+        height: 24px;
+        opacity: 0.8;
+    }
+    
+    .action-card-body {
+        padding: 1.5rem;
+        flex: 1;
+    }
+    
+    .action-card-desc {
+        margin-bottom: 1.5rem;
+        color: var(--text);
+    }
+    
+    /* Activity Feed */
+    .activity-feed {
+        background-color: var(--background-primary);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .activity-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(95, 190, 203, 0.1);
+        display: flex;
+        align-items: center;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        background-color: rgba(95, 190, 203, 0.1);
+        border-radius: 50%;
+        margin-right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .activity-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: var(--primary);
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: bold;
+        margin-bottom: 0.3rem;
+    }
+    
+    .activity-time {
+        font-size: 0.8rem;
+        color: var(--secondary);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .user-profile {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .badge {
+            margin-top: 1rem;
+        }
+    }
+
     /* Responsive Breakpoints */
     @media (max-width: 992px) {
         .grid-2 {

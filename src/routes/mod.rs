@@ -26,6 +26,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/cards", get(cards))
         .route("/scan", get(scan))
         .nest("/api", get_api_router(state))
+        .route("/dashboard", get(dashboard))
         .fallback_service(ServeDir::new(PathBuf::from("public")))
 }
 
@@ -90,6 +91,25 @@ async fn signup() -> impl IntoResponse {
 
 async fn cards() -> impl IntoResponse {
     let content = TEMPLATES.render("cards.tera", &Context::new()).unwrap();
+    Response::builder()
+        .header("Content-Type", "text/html")
+        .body(content)
+        .unwrap()
+}
+
+async fn dashboard() -> impl IntoResponse {
+    // In a real application, we would fetch this data from a database
+    // based on the authenticated user's session
+    let mut context = Context::new();
+    context.insert("user_name", "John Doe");
+    context.insert("profile_pic", "/images/default-profile.png");
+    context.insert("cards_collected", "42");
+    context.insert("has_team", "true");
+    context.insert("team_name", "Awesome Team");
+    context.insert("team_number", "123");
+    context.insert("is_verified", "true");
+    
+    let content = TEMPLATES.render("dashboard.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
