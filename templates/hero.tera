@@ -78,7 +78,7 @@
     /* Card switch button */
     .card-switch-container {
         width: 100%;
-        display: flex;
+        display: none; /* Hide by default on desktop */
         justify-content: center;
         margin-top: 420px;  /* Position below the cards */
     }
@@ -220,8 +220,126 @@
     }
     
     @media (max-width: 768px) {
+        .hero {
+            padding: 4rem 0 6rem;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .hero-cards {
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .hero-card {
+            width: 220px;
+            height: 320px;
+        }
+        
+        .card-front {
+            transform: rotateY(15deg) translateZ(30px);
+        }
+        
+        .card-back {
+            transform: rotateY(-5deg) translateZ(-30px) translateX(70px);
+        }
+        
+        .hero-cards.swapped .card-front {
+            transform: rotateY(-5deg) translateZ(-30px) translateX(70px);
+        }
+        
+        .hero-cards.swapped .card-back {
+            transform: rotateY(15deg) translateZ(30px);
+        }
+        
+        .account-content,
         .location-container {
             grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+    
+    /* Hero Cards Mobile Layout - ONE CARD AT A TIME */
+    @media (max-width: 576px) {
+        .hero {
+            padding: 3rem 0 4rem;
+        }
+        
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+        
+        /* Mobile Single Card Display */
+        .hero-cards {
+            height: 240px;  /* Fixed height for container */
+            perspective: none;
+            position: relative;
+            width: 100%;
+            max-width: 180px;
+            margin: 2rem auto;
+            /* Remove transform origins and perspective */
+            transform: none !important;
+            transform-style: flat;
+        }
+        
+        /* Card switch container above the cards */
+        .card-switch-container {
+            margin: 0 0 1rem 0;
+            order: -1;
+            text-align: center;
+            display: flex; /* Show only on mobile */
+        }
+        
+        .card-switch-btn {
+            padding: 8px 20px;
+        }
+        
+        .hero-card {
+            position: absolute;  /* Position absolutely within container */
+            width: 100%;         /* Take full width of container */
+            height: 240px;       /* Fixed height */
+            left: 50%;           /* Center horizontally */
+            top: 0;
+            transform: translateX(-50%) !important; /* Center horizontally while preserving other properties */
+            animation: none !important; /* Force no animations */
+            filter: none !important;    /* Force no filters */
+            transition: opacity 0.3s ease !important; /* Only transition opacity */
+        }
+        
+        /* Hide the back card by default */
+        .hero-card.card-back {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* When swapped, show back card and hide front card */
+        .hero-cards.swapped .card-front {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .hero-cards.swapped .card-back {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Smaller cards on tiny screens */
+        @media (max-width: 360px) {
+            .hero-cards, .hero-card {
+                height: 200px;
+            }
+        }
+    }
+    
+    @media (max-width: 380px) {
+        .hero-cards {
+            max-width: 160px;
         }
     }
 </style>
@@ -240,18 +358,23 @@
                 <a href="/about" class="btn btn-secondary" aria-label="Learn more about FIRST Card Competition">Learn More</a>
             </div>
         </div>
-        <div class="hero-cards" aria-label="Interactive card display">
-            <div class="hero-card card-front" onclick="openModal('/static/front.webp')" tabindex="0" role="button" aria-label="View front of FCC card" onkeydown="handleCardKeyDown(event, '/static/front.webp')">
-                <img src="/static/front.webp" alt="FIRST Card Competition card front - showing robot design and team information">
-            </div>
-            <div class="hero-card card-back" onclick="openModal('/static/back.svg')" tabindex="0" role="button" aria-label="View back of FCC card" onkeydown="handleCardKeyDown(event, '/static/back.svg')">
-                <img src="/static/back.svg" alt="FIRST Card Competition card back - showing statistical information and QR code">
-            </div>
+        
+        <!-- Wrap the cards and switch button in a flex container on mobile -->
+        <div class="hero-cards-container">
             <div class="card-switch-container">
-                <button class="card-switch-btn" id="cardSwitchBtn" aria-label="Switch card positions">
+                <button class="card-switch-btn" id="cardSwitchBtn" aria-label="Flip to see other side of card">
                     <span class="card-switch-icon"></span>
-                    Flip Cards
+                    Flip Card
                 </button>
+            </div>
+            
+            <div class="hero-cards" aria-label="Interactive card display">
+                <div class="hero-card card-front" onclick="openModal('/static/front.webp')" tabindex="0" role="button" aria-label="View front of FCC card" onkeydown="handleCardKeyDown(event, '/static/front.webp')">
+                    <img src="/static/front.webp" alt="FIRST Card Competition card front - showing robot design and team information">
+                </div>
+                <div class="hero-card card-back" onclick="openModal('/static/back.svg')" tabindex="0" role="button" aria-label="View back of FCC card" onkeydown="handleCardKeyDown(event, '/static/back.svg')">
+                    <img src="/static/back.svg" alt="FIRST Card Competition card back - showing statistical information and QR code">
+                </div>
             </div>
         </div>
     </div>
@@ -393,32 +516,83 @@
         }
     }
 
-    // Card switching functionality
+    // Simplified card switching for mobile - ONE CARD AT A TIME
     document.addEventListener('DOMContentLoaded', function() {
         const heroCards = document.querySelector('.hero-cards');
         const switchBtn = document.getElementById('cardSwitchBtn');
+        const isMobile = window.innerWidth <= 576;
+        const cardFront = document.querySelector('.card-front');
+        const cardBack = document.querySelector('.card-back');
+        
+        // Display button only on mobile
+        const cardSwitchContainer = document.querySelector('.card-switch-container');
+        if (isMobile) {
+            cardSwitchContainer.style.display = 'flex';
+            switchBtn.innerHTML = '<span class="card-switch-icon"></span> Flip Card';
+        } else {
+            cardSwitchContainer.style.display = 'none';
+        }
         
         switchBtn.addEventListener('click', function() {
-            // Toggle swapped class
-            heroCards.classList.toggle('swapped');
-            // Toggle active class on button for visual feedback
+            // Toggle active class on button
             this.classList.toggle('active');
             
-            // Update accessibility label
-            const isSwapped = heroCards.classList.contains('swapped');
-            this.setAttribute('aria-label', isSwapped ? 'Return cards to original positions' : 'Switch card positions');
+            // Toggle swapped class on the cards container
+            heroCards.classList.toggle('swapped');
             
-            // Optional: Announce to screen readers that cards were swapped
+            // Update accessibility attributes
+            const isSwapped = heroCards.classList.contains('swapped');
+            
+            // Update button text based on which card is showing
+            if (isMobile) {
+                this.setAttribute('aria-label', isSwapped ? 'Show front of card' : 'Show back of card');
+            } else {
+                this.setAttribute('aria-label', isSwapped ? 'Return cards to original positions' : 'Switch card positions');
+            }
+            
+            // Update tab order for better accessibility
+            if (isSwapped) {
+                cardFront.setAttribute('tabindex', '-1');
+                cardBack.setAttribute('tabindex', '0');
+                // Focus on the back card when it becomes visible (on mobile)
+                if (isMobile) cardBack.focus();
+            } else {
+                cardFront.setAttribute('tabindex', '0');
+                cardBack.setAttribute('tabindex', '-1');
+                // Focus on the front card when it becomes visible (on mobile)
+                if (isMobile) cardFront.focus();
+            }
+            
+            // Announcement for screen readers
             const announcement = document.createElement('div');
             announcement.className = 'sr-only';
             announcement.setAttribute('aria-live', 'polite');
-            announcement.textContent = isSwapped ? 'Cards have been flipped' : 'Cards have returned to original positions';
+            announcement.textContent = isSwapped ? 'Showing back of card' : 'Showing front of card';
             document.body.appendChild(announcement);
             
-            // Remove announcement after it's been read
             setTimeout(() => {
                 document.body.removeChild(announcement);
             }, 1000);
+        });
+        
+        // Set initial tab order
+        cardFront.setAttribute('tabindex', '0');
+        cardBack.setAttribute('tabindex', '-1');
+        
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            const newIsMobile = window.innerWidth <= 576;
+            
+            // Update button visibility on resize
+            if (newIsMobile) {
+                cardSwitchContainer.style.display = 'flex';
+            } else {
+                cardSwitchContainer.style.display = 'none';
+            }
+            
+            if (newIsMobile !== isMobile) {
+                location.reload(); // Refresh to apply correct layout
+            }
         });
     });
 </script>

@@ -10,8 +10,6 @@
     {% include "style.tera" %}
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
     <header role="banner">
         <div class="container">
             <div class="logo">
@@ -20,7 +18,10 @@
                 </a></h1>
             </div>
             <nav role="navigation" aria-label="Main navigation">
-                <ul>
+                <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Toggle menu">
+                    <span class="menu-icon"></span>
+                </button>
+                <ul id="main-menu">
                     <li><a href="/">Home</a></li>
                     <li><a href="/cards">Cards</a></li>
                     <li><a href="/scan">Scan</a></li>
@@ -63,5 +64,102 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Improved mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const mainMenu = document.getElementById('main-menu');
+            
+            if (!menuToggle || !mainMenu) {
+                console.error('Mobile menu elements not found');
+                return;
+            }
+            
+            // Function to check if we're in mobile view
+            function isMobileView() {
+                return window.innerWidth <= 768;
+            }
+            
+            // Function to set proper menu state based on screen size
+            function updateMenuState() {
+                if (isMobileView()) {
+                    // We're in mobile view
+                    menuToggle.style.display = 'block';
+                    
+                    // If menu was active on desktop, close it when going to mobile
+                    if (!mainMenu.classList.contains('active')) {
+                        mainMenu.style.display = 'none';
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                } else {
+                    // We're in desktop view
+                    menuToggle.style.display = 'none';
+                    
+                    // Always show menu on desktop and remove any mobile-specific classes
+                    mainMenu.style.display = 'flex';
+                    mainMenu.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+            
+            // Initialize menu state
+            updateMenuState();
+            
+            // Toggle menu when button is clicked
+            menuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
+                
+                const expanded = this.getAttribute('aria-expanded') === 'true';
+                
+                // Toggle the expanded state
+                this.setAttribute('aria-expanded', !expanded);
+                mainMenu.classList.toggle('active');
+                
+                // Update display property explicitly
+                if (mainMenu.classList.contains('active')) {
+                    mainMenu.style.display = 'flex';
+                } else if (isMobileView()) {
+                    // Only hide if we're in mobile view
+                    setTimeout(() => {
+                        if (!mainMenu.classList.contains('active')) {
+                            mainMenu.style.display = 'none';
+                        }
+                    }, 300); // Match the CSS transition time
+                }
+                
+                document.body.classList.toggle('menu-open');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (isMobileView() && 
+                    mainMenu.classList.contains('active') && 
+                    !mainMenu.contains(e.target) && 
+                    !menuToggle.contains(e.target)) {
+                    
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    mainMenu.classList.remove('active');
+                    
+                    setTimeout(() => {
+                        if (!mainMenu.classList.contains('active') && isMobileView()) {
+                            mainMenu.style.display = 'none';
+                        }
+                    }, 300); // Match the CSS transition time
+                    
+                    document.body.classList.remove('menu-open');
+                }
+            });
+            
+            // Handle window resize events
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(updateMenuState, 100); // Throttle the resize handler
+            });
+        });
+    </script>
 </body>
 </html>
