@@ -26,8 +26,9 @@ pub fn get_router(state: AppState) -> Router {
         .route("/signup", get(signup))
         .route("/cards", get(cards))
         .route("/scan", get(scan))
-        .nest("/api", get_api_router(state))
         .route("/dashboard", get(dashboard))
+        .with_state(state.clone())
+        .nest("/api", get_api_router(state))
         .fallback_service(ServeDir::new(PathBuf::from("public")))
 }
 
@@ -98,13 +99,13 @@ async fn cards() -> impl IntoResponse {
         .unwrap()
 }
 
-async fn dashboard() -> impl IntoResponse {
+async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
     // In a real application, we would fetch this data from a database
     // based on the authenticated user's session
     let mut context = Context::new();
-    context.insert("user_name", "John Doe");
+    context.insert("user_name", &user.username);
     context.insert("profile_pic", "/images/default-profile.png");
-    context.insert("cards_collected", "42");
+    context.insert("cards_collected", &user.cards().all(&state.db).await.unwrap().collect::<Vec<_>>().await.unwrap().len().to_string());
     context.insert("has_team", "true");
     context.insert("team_name", "Awesome Team");
     context.insert("team_number", "123");
@@ -138,7 +139,10 @@ async fn login(
             .unwrap()
             .into_response()
     } else {
-        jar = jar.add(Cookie::new("token", state.register_token(&user).await));
+        let mut cookie = Cookie::new("token", state.register_token(&user).await);
+        cookie.set_path("/");
+        cookie.make_permanent();
+        jar = jar.add(cookie);
 
         (jar, Redirect::to("/").into_response()).into_response()
     }
