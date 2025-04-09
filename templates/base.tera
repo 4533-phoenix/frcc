@@ -66,99 +66,82 @@
     </footer>
 
     <script>
-        // Improved mobile menu toggle functionality
+        // Simplified mobile menu toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
             const menuToggle = document.querySelector('.mobile-menu-toggle');
             const mainMenu = document.getElementById('main-menu');
             
-            if (!menuToggle || !mainMenu) {
-                console.error('Mobile menu elements not found');
-                return;
-            }
+            if (!menuToggle || !mainMenu) return;
             
-            // Function to check if we're in mobile view
-            function isMobileView() {
-                return window.innerWidth <= 768;
-            }
+            // Variables for menu state
+            const isMobile = () => window.innerWidth <= 768;
             
-            // Function to set proper menu state based on screen size
+            // Initial setup
             function updateMenuState() {
-                if (isMobileView()) {
-                    // We're in mobile view
-                    menuToggle.style.display = 'block';
-                    
-                    // If menu was active on desktop, close it when going to mobile
-                    if (!mainMenu.classList.contains('active')) {
-                        mainMenu.style.display = 'none';
-                        menuToggle.setAttribute('aria-expanded', 'false');
-                    }
-                } else {
-                    // We're in desktop view
-                    menuToggle.style.display = 'none';
-                    
-                    // Always show menu on desktop and remove any mobile-specific classes
+                // On mobile: show toggle, hide menu by default
+                // On desktop: hide toggle, show menu
+                menuToggle.style.display = isMobile() ? 'block' : 'none';
+                
+                if (!isMobile()) {
                     mainMenu.style.display = 'flex';
                     mainMenu.classList.remove('active');
                     document.body.classList.remove('menu-open');
                     menuToggle.setAttribute('aria-expanded', 'false');
+                } else if (!mainMenu.classList.contains('active')) {
+                    mainMenu.style.display = 'none';
                 }
             }
             
-            // Initialize menu state
-            updateMenuState();
-            
-            // Toggle menu when button is clicked
+            // Toggle menu on button click
             menuToggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                e.stopPropagation(); // Prevent event bubbling
+                e.stopPropagation();
                 
-                const expanded = this.getAttribute('aria-expanded') === 'true';
+                const willExpand = this.getAttribute('aria-expanded') !== 'true';
+                this.setAttribute('aria-expanded', willExpand);
                 
-                // Toggle the expanded state
-                this.setAttribute('aria-expanded', !expanded);
                 mainMenu.classList.toggle('active');
+                document.body.classList.toggle('menu-open');
                 
-                // Update display property explicitly
-                if (mainMenu.classList.contains('active')) {
+                if (willExpand) {
                     mainMenu.style.display = 'flex';
-                } else if (isMobileView()) {
-                    // Only hide if we're in mobile view
+                } else if (isMobile()) {
                     setTimeout(() => {
                         if (!mainMenu.classList.contains('active')) {
                             mainMenu.style.display = 'none';
                         }
-                    }, 300); // Match the CSS transition time
+                    }, 300);
                 }
-                
-                document.body.classList.toggle('menu-open');
             });
             
-            // Close menu when clicking outside
+            // Close when clicking outside
             document.addEventListener('click', function(e) {
-                if (isMobileView() && 
+                if (isMobile() && 
                     mainMenu.classList.contains('active') && 
                     !mainMenu.contains(e.target) && 
                     !menuToggle.contains(e.target)) {
                     
                     menuToggle.setAttribute('aria-expanded', 'false');
                     mainMenu.classList.remove('active');
+                    document.body.classList.remove('menu-open');
                     
                     setTimeout(() => {
-                        if (!mainMenu.classList.contains('active') && isMobileView()) {
+                        if (!mainMenu.classList.contains('active') && isMobile()) {
                             mainMenu.style.display = 'none';
                         }
-                    }, 300); // Match the CSS transition time
-                    
-                    document.body.classList.remove('menu-open');
+                    }, 300);
                 }
             });
             
-            // Handle window resize events
+            // Handle window resize with debouncing
             let resizeTimer;
             window.addEventListener('resize', function() {
                 clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(updateMenuState, 100); // Throttle the resize handler
+                resizeTimer = setTimeout(updateMenuState, 100);
             });
+            
+            // Initial setup
+            updateMenuState();
         });
     </script>
 </body>

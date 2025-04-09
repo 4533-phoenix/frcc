@@ -369,11 +369,11 @@
             </div>
             
             <div class="hero-cards" aria-label="Interactive card display">
-                <div class="hero-card card-front" onclick="openModal('/static/front.webp')" tabindex="0" role="button" aria-label="View front of FRCC card" onkeydown="handleCardKeyDown(event, '/static/front.webp')">
-                    <img src="/static/front.webp" alt="FIRST Robotics Card Competition card front - showing robot design and team information">
+                <div class="hero-card card-front" onclick="openModal('/images/front.webp')" tabindex="0" role="button" aria-label="View front of FRCC card" onkeydown="handleCardKeyDown(event, '/images/front.webp')">
+                    <img src="/images/front.webp" alt="FIRST Robotics Card Competition card front - showing robot design and team information">
                 </div>
-                <div class="hero-card card-back" onclick="openModal('/static/back.svg')" tabindex="0" role="button" aria-label="View back of FRCC card" onkeydown="handleCardKeyDown(event, '/static/back.svg')">
-                    <img src="/static/back.svg" alt="FIRST Robotics Card Competition card back - showing statistical information and QR code">
+                <div class="hero-card card-back" onclick="openModal('/images/back.svg')" tabindex="0" role="button" aria-label="View back of FRCC card" onkeydown="handleCardKeyDown(event, '/images/back.svg')">
+                    <img src="/images/back.svg" alt="FIRST Robotics Card Competition card back - showing statistical information and QR code">
                 </div>
             </div>
         </div>

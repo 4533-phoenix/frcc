@@ -3,50 +3,96 @@
 {% block head %}
 {{ super() }}
 <style>
-    /* Scan page specific styles */
+    /* Simplified scan page styles */
     .scan-container {
         display: flex;
-        height: calc(100vh - 120px); /* Account for header/footer */
+        height: calc(100vh - 120px);
         position: relative;
         overflow: hidden;
     }
     
+    /* Camera section */
     .camera-container {
         flex: 1;
         position: relative;
-        overflow: hidden;
         background-color: #000;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
     }
     
-    #video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+    #reader {
+        width: 100% !important;
+        height: 100% !important;
+        position: absolute !important;
+        top: 0;
+        left: 0;
     }
     
+    #reader video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
+    
+    #reader__scan_region {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    #reader__scan_region img {
+        display: none; /* Hide the default QR frame image */
+    }
+    
+    .scan-frame {
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        border: 2px solid var(--primary);
+        border-radius: 15px;
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.3);
+        z-index: 2;
+    }
+    
+    .scan-frame::before, .scan-frame::after {
+        content: "";
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-color: var(--primary);
+        border-style: solid;
+        border-width: 0;
+    }
+    
+    .scan-frame::before {
+        top: -2px;
+        left: -2px;
+        border-top-width: 4px;
+        border-left-width: 4px;
+        border-top-left-radius: 15px;
+    }
+    
+    .scan-frame::after {
+        bottom: -2px;
+        right: -2px;
+        border-bottom-width: 4px;
+        border-right-width: 4px;
+        border-bottom-right-radius: 15px;
+    }
+    
+    /* Info panel */
     .info-panel {
         width: 350px;
         background-color: var(--background-primary);
         box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
         padding: 2rem;
         overflow-y: auto;
-        transition: transform 0.3s ease;
         z-index: 10;
     }
     
-    .camera-controls {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 5;
-        display: flex;
-        gap: 1rem;
-    }
-    
+    /* Controls and indicators */
     .control-btn {
         background: rgba(0, 0, 0, 0.6);
         color: white;
@@ -70,11 +116,6 @@
         width: 24px;
         height: 24px;
         background-color: white;
-    }
-    
-    .switch-camera-icon {
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
         mask-size: contain;
         -webkit-mask-size: contain;
         mask-repeat: no-repeat;
@@ -83,7 +124,22 @@
         -webkit-mask-position: center;
     }
     
-    /* Loading animation */
+    .camera-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .switch-camera-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+    }
+    
+    /* Loading and detection states */
     .camera-loading {
         position: absolute;
         top: 50%;
@@ -103,11 +159,8 @@
         margin: 0 auto 1rem;
     }
     
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     
-    /* Card detected animation */
     .card-detected {
         position: absolute;
         top: 20px;
@@ -134,16 +187,17 @@
         100% { box-shadow: 0 0 0 0 rgba(95, 190, 203, 0); }
     }
     
-    /* Info panel content styles */
+    /* Panel content */
     .scan-instructions {
         text-align: center;
         padding: 2rem 0;
     }
     
-    .scan-instructions img {
+    .scan-instructions svg {
         width: 100px;
         height: 100px;
         margin: 0 auto 1rem;
+        color: var(--primary);
         opacity: 0.7;
     }
     
@@ -189,7 +243,7 @@
     @media (max-width: 768px) {
         .scan-container {
             flex-direction: column;
-            height: calc(100vh - 70px); /* Account for smaller header on mobile */
+            height: calc(100vh - 70px);
         }
         
         .info-panel {
@@ -201,6 +255,7 @@
             bottom: 0;
             border-radius: 20px 20px 0 0;
             padding-top: 1rem;
+            transition: transform 0.3s ease;
         }
         
         .info-panel.expanded {
@@ -215,7 +270,7 @@
             margin: 0 auto 1rem;
         }
         
-        /* Scroll indicators for mobile */
+        /* Scroll indicators */
         .scroll-indicator {
             position: absolute;
             width: 40px;
@@ -229,45 +284,23 @@
             z-index: 5;
         }
         
-        .scroll-up {
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .scroll-down {
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .scroll-left {
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .scroll-right {
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
+        .scroll-up { top: 20px; left: 50%; transform: translateX(-50%); }
+        .scroll-down { bottom: 20px; left: 50%; transform: translateX(-50%); }
+        .scroll-left { left: 20px; top: 50%; transform: translateY(-50%); }
+        .scroll-right { right: 20px; top: 50%; transform: translateY(-50%); }
         
         .scroll-icon {
             width: 20px;
             height: 20px;
             background-color: var(--primary);
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
             mask-size: contain;
             -webkit-mask-size: contain;
             mask-repeat: no-repeat;
             -webkit-mask-repeat: no-repeat;
             mask-position: center;
             -webkit-mask-position: center;
-        }
-        
-        .arrow-icon {
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E");
         }
         
         .arrow-up { transform: rotate(-90deg); }
@@ -283,8 +316,11 @@
 {% block content %}
 <section class="scan-container" id="scanContainer">
     <div class="camera-container">
-        <!-- Camera feed will be displayed here -->
-        <video id="video" autoplay playsinline></video>
+        <!-- Replace the video element with a container for the QR scanner -->
+        <div id="reader"></div>
+        
+        <!-- Add a custom scanning frame -->
+        <div class="scan-frame" id="scanFrame"></div>
         
         <!-- Loading indicator -->
         <div class="camera-loading" id="cameraLoading">
@@ -325,7 +361,43 @@
         
         <!-- Default instructions -->
         <div class="scan-instructions" id="scanInstructions">
-            <img src="/static/scan-icon.svg" alt="Scan icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" fill="none" stroke="currentColor" aria-hidden="true">
+                <!-- Aztec barcode with bullseye pattern -->
+                <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" stroke-width="2" />
+                
+                <!-- Bullseye pattern in center -->
+                <rect x="40" y="40" width="20" height="20" fill="currentColor" />
+                <rect x="35" y="35" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="30" y="30" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1" />
+                
+                <!-- Data modules - simplified representation -->
+                <rect x="25" y="25" width="5" height="5" fill="currentColor" />
+                <rect x="35" y="25" width="5" height="5" fill="currentColor" />
+                <rect x="60" y="25" width="5" height="5" fill="currentColor" />
+                <rect x="70" y="25" width="5" height="5" fill="currentColor" />
+                
+                <rect x="25" y="35" width="5" height="5" fill="currentColor" />
+                <rect x="70" y="35" width="5" height="5" fill="currentColor" />
+                
+                <rect x="25" y="60" width="5" height="5" fill="currentColor" />
+                <rect x="70" y="60" width="5" height="5" fill="currentColor" />
+                
+                <rect x="25" y="70" width="5" height="5" fill="currentColor" />
+                <rect x="35" y="70" width="5" height="5" fill="currentColor" />
+                <rect x="60" y="70" width="5" height="5" fill="currentColor" />
+                <rect x="70" y="70" width="5" height="5" fill="currentColor" />
+                
+                <rect x="15" y="15" width="5" height="5" fill="currentColor" />
+                <rect x="25" y="15" width="5" height="5" fill="currentColor" />
+                <rect x="45" y="15" width="5" height="5" fill="currentColor" />
+                <rect x="55" y="15" width="5" height="5" fill="currentColor" />
+                <rect x="80" y="15" width="5" height="5" fill="currentColor" />
+                
+                <rect x="15" y="80" width="5" height="5" fill="currentColor" />
+                <rect x="40" y="80" width="5" height="5" fill="currentColor" />
+                <rect x="55" y="80" width="5" height="5" fill="currentColor" />
+                <rect x="80" y="80" width="5" height="5" fill="currentColor" />
+            </svg>
             <h2>Scan a Card</h2>
             <p>Point your camera at any FRCC card to view its details and AR content.</p>
         </div>
@@ -354,18 +426,29 @@
                 </div>
             </div>
             
-            <div class="button-container">
+            <!-- Updated button container with flex and spacing -->
+            <div class="button-container flex flex-gap">
                 <button class="btn btn-primary" id="viewArBtn">View in AR</button>
-                <button class="btn btn-secondary" id="addToCollectionBtn">Add to Collection</button>
+                <div id="collectionStatus">
+                    <!-- Will be populated by JavaScript based on login state -->
+                </div>
+            </div>
+
+            <!-- Login message for non-authenticated users -->
+            <div class="login-message" id="loginMessage" style="display: none; margin-top: 1rem; text-align: center; padding: 0.75rem; border-radius: var(--border-radius); background-color: rgba(95, 190, 203, 0.1);">
+                <p>Sign in to automatically save cards to your collection</p>
+                <a href="/signin" class="btn btn-secondary" style="margin-top: 0.5rem;">Sign In</a>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Replace module scripts with the HTML5-QRCode CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // DOM Elements
-        const video = document.getElementById('video');
         const cameraLoading = document.getElementById('cameraLoading');
         const cardDetected = document.getElementById('cardDetected');
         const switchCameraBtn = document.getElementById('switchCameraBtn');
@@ -373,159 +456,255 @@
         const scanInstructions = document.getElementById('scanInstructions');
         const cardInfo = document.getElementById('cardInfo');
         const dragHandle = document.getElementById('dragHandle');
+        const scanFrame = document.getElementById('scanFrame');
         
-        // Mobile scroll indicators (only shown on mobile)
-        const scrollIndicators = document.querySelectorAll('.scroll-indicator');
-        const isMobile = window.innerWidth <= 768;
-        
-        // Camera variables
-        let currentStream = null;
+        // State variables
+        let html5QrCode = null;
+        let currentCamera = null;
         let availableCameras = [];
         let currentCameraIndex = 0;
+        let lastDetection = 0;
+        let isScanning = false;
         
-        // Hide scroll indicators on desktop
+        // Mobile detection
+        const isMobile = window.innerWidth <= 768;
         if (!isMobile) {
-            scrollIndicators.forEach(indicator => {
+            document.querySelectorAll('.scroll-indicator').forEach(indicator => {
                 indicator.style.display = 'none';
             });
         }
         
-        // Initialize camera
-        async function initCamera() {
+        // Initialize scanner
+        async function initScanner() {
             try {
-                // Get available cameras
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                availableCameras = devices.filter(device => device.kind === 'videoinput');
+                // Create the HTML5 QR code scanner with the correct container ID
+                html5QrCode = new Html5Qrcode("reader");
                 
-                // If no cameras found
-                if (availableCameras.length === 0) {
+                // Get available cameras
+                availableCameras = await Html5Qrcode.getCameras();
+                
+                if (!availableCameras.length) {
                     throw new Error('No cameras found');
                 }
                 
-                // Start with the first camera (usually back camera on mobile)
-                await startCamera();
+                // Start with the back camera if available
+                currentCameraIndex = availableCameras.findIndex(
+                    camera => camera.label.toLowerCase().includes('back') ||
+                              camera.label.toLowerCase().includes('rear')
+                );
                 
-                // Hide loading indicator
+                // If no back camera found, use the first camera
+                if (currentCameraIndex === -1) currentCameraIndex = 0;
+                
+                // Start scanning
+                await startScanner();
+                
+                // Show/hide camera switch button
+                switchCameraBtn.style.display = availableCameras.length > 1 ? 'flex' : 'none';
+                
+            } catch (error) {
+                cameraLoading.innerHTML = `
+                    <p>Error initializing camera</p>
+                    <p class="error-message">${error.message}</p>
+                    <button class="btn btn-primary" id="retryBtn">Retry</button>
+                `;
+                document.getElementById('retryBtn')?.addEventListener('click', initScanner);
+            }
+        }
+        
+        // Start the scanner with current camera
+        async function startScanner() {
+            if (isScanning) await stopScanner();
+            
+            try {
+                // Get current camera ID
+                currentCamera = availableCameras[currentCameraIndex].id;
+                
+                // Configure scanner with improved settings
+                const config = {
+                    fps: 15,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: window.innerWidth / window.innerHeight,
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.AZTEC,
+                        Html5QrcodeSupportedFormats.QR_CODE,
+                        Html5QrcodeSupportedFormats.DATA_MATRIX
+                    ],
+                    // Hide default scan type UI
+                    showTorchButtonIfSupported: false,
+                    showZoomSliderIfSupported: false
+                };
+                
+                // Start scanning
+                await html5QrCode.start(
+                    currentCamera, 
+                    config,
+                    handleCodeDetection,
+                    handleScanError
+                );
+                
+                isScanning = true;
                 cameraLoading.style.display = 'none';
                 
-                // Show switch camera button only if there are multiple cameras
-                switchCameraBtn.style.display = availableCameras.length > 1 ? 'flex' : 'none';
+                // Position scan frame correctly after the camera starts
+                setTimeout(() => {
+                    scanFrame.style.display = 'block';
+                }, 1000);
+                
             } catch (error) {
-                console.error('Error initializing camera:', error);
                 cameraLoading.innerHTML = `
                     <p>Camera access error</p>
                     <p class="error-message">${error.message}</p>
                     <button class="btn btn-primary" id="retryBtn">Retry</button>
                 `;
-                document.getElementById('retryBtn').addEventListener('click', initCamera);
+                document.getElementById('retryBtn')?.addEventListener('click', startScanner);
             }
         }
         
-        // Start camera with given device ID
-        async function startCamera() {
-            // Stop any existing stream
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-            
-            const constraints = {
-                video: {
-                    deviceId: availableCameras.length > 0 ? { exact: availableCameras[currentCameraIndex].deviceId } : undefined,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    facingMode: 'environment' // Prefer back camera initially
-                }
-            };
+        // Rest of the code remains unchanged
+        async function stopScanner() {
+            if (!isScanning || !html5QrCode) return;
             
             try {
-                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = currentStream;
-                
-                // Here you would initialize your tag detection logic
-                // For now, we'll just simulate detection with a timeout
-                simulateDetection();
+                await html5QrCode.stop();
+                isScanning = false;
             } catch (error) {
-                console.error('Error starting camera:', error);
-                throw error;
+                console.error('Error stopping scanner:', error);
             }
         }
         
-        // Switch between available cameras
-        async function switchCamera() {
-            currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
-            await startCamera();
-        }
-        
-        // For demo purposes - simulate detection
-        function simulateDetection() {
-            // This would be replaced by actual detection logic
+        function handleCodeDetection(decodedText, decodedResult) {
+            const now = Date.now();
+            if (now - lastDetection < 2000) return;
+            lastDetection = now;
+            
+            cardDetected.classList.add('visible');
+            scanInstructions.style.display = 'none';
+            cardInfo.classList.add('visible');
+            
+            if (isMobile) {
+                infoPanel.classList.add('expanded');
+            }
+            
             setTimeout(() => {
-                // Show detected notification
-                cardDetected.classList.add('visible');
-                
-                // Hide instructions and show card info
-                scanInstructions.style.display = 'none';
-                cardInfo.classList.add('visible');
-                
-                // On mobile, expand info panel
-                if (isMobile) {
-                    infoPanel.classList.add('expanded');
-                }
-                
-                // Hide notification after 3 seconds
-                setTimeout(() => {
-                    cardDetected.classList.remove('visible');
-                }, 3000);
-            }, 5000); // Simulate detection after 5 seconds
+                cardDetected.classList.remove('visible');
+            }, 3000);
+            
+            displayDummyCardData(decodedText);
+            updateCollectionStatus(checkIfLoggedIn());
         }
         
-        // Event listeners
-        switchCameraBtn.addEventListener('click', switchCamera);
+        function handleScanError(error) {
+            if (error.indexOf('No MultiFormat Readers') !== -1) {
+                console.error('QR Code scanning error:', error);
+            }
+        }
         
-        // Mobile: Panel expansion
-        if (isMobile) {
+        async function switchCamera() {
+            if (availableCameras.length <= 1) return;
+            
+            await stopScanner();
+            
+            currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+            
+            await startScanner();
+        }
+        
+        function displayDummyCardData(codeText) {
+            const seed = codeText.length > 0 ? codeText.charCodeAt(0) % 5 : 0;
+            
+            const teams = [
+                { name: "The Cheesy Poofs", number: "254", year: "2023", competition: "Championship", awards: "Winner" },
+                { name: "Robonauts", number: "118", year: "2023", competition: "Houston", awards: "Finalist" },
+                { name: "Phoenix", number: "4533", year: "2023", competition: "Charleston", awards: "Innovation Award" },
+                { name: "Stryke Force", number: "2767", year: "2022", competition: "Michigan", awards: "Design Award" },
+                { name: "Citrus Circuits", number: "1678", year: "2024", competition: "Championship", awards: "Autonomous Award" }
+            ];
+            
+            const team = teams[seed];
+            
+            document.getElementById('teamName').textContent = team.name;
+            document.getElementById('teamNumber').textContent = `Team ${team.number}`;
+            document.getElementById('cardDescription').textContent = 
+                `Team ${team.number} (${team.name}) is a FIRST Robotics Competition team known for their innovative designs and precise autonomous control. This card showcases their robot from the ${team.year} season.`;
+            document.getElementById('cardYear').textContent = team.year;
+            document.getElementById('cardCompetition').textContent = team.competition;
+            document.getElementById('cardAwards').textContent = team.awards;
+            
+            const colors = ['#5fbecb', '#e94057', '#4dda6e', '#f9a03f', '#8338ec'];
+            document.getElementById('cardImage').style.background = colors[seed];
+        }
+        
+        function checkIfLoggedIn() {
+            return false;
+        }
+        
+        function updateCollectionStatus(isLoggedIn) {
+            const collectionStatus = document.getElementById('collectionStatus');
+            const loginMessage = document.getElementById('loginMessage');
+            
+            if (isLoggedIn) {
+                collectionStatus.innerHTML = `
+                    <div class="success-message" style="color: #4dda6e; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                        Added to your collection
+                    </div>
+                `;
+                loginMessage.style.display = 'none';
+            } else {
+                collectionStatus.innerHTML = '';
+                loginMessage.style.display = 'block';
+            }
+        }
+        
+        if (isMobile && dragHandle) {
             let startY = 0;
             let currentY = 0;
             
             dragHandle.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].clientY;
-                infoPanel.style.transition = 'none'; // Disable transition during drag
+                infoPanel.style.transition = 'none';
             });
             
             dragHandle.addEventListener('touchmove', function(e) {
                 currentY = e.touches[0].clientY;
                 const deltaY = currentY - startY;
-                
-                // Calculate new transform
                 const newTransform = Math.max(0, Math.min(85, 85 - (deltaY / infoPanel.offsetHeight * 100)));
                 infoPanel.style.transform = `translateY(${newTransform}%)`;
             });
             
             dragHandle.addEventListener('touchend', function() {
                 infoPanel.style.transition = 'transform 0.3s ease';
-                
-                // If dragged more than halfway, expand fully
                 const deltaY = currentY - startY;
-                if (deltaY < 0) { // Dragged upward
-                    infoPanel.classList.add('expanded');
-                    infoPanel.style.transform = 'translateY(0)';
-                } else { // Dragged downward
-                    infoPanel.classList.remove('expanded');
-                    infoPanel.style.transform = 'translateY(85%)';
-                }
+                infoPanel.classList.toggle('expanded', deltaY < 0);
+                infoPanel.style.transform = deltaY < 0 ? 'translateY(0)' : 'translateY(85%)';
             });
             
-            // Handle scroll indicator fade-out
             setTimeout(() => {
-                scrollIndicators.forEach(indicator => {
+                document.querySelectorAll('.scroll-indicator').forEach(indicator => {
                     indicator.style.opacity = 0;
                     indicator.style.transition = 'opacity 1s ease';
                 });
             }, 3000);
         }
         
-        // Initialize camera when page loads
-        initCamera();
+        switchCameraBtn.addEventListener('click', switchCamera);
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isScanning) {
+                stopScanner();
+            } else if (!document.hidden && !isScanning) {
+                startScanner();
+            }
+        });
+        
+        window.addEventListener('beforeunload', () => {
+            stopScanner();
+        });
+        
+        initScanner();
     });
 </script>
 {% endblock content %}
