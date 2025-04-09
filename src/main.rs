@@ -22,9 +22,12 @@ mod routes;
 mod state;
 mod templates;
 mod db;
+mod util;
 
 #[tokio::main]
 async fn main() {
+    frcc_card_gen::test();
+
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
         .format_timestamp(None)

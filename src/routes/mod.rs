@@ -1,7 +1,7 @@
 use crate::{
     db::{AuthToken, CardDesign, User},
     state::AppState,
-    templates::TEMPLATES,
+    templates::TEMPLATES, util::optimize_and_save_model,
 };
 use axum::{
     extract::{FromRequestParts, State},
@@ -260,6 +260,8 @@ async fn create_card(
                 Some(_) | None => {}
             }
         }
+
+        optimize_and_save_model(id.clone(), model.unwrap().to_vec());
 
         user.team()
             .get(&state.db)
