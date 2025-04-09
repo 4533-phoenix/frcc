@@ -8,11 +8,12 @@ use axum::{
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Redirect, Response},
     routing::{get, post, put},
-    Form, Router,
+    Form, Json, Router,
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use std::path::PathBuf;
 use tera::Context;
+use toasty::stmt::Select;
 
 use tower_http::services::ServeDir;
 
@@ -108,7 +109,7 @@ async fn dashboard() -> impl IntoResponse {
     context.insert("team_name", "Awesome Team");
     context.insert("team_number", "123");
     context.insert("is_verified", "true");
-    
+
     let content = TEMPLATES.render("dashboard.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
@@ -122,13 +123,20 @@ struct LoginForm {
     password: String,
 }
 
-async fn login(State(state): State<AppState>, mut jar: CookieJar, form: Form<LoginForm>) -> impl IntoResponse {
-    let user = User::get_by_username(&state.db, &form.username).await.unwrap();
+async fn login(
+    State(state): State<AppState>,
+    mut jar: CookieJar,
+    form: Form<LoginForm>,
+) -> impl IntoResponse {
+    let user = User::get_by_username(&state.db, &form.username)
+        .await
+        .unwrap();
     if !state.check_user_password(&user.password, &form.password) {
         Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body("Invalid username or password".to_string())
-            .unwrap().into_response()
+            .unwrap()
+            .into_response()
     } else {
         jar = jar.add(Cookie::new("token", state.register_token(&user).await));
 
@@ -154,11 +162,18 @@ async fn register(State(state): State<AppState>, form: Form<RegisterForm>) -> im
 }
 
 async fn create_invite_code(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
-    let invite_code = state.create_invite_code(&user.username).await.unwrap();
-    Response::builder()
-        .status(StatusCode::OK)
-        .body(invite_code.to_string())
-        .unwrap()
+    if user.is_admin.is_none() {
+        Response::builder()
+            .status(StatusCode::FORBIDDEN)
+            .body("You are not allowed to create invite codes".to_string())
+            .unwrap()
+    } else {
+        let invite_code = state.create_invite_code(&user.username).await.unwrap();
+        Response::builder()
+            .status(StatusCode::OK)
+            .body(invite_code.to_string())
+            .unwrap()
+    }
 }
 
 pub struct Auth(pub User);
@@ -184,31 +199,77 @@ impl FromRequestParts<AppState> for Auth {
     }
 }
 
-async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
-    ()
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Card {
+    id: String,
+    team_number: u64,
+    year: u16,
+    bot_name: String,
 }
 
-async fn create_card(State(state): State<AppState>, Auth(user): Auth, mut multipart: Multipart) -> impl IntoResponse {
-    let id = nanoid!(16);
+async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
+    let designs = state
+        .db
+        .all(Select::<CardDesign>::all())
+        .await
+        .unwrap()
+        .collect::<Vec<CardDesign>>()
+        .await
+        .unwrap();
 
-    let mut bot_name = None;
-    let mut photo = None;
-    let mut model = None;
+    Json(
+        designs
+            .iter()
+            .map(|design| Card {
+                id: design.id.clone(),
+                team_number: design.team_number as u64,
+                year: design.year as u16,
+                bot_name: design.name.clone(),
+            })
+            .collect::<Vec<Card>>(),
+    )
+}
 
-    while let Some(field) = multipart.next_field().await.unwrap() {
-        match field.name() {
-            Some("bot_name") => {
-                bot_name = field.text().await.ok();
+async fn create_card(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    mut multipart: Multipart,
+) -> impl IntoResponse {
+    if let Some(team_num) = user.team_number {
+        let id = nanoid!(16);
+
+        let mut bot_name = None;
+        let mut photo = None;
+        let mut model = None;
+
+        while let Some(field) = multipart.next_field().await.unwrap() {
+            match field.name() {
+                Some("bot_name") => {
+                    bot_name = field.text().await.ok();
+                }
+                Some("photo") => {
+                    photo = field.bytes().await.ok();
+                }
+                Some("model") => {
+                    model = field.bytes().await.ok();
+                }
+                Some(_) | None => {}
             }
-            Some("photo") => {
-                photo = field.bytes().await.ok();
-            }
-            Some("model") => {
-                model = field.bytes().await.ok();
-            }
-            Some(_) | None => {}
         }
-    }
 
-    CardDesign::create().id(id).exec(&state.db).await.unwrap();
+        user.team()
+            .get(&state.db)
+            .await
+            .unwrap()
+            .unwrap()
+            .designs()
+            .create()
+            .id(id)
+            .team_number(team_num)
+            .name(bot_name.unwrap())
+            .year(2025)
+            .exec(&state.db)
+            .await
+            .unwrap();
+    }
 }
