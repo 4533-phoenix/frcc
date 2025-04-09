@@ -422,64 +422,89 @@
             elements.detected.textContent = "Card Found!";
             elements.detected.classList.add('visible');
             
-            // Simulate network delay
+            // Hide the notification after 3 seconds
             setTimeout(() => {
-                const cardData = getCardData(cardId);
-                displayCardData(cardData);
-            }, 500);
-        }
-        
-        function getCardData(cardId) {
-            // Generate data based on card ID
-            const teamNumber = cardId.replace(/\D/g, '') || Math.floor(Math.random() * 9000) + 1000;
+                elements.detected.classList.remove('visible');
+            }, 3000);
             
-            const defaultData = {
-                team_name: `Team ${teamNumber}`,
-                team_number: teamNumber,
-                description: `This is team ${teamNumber}'s robot for the 2023 season.`,
-                year: "2023",
-                competition: "FIRST Championship",
-                awards: "Innovation Award"
-            };
-            
-            // Special team data
-            const specialTeams = {
-                "254": {
-                    team_name: "The Cheesy Poofs",
-                    description: "Team 254, The Cheesy Poofs, is a FIRST Robotics Competition (FRC) team from San Jose, California. Known for their excellence in robot design and competitive success.",
-                    awards: "Championship Winners"
-                },
-                "0254": {
-                    team_name: "The Cheesy Poofs",
-                    description: "Team 254, The Cheesy Poofs, is a FIRST Robotics Competition (FRC) team from San Jose, California. Known for their excellence in robot design and competitive success.",
-                    awards: "Championship Winners"
-                },
-                "4533": {
-                    team_name: "Phoenix",
-                    description: "Team 4533, Phoenix, from Mount Pleasant, South Carolina. Creators of the FRCC card system and website.",
-                    year: "2024"
-                }
-            };
-            
-            return specialTeams[cardId] ? { ...defaultData, ...specialTeams[cardId] } : defaultData;
+            // Make a request to the backend API
+            fetch(`/api/cards/${cardId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Card not found');
+                    }
+                    return response.json();
+                })
+                .then(cardData => {
+                    displayCardData(cardData);
+                })
+                .catch(error => {
+                    console.error('Error fetching card data:', error);
+                    // You can show an error message to the user here
+                });
         }
         
         function displayCardData(cardData) {
+            // Display team info
             elements.teamName.textContent = cardData.team_name || "Team Name";
-            elements.teamNumber.textContent = cardData.team_number ? `Team ${cardData.team_number}` : "Team Number";
-            elements.description.textContent = cardData.description || "No description available";
-            elements.year.textContent = cardData.year || "N/A";
-            elements.competition.textContent = cardData.competition || "N/A";
-            elements.awards.textContent = cardData.awards || "None";
+            elements.teamNumber.textContent = `Team ${cardData.team_number}` || "Team Number";
             
+            // Set card image if available
+            if (cardData.image_path) {
+                elements.cardImage.style.background = `url('${cardData.image_path}') no-repeat center/cover`;
+            } else {
+                elements.cardImage.style.background = 'var(--gradient-primary)';
+            }
+            
+            // Set description or note
+            elements.description.textContent = cardData.note || "No description available";
+            
+            // Set other details
+            elements.year.textContent = cardData.card_year || "N/A";
+            elements.competition.textContent = "FIRST Championship"; // This could come from the backend in the future
+            
+            // Create abilities display
+            if (cardData.abilities && cardData.abilities.length > 0) {
+                // Clear existing awards
+                elements.awards.innerHTML = '';
+                
+                // Create abilities list
+                const abilitiesList = document.createElement('div');
+                abilitiesList.className = 'abilities-list';
+                
+                cardData.abilities.forEach(ability => {
+                    const abilityItem = document.createElement('div');
+                    abilityItem.className = 'ability-item';
+                    abilityItem.innerHTML = `
+                        <span class="ability-title">${ability.title} (${ability.quantity})</span>
+                        <span class="ability-desc">${ability.description}</span>
+                    `;
+                    abilitiesList.appendChild(abilityItem);
+                });
+                
+                // Add abilities to the awards element (repurposing it for abilities)
+                elements.awards.appendChild(abilitiesList);
+            } else {
+                elements.awards.textContent = "None listed";
+            }
+            
+            // Update AR button to use 3D model path if available
+            if (cardData.model_3d_path) {
+                elements.arButton.dataset.modelPath = cardData.model_3d_path;
+            }
+            
+            // Show card info and hide instructions
             elements.instructions.style.display = 'none';
             elements.cardInfo.classList.add('visible');
             
+            // Pause scanning while showing card
             clearInterval(state.scanInterval);
             state.scanInterval = null;
             
+            // Setup button actions
             setupCardButtons(cardData);
             
+            // Resume scanning after a delay
             setTimeout(() => {
                 if (state.scanning) {
                     startScanning();
@@ -493,10 +518,27 @@
                 this.textContent = "Added to Collection";
                 this.classList.remove('btn-secondary');
                 this.classList.add('btn-primary');
+                
+                // Here you would make a call to add the card to the user's collection
+                fetch('/api/collection/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ team_number: cardData.team_number, year: cardData.card_year })
+                }).catch(error => {
+                    console.error('Error adding card to collection:', error);
+                });
             };
             
             elements.arButton.onclick = function() {
-                alert(`AR view for Team ${cardData.team_number} would launch here`);
+                // Use the 3D model path from the card data if available
+                const modelPath = this.dataset.modelPath || null;
+                if (modelPath) {
+                    window.location.href = `/ar?model=${encodeURIComponent(modelPath)}&team=${cardData.team_number}`;
+                } else {
+                    alert(`AR view not available for Team ${cardData.team_number}`);
+                }
             };
         }
         
