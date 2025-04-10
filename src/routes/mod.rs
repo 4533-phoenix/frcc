@@ -36,6 +36,7 @@ pub fn get_router(state: AppState) -> Router {
 pub fn get_api_router(state: AppState) -> Router {
     Router::new()
         .route("/login", post(login))
+        .route("/logout", get(logout))
         .route("/register", post(register))
         .route("/cards", get(get_cards).post(create_card))
         //.route("/cards/:id", get(get_card).put(update_card).delete(delete_card))
@@ -44,56 +45,70 @@ pub fn get_api_router(state: AppState) -> Router {
         .with_state(state)
 }
 
-async fn scan() -> impl IntoResponse {
-    let content = TEMPLATES.render("scan.tera", &Context::new()).unwrap();
+async fn scan(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("scan.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
         .unwrap()
 }
 
-async fn hero() -> impl IntoResponse {
-    let content = TEMPLATES.render("hero.tera", &Context::new()).unwrap();
+async fn hero(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("hero.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
         .unwrap()
 }
 
-async fn about() -> impl IntoResponse {
-    let content = TEMPLATES.render("about.tera", &Context::new()).unwrap();
+async fn about(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("about.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
         .unwrap()
 }
 
-async fn privacy() -> impl IntoResponse {
-    let content = TEMPLATES.render("privacy.tera", &Context::new()).unwrap();
+async fn privacy(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("privacy.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
         .unwrap()
 }
 
-async fn signin() -> impl IntoResponse {
-    let content = TEMPLATES.render("signin.tera", &Context::new()).unwrap();
+async fn signin(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("signin.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
         .unwrap()
 }
 
-async fn signup() -> impl IntoResponse {
-    let content = TEMPLATES.render("signup.tera", &Context::new()).unwrap();
+async fn signup(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("signup.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
         .unwrap()
 }
 
-async fn cards() -> impl IntoResponse {
-    let content = TEMPLATES.render("cards.tera", &Context::new()).unwrap();
+async fn cards(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    let content = TEMPLATES.render("cards.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
@@ -129,15 +144,16 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
         });
     }
 
+    context.insert("is_auth", &true);
     context.insert("user_name", &user.username);
     context.insert("profile_pic", "/images/default-profile.png");
     context.insert("cards_collected", &cards);
     if let Some(team) = user.team().get(&state.db).await.unwrap() {
-        context.insert("has_team", "true");
+        context.insert("has_team", &true);
         context.insert("team_name", &team.name);
         context.insert("team_number", &(team.number as u64));
     } else {
-        context.insert("has_team", "false");
+        context.insert("has_team", &false);
     }
 
     let content = TEMPLATES.render("dashboard.tera", &context).unwrap();
@@ -177,6 +193,11 @@ async fn login(
     }
 }
 
+async fn logout(State(state): State<AppState>, mut jar: CookieJar) -> impl IntoResponse {
+    jar = jar.remove("token");
+    (jar, Redirect::to("/").into_response()).into_response()
+}
+
 async fn register(State(state): State<AppState>, form: Form<LoginForm>) -> impl IntoResponse {
     state
         .create_user(None, &form.username, &form.password)
@@ -200,6 +221,29 @@ async fn create_invite_code(Auth(user): Auth, State(state): State<AppState>) -> 
             .status(StatusCode::OK)
             .body(invite_code.to_string())
             .unwrap()
+    }
+}
+
+pub struct IsAuth(pub bool);
+impl FromRequestParts<AppState> for IsAuth {
+    type Rejection = Response;
+
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let mut jar = CookieJar::from_headers(&parts.headers);
+        if let Some(tok) = jar.get("token") {
+            let token = AuthToken::get_by_token(&state.db, tok.value()).await;
+            if token.is_ok() {
+                return Ok(IsAuth(true));
+            } else {
+                jar = jar.remove(Cookie::from("token"));
+                Err((jar, Redirect::to("/login").into_response()).into_response())
+            }
+        } else {
+            Ok(IsAuth(false))
+        }
     }
 }
 

@@ -26,7 +26,12 @@
                     <li><a href="/cards">Cards</a></li>
                     <li><a href="/scan">Scan</a></li>
                     <li><a href="/about">About</a></li>
+										{% if is_auth %}
+										<li><a href="/dashboard">Dashboard</a></li>
+										<li><a href="/api/logout" class="btn btn-primary">Logout</a></li>
+										{% else %}
                     <li><a href="/signin" class="btn btn-primary">Sign In</a></li>
+										{% endif %}
                 </ul>
             </nav>
         </div>
