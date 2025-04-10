@@ -1,13 +1,10 @@
-use std::collections::HashMap;
-
-use resvg::{tiny_skia::{Pixmap, PixmapMut}, usvg::{Options, Transform, Tree}};
-use rxing::{BarcodeFormat, EncodeHintType, EncodeHintValue, EncodeHints, EncodingHintDictionary, Writer};
+use resvg::{tiny_skia::Pixmap, usvg::{Options, Transform, Tree}};
+use rxing::{BarcodeFormat, EncodeHints, Writer};
 
 pub fn test() {
     let mut pixmap = Pixmap::new(630, 880).unwrap();
     resvg::render(&Tree::from_str(include_str!("../../../cards/back/default.svg"), &Options::default()).unwrap(), Transform::identity(), &mut pixmap.as_mut());
     resvg::render(&Tree::from_str(&gen_fiducial("FRCC-12345678910".to_owned()), &Options::default()).unwrap(), Transform::identity().pre_translate((630.0 / 2.0) - 100.0, (880.0 / 2.0) - 100.0), &mut pixmap.as_mut());
-    //pixmap.encode_png().unwrap();
     pixmap.save_png(format!("test.png")).unwrap();
 
 
