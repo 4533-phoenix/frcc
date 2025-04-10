@@ -40,6 +40,7 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/register", post(register))
         .route("/cards", get(get_cards).post(create_card))
         .route("/scan", post(scan_card))
+        .route("/user/{username}", get(get_user))//.put(modify_user))
         //.route("/cards/:id", get(get_card).put(update_card).delete(delete_card))
         //.route("/collection", get(get_collection).put(add_to_collection))
         .route("/invites", put(create_invite_code))
@@ -381,4 +382,29 @@ async fn scan_card(State(state): State<AppState>, Auth(user): Auth, Path(id): Pa
         year: design.year as u16,
         abilities: None,
     })
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct UserData {
+    username: String,
+    is_admin: Option<String>,
+    is_verified: Option<String>,
+    team: Option<String>,
+}
+
+async fn get_user(State(state): State<AppState>, Auth(user): Auth, username: String) -> impl IntoResponse {
+    if user.is_admin.is_some() {
+        let user = User::get_by_username(&state.db, username).await.unwrap();
+        Json(UserData {
+            username: user.username.clone(),
+            is_admin: user.is_admin.clone(),
+            is_verified: user.is_verified.clone(),
+            team: user.team().get(&state.db).await.unwrap().map(|t| t.name.clone()),
+        }).into_response()
+    } else {
+        Response::builder()
+            .status(StatusCode::FORBIDDEN)
+            .body("You are not an admin".to_string())
+            .unwrap().into_response()
+    }
 }

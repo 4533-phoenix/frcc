@@ -35,7 +35,7 @@ impl AppState {
         let hash = argon2::Argon2::default()
             .hash_password(password.as_bytes(), &salt)
             .unwrap();
-        User::create().username(username).password(&hash.to_string()).exec(&self.db).await.unwrap();
+        User::create().username(username).invited_with_code(invite_code).is_admin(Some(String::new())).password(&hash.to_string()).exec(&self.db).await.unwrap();
     }
 
     pub async fn create_invite_code(&self, inviter: &str) -> Option<String> {

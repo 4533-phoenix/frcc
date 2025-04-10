@@ -2276,7 +2276,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "std-util"
 version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
 dependencies = [
  "heck",
  "pluralizer",
@@ -2503,15 +2503,15 @@ dependencies = [
 [[package]]
 name = "toasty"
 version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
 dependencies = [
  "anyhow",
  "async-stream",
  "by_address",
  "indexmap",
  "toasty-core",
+ "toasty-driver-sqlite",
  "toasty-macros",
- "toasty-sqlite",
  "tokio-stream",
  "url",
  "uuid",
@@ -2520,20 +2520,7 @@ dependencies = [
 [[package]]
 name = "toasty-codegen"
 version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
-dependencies = [
- "indexmap",
- "proc-macro2",
- "quote",
- "std-util",
- "syn",
- "toasty-core",
-]
-
-[[package]]
-name = "toasty-codegen2"
-version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2544,7 +2531,7 @@ dependencies = [
 [[package]]
 name = "toasty-core"
 version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2554,31 +2541,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "toasty-macros"
+name = "toasty-driver-sqlite"
 version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "toasty-codegen",
- "toasty-codegen2",
- "toasty-core",
-]
-
-[[package]]
-name = "toasty-sql"
-version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
-dependencies = [
- "anyhow",
- "toasty-core",
-]
-
-[[package]]
-name = "toasty-sqlite"
-version = "0.1.0"
-source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
 dependencies = [
  "anyhow",
  "rusqlite",
@@ -2587,6 +2552,27 @@ dependencies = [
  "toasty-core",
  "toasty-sql",
  "url",
+]
+
+[[package]]
+name = "toasty-macros"
+version = "0.1.0"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "toasty-codegen",
+ "toasty-core",
+]
+
+[[package]]
+name = "toasty-sql"
+version = "0.1.0"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+dependencies = [
+ "anyhow",
+ "toasty-core",
 ]
 
 [[package]]
