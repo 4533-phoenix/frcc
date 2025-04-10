@@ -186,7 +186,6 @@ async fn login(
     } else {
         let mut cookie = Cookie::new("token", state.register_token(&user).await);
         cookie.set_path("/");
-        cookie.make_permanent();
         jar = jar.add(cookie);
 
         (jar, Redirect::to("/").into_response()).into_response()
@@ -194,7 +193,7 @@ async fn login(
 }
 
 async fn logout(State(state): State<AppState>, mut jar: CookieJar) -> impl IntoResponse {
-    jar = jar.remove("token");
+    jar = jar.remove(Cookie::from("token"));
     (jar, Redirect::to("/").into_response()).into_response()
 }
 
