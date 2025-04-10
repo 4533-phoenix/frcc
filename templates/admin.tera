@@ -1,0 +1,570 @@
+{% extends "base.tera" %}
+
+{% block title %}Admin Panel{% endblock title %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .admin-header {
+        background: var(--gradient-primary);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        color: white;
+    }
+
+    .admin-card {
+        margin-bottom: 2rem;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        background-color: var(--background-primary);
+    }
+
+    .admin-card h2 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .admin-icon {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        background-color: var(--primary);
+        mask-size: contain;
+        -webkit-mask-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-position: center;
+    }
+
+    .invite-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z'/%3E%3C/svg%3E");
+    }
+
+    .users-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
+    }
+
+    .code-list {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: rgba(95, 190, 203, 0.1);
+        border-radius: var(--border-radius);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .code-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
+    }
+
+    .code-item:last-child {
+        border-bottom: none;
+    }
+
+    .code {
+        font-family: monospace;
+        font-size: 1rem;
+        color: var(--primary);
+    }
+
+    .copy-button {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    .copy-button:hover {
+        background-color: rgba(95, 190, 203, 0.1);
+    }
+
+    .user-search {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .user-search input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid rgba(95, 190, 203, 0.3);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+    }
+
+    .user-search button {
+        padding: 0.75rem 1.5rem;
+    }
+
+    .user-results {
+        margin-top: 2rem;
+    }
+
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .user-table th,
+    .user-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
+    }
+
+    .user-table th {
+        background-color: rgba(95, 190, 203, 0.1);
+        color: var(--secondary);
+    }
+
+    .user-table tr:hover {
+        background-color: rgba(95, 190, 203, 0.05);
+    }
+
+    .user-edit-form {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: rgba(95, 190, 203, 0.1);
+        border-radius: var(--border-radius);
+        display: none;
+    }
+
+    .form-row {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .form-group {
+        flex: 1;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid rgba(95, 190, 203, 0.3);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+    }
+
+    .role-toggle {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .role-toggle button {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid rgba(95, 190, 203, 0.3);
+        background: var(--background-primary);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .role-toggle button.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .admin-alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: var(--border-radius);
+        background-color: rgba(95, 190, 203, 0.1);
+        border-left: 4px solid var(--primary);
+        display: none;
+    }
+
+    .admin-alert.success {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-left-color: #4CAF50;
+    }
+
+    .admin-alert.error {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-left-color: #F44336;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--primary);
+    }
+
+    input:focus + .toggle-slider {
+        box-shadow: 0 0 1px var(--primary);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <h1>Administration Panel</h1>
+        <p>Manage users, invite codes, and site settings</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <!-- Alert message area -->
+        <div id="alertBox" class="admin-alert"></div>
+
+        <!-- Invite Codes Section -->
+        <div class="admin-card">
+            <h2><span class="admin-icon invite-icon"></span> Invite Codes</h2>
+            <p>Generate new invite codes for users to join the platform.</p>
+            
+            <div class="flex flex-gap">
+                <button id="generateInviteBtn" class="btn btn-primary">Generate New Invite Code</button>
+            </div>
+            
+            <div id="inviteCodesList" class="code-list">
+                <div class="code-item">
+                    <span class="code">No invite codes generated yet</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Management Section -->
+        <div class="admin-card">
+            <h2><span class="admin-icon users-icon"></span> User Management</h2>
+            <p>Search for users and manage their accounts.</p>
+            
+            <div class="user-search">
+                <input type="text" id="userSearchInput" placeholder="Search by username">
+                <button id="userSearchBtn" class="btn btn-primary">Search</button>
+            </div>
+            
+            <div class="user-results">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Team</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- User rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- User Edit Form (initially hidden) -->
+            <div id="userEditForm" class="user-edit-form">
+                <h3>Edit User</h3>
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editUsername">Username</label>
+                            <input type="text" id="editUsername" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editTeam">Team</label>
+                            <select id="editTeam" name="team">
+                                <option value="">No Team</option>
+                                <!-- Teams will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editRole">Role</label>
+                            <select id="editRole" name="role">
+                                <option value="user">Regular User</option>
+                                <option value="team_admin">Team Admin</option>
+                                <option value="site_admin">Site Admin</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editActive">Account Status</label>
+                            <div style="padding-top: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="editActive" name="active" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span style="margin-left: 0.5rem;">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" style="justify-content: flex-end; margin-top: 1rem;">
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const generateInviteBtn = document.getElementById('generateInviteBtn');
+        const inviteCodesList = document.getElementById('inviteCodesList');
+        const userSearchInput = document.getElementById('userSearchInput');
+        const userSearchBtn = document.getElementById('userSearchBtn');
+        const userTableBody = document.getElementById('userTableBody');
+        const userEditForm = document.getElementById('userEditForm');
+        const editUserForm = document.getElementById('editUserForm');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const alertBox = document.getElementById('alertBox');
+        
+        // Show alert message
+        function showAlert(message, type = 'info') {
+            alertBox.textContent = message;
+            alertBox.className = 'admin-alert';
+            alertBox.classList.add(type);
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Copy text to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('Copied to clipboard!', 'success');
+            }).catch(() => {
+                showAlert('Failed to copy to clipboard', 'error');
+            });
+        }
+        
+        // Generate Invite Code
+        generateInviteBtn.addEventListener('click', function() {
+            // Mock API call - This will be replaced with a real API call
+            const mockCode = 'INVITE-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            
+            // Clear "no codes" message if it's there
+            if (inviteCodesList.innerHTML.includes('No invite codes generated yet')) {
+                inviteCodesList.innerHTML = '';
+            }
+            
+            // Create new code item
+            const codeItem = document.createElement('div');
+            codeItem.className = 'code-item';
+            codeItem.innerHTML = `
+                <span class="code">${mockCode}</span>
+                <button class="copy-button" data-code="${mockCode}">Copy</button>
+            `;
+            
+            // Add to the top of the list
+            inviteCodesList.insertBefore(codeItem, inviteCodesList.firstChild);
+            
+            // Add copy event listener
+            codeItem.querySelector('.copy-button').addEventListener('click', function() {
+                copyToClipboard(this.getAttribute('data-code'));
+            });
+            
+            showAlert('Invite code generated successfully!', 'success');
+        });
+        
+        // Search Users
+        userSearchBtn.addEventListener('click', function() {
+            const searchTerm = userSearchInput.value.trim();
+            if (!searchTerm) {
+                showAlert('Please enter a search term', 'error');
+                return;
+            }
+            
+            // Mock API call - This will be replaced with a real API call
+            // For now, we'll generate random user data for demo purposes
+            const mockUsers = [
+                {
+                    id: '1',
+                    username: searchTerm + '_user',
+                    team: { id: '101', name: 'Phoenix', number: '4533' },
+                    is_site_admin: false,
+                    is_team_admin: true,
+                    active: true
+                },
+                {
+                    id: '2',
+                    username: searchTerm + '_admin',
+                    team: null,
+                    is_site_admin: true,
+                    is_team_admin: false,
+                    active: true
+                }
+            ];
+            
+            userTableBody.innerHTML = '';
+            
+            if (mockUsers.length === 0) {
+                userTableBody.innerHTML = '<tr><td colspan="4">No users found</td></tr>';
+                return;
+            }
+            
+            mockUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.team ? `${user.team.name} (#${user.team.number})` : 'No Team'}</td>
+                    <td>${user.is_site_admin ? 'Site Admin' : (user.is_team_admin ? 'Team Admin' : 'User')}</td>
+                    <td>
+                        <button class="btn btn-secondary edit-user-btn" data-user-id="${user.id}">Edit</button>
+                    </td>
+                `;
+                userTableBody.appendChild(row);
+            });
+            
+            // Add edit button event listeners
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-user-id');
+                    loadUserForEdit(userId);
+                });
+            });
+            
+            showAlert('Users found', 'success');
+        });
+        
+        // Load User for Edit
+        function loadUserForEdit(userId) {
+            // Mock API call - This will be replaced with a real API call
+            // We're simulating getting user details for editing
+            const mockUserDetails = {
+                id: userId,
+                username: userId === '1' ? 'test_user' : 'test_admin',
+                team: userId === '1' ? { id: '101', name: 'Phoenix', number: '4533' } : null,
+                is_site_admin: userId === '2',
+                is_team_admin: userId === '1',
+                active: true
+            };
+            
+            // Populate form with mock data
+            document.getElementById('editUserId').value = mockUserDetails.id;
+            document.getElementById('editUsername').value = mockUserDetails.username;
+            
+            const teamSelect = document.getElementById('editTeam');
+            teamSelect.innerHTML = '<option value="">No Team</option>';
+            // Add the user's team if they have one
+            if (mockUserDetails.team) {
+                const option = document.createElement('option');
+                option.value = mockUserDetails.team.id;
+                option.textContent = `${mockUserDetails.team.name} (#${mockUserDetails.team.number})`;
+                option.selected = true;
+                teamSelect.appendChild(option);
+            }
+            
+            // Set role
+            const roleSelect = document.getElementById('editRole');
+            if (mockUserDetails.is_site_admin) {
+                roleSelect.value = 'site_admin';
+            } else if (mockUserDetails.is_team_admin) {
+                roleSelect.value = 'team_admin';
+            } else {
+                roleSelect.value = 'user';
+            }
+            
+            // Set active status
+            document.getElementById('editActive').checked = mockUserDetails.active;
+            
+            // Show form
+            userEditForm.style.display = 'block';
+            userEditForm.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Cancel Edit
+        cancelEditBtn.addEventListener('click', function() {
+            userEditForm.style.display = 'none';
+        });
+        
+        // Handle Edit Form Submit
+        editUserForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('editUserId').value;
+            const formData = {
+                username: document.getElementById('editUsername').value,
+                team_id: document.getElementById('editTeam').value || null,
+                role: document.getElementById('editRole').value,
+                active: document.getElementById('editActive').checked
+            };
+            
+            // Mock API call - This will be replaced with a real API call
+            console.log('Updating user:', userId, formData);
+            
+            showAlert('User updated successfully!', 'success');
+            userEditForm.style.display = 'none';
+            
+            // Simulate refreshing the user table
+            userSearchBtn.click();
+        });
+    });
+</script>
+{% endblock content %}

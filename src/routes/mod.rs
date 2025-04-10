@@ -5,11 +5,7 @@ use crate::{
     util::optimize_and_save_model,
 };
 use axum::{
-    extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode},
-    response::{IntoResponse, Redirect, Response},
-    routing::{get, post, put},
-    Form, Json, Router,
+    body::Body, extract::{FromRequestParts, Path, Query, State}, http::{HeaderMap, StatusCode}, response::{IntoResponse, Redirect, Response}, routing::{get, post, put}, Form, Json, Router
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use std::path::PathBuf;
@@ -28,6 +24,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/cards", get(cards))
         .route("/scan", get(scan))
         .route("/dashboard", get(dashboard))
+        .route("/admin", get(admin))
         .with_state(state.clone())
         .nest("/api", get_api_router(state))
         .fallback_service(ServeDir::new(PathBuf::from("public")))
@@ -162,6 +159,23 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
     Response::builder()
         .header("Content-Type", "text/html")
         .body(content)
+        .unwrap()
+}
+
+async fn admin(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
+    // Check if the user is a site admin
+    if user.is_admin.is_none() {
+        return Redirect::to("/dashboard").into_response();
+    }
+
+    let mut context = Context::new();
+    context.insert("is_auth", &true);
+    context.insert("user_name", &user.username);
+
+    let content = TEMPLATES.render("admin.tera", &context).unwrap();
+    Response::builder()
+        .header("Content-Type", "text/html")
+        .body(Body::from(content))
         .unwrap()
 }
 
