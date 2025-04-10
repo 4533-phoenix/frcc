@@ -54,7 +54,9 @@ pub fn render_card(card_svg_path: &str, id: &str) -> Pixmap {
     let card_tree = Tree::from_str(card_svg_path, &options).unwrap();
     let card_size = card_tree.size();
 
-    let mut pixmap = Pixmap::new(card_size.width().to_bits(), card_size.height().to_bits()).unwrap();
+    let width = card_size.width() as u32;
+    let height = card_size.height() as u32;
+    let mut pixmap = Pixmap::new(width, height).unwrap();
 
     // Render the card background
     resvg::render(
