@@ -44,7 +44,7 @@ pub struct User {
     pub invited_with: Option<Invite>,
 
     #[has_many]
-    pub cards: [Card],
+    pub scans: [CardScan],
 
     #[has_many]
     pub auth_tokens: [AuthToken],
@@ -91,8 +91,28 @@ pub struct CardDesign {
 
     pub special_kind: Option<String>,
 
+    pub note: String,
+
+    #[has_many]
+    pub abilities: [CardAbility],
+
     #[has_many]
     pub cards: [Card],
+}
+
+#[toasty::model]
+pub struct CardAbility {
+    #[key]
+    id: Id<Self>,
+
+    //#[index]
+    //card_design_id: String,
+    //#[belongs_to(key = card_design_id, references = id)]
+    //card_design: CardDesign,
+
+    pub stat: i64,
+    pub title: String,
+    pub description: String,
 }
 
 #[toasty::model]
@@ -102,15 +122,24 @@ pub struct Card {
 
     #[index]
     card_design_id: String,
-
     #[belongs_to(key = card_design_id, references = id)]
     card_design: CardDesign,
+}
+
+#[toasty::model]
+pub struct CardScan {
+    #[key]
+    id: String,
+
+    //#[index]
+    pub card_id: String,
+    //#[belongs_to(key = card_id, references = id)]
+    //pub card: Card,
 
     #[index]
-    holder_username: Option<String>,
-
-    #[belongs_to(key = holder_username, references = username)]
-    holder: Option<User>,
+    pub username: String,
+    #[belongs_to(key = username, references = username)]
+    pub user: User,
 }
 
 pub async fn init_db() -> toasty::Db {
@@ -121,6 +150,7 @@ pub async fn init_db() -> toasty::Db {
         .register::<AuthToken>()
         .register::<Invite>()
         .register::<CardDesign>()
+        .register::<CardAbility>()
         .register::<Card>()
         .connect("sqlite:./frcc.db")
         .await

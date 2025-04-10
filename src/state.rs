@@ -18,7 +18,6 @@ impl AppState {
             state.create_user(None, "admin", "admin").await;
         }
 
-
         state
     }
 
