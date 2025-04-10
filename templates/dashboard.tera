@@ -66,7 +66,7 @@
             </div>
             <div class="user-info">
                 <h1>Welcome back, {{ user_name }}!</h1>
-                {% if has_team %}
+                {% if has_team == "true" %}
                 <div class="badge team-badge">
                     <span class="badge-icon"></span>
                     Team {{ team_name }} #{{ team_number }}
@@ -89,7 +89,7 @@
         <div class="stats-grid">
             <div class="stat-card shimmer">
                 <h3 class="stat-card-title">Cards Collected</h3>
-                <div class="stat-card-value">42</div>
+                <div class="stat-card-value">{{ cards_collected | length }}</div>
                 <p class="stat-card-desc">Total cards in your collection</p>
             </div>
             

@@ -1,7 +1,8 @@
 use crate::{
     db::{AuthToken, Card, CardAbility, CardDesign, User},
     state::AppState,
-    templates::TEMPLATES, util::optimize_and_save_model,
+    templates::TEMPLATES,
+    util::optimize_and_save_model,
 };
 use axum::{
     extract::{FromRequestParts, Query, State},
@@ -103,7 +104,14 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
     // In a real application, we would fetch this data from a database
     // based on the authenticated user's session
     let mut context = Context::new();
-    let scans = user.scans().all(&state.db).await.unwrap().collect::<Vec<_>>().await.unwrap();
+    let scans = user
+        .scans()
+        .all(&state.db)
+        .await
+        .unwrap()
+        .collect::<Vec<_>>()
+        .await
+        .unwrap();
 
     let mut cards = Vec::new();
 
@@ -111,9 +119,10 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
         let card = Card::get_by_id(&state.db, &scan.card_id).await.unwrap();
         let design = card.card_design().get(&state.db).await.unwrap();
         cards.push(CardData {
-            design_id: design.id,
+            design_id: design.id.clone(),
             card_id: Some(scan.card_id),
             team_number: design.team_number as u64,
+            team_name: design.team().get(&state.db).await.unwrap().name,
             bot_name: Some(design.name),
             year: design.year as u16,
             abilities: None,
@@ -222,6 +231,7 @@ struct CardData {
     design_id: String,
     card_id: Option<String>,
     team_number: u64,
+    team_name: String,
     year: u16,
     bot_name: Option<String>,
     abilities: Option<Vec<CardAbilityData>>,
@@ -242,27 +252,29 @@ struct GetCardsParams {
 //async fn get_cards(State(state): State<AppState>, Query(params): Query<GetCardsParams>) -> impl IntoResponse {
 async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
     let designs = state
-      .db
-      .all(Select::<CardDesign>::all())
-      .await
-      .unwrap()
-      .collect::<Vec<_>>()
-      .await
-      .unwrap();
+        .db
+        .all(Select::<CardDesign>::all())
+        .await
+        .unwrap()
+        .collect::<Vec<_>>()
+        .await
+        .unwrap();
 
-    Json(
-        designs
-            .iter()
-            .map(|design| CardData {
-                design_id: design.id.clone(),
-                card_id: None,
-                team_number: design.team_number as u64,
-                year: design.year as u16,
-                bot_name: Some(design.name.clone()),
-                abilities: None,
-            })
-            .collect::<Vec<_>>(),
-    )
+    let mut cards = Vec::new();
+
+    for design in designs {
+        cards.push(CardData {
+            design_id: design.id.clone(),
+            card_id: None,
+            team_number: design.team_number as u64,
+            team_name: design.team().get(&state.db).await.unwrap().name,
+            year: design.year as u16,
+            bot_name: Some(design.name.clone()),
+            abilities: None,
+        });
+    }
+
+    Json(cards)
 }
 
 async fn create_card(
