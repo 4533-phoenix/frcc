@@ -105,10 +105,10 @@ pub struct CardAbility {
     #[key]
     id: Id<Self>,
 
-    //#[index]
-    //card_design_id: String,
-    //#[belongs_to(key = card_design_id, references = id)]
-    //card_design: CardDesign,
+    #[index]
+    card_design_id: String,
+    #[belongs_to(key = card_design_id, references = id)]
+    card_design: CardDesign,
 
     pub stat: i64,
     pub title: String,
@@ -122,6 +122,7 @@ pub struct Card {
 
     #[index]
     card_design_id: String,
+
     #[belongs_to(key = card_design_id, references = id)]
     card_design: CardDesign,
 }
@@ -129,12 +130,12 @@ pub struct Card {
 #[toasty::model]
 pub struct CardScan {
     #[key]
-    id: String,
+    id: Id<Self>,
 
-    //#[index]
+    #[index]
     pub card_id: String,
-    //#[belongs_to(key = card_id, references = id)]
-    //pub card: Card,
+    #[belongs_to(key = card_id, references = id)]
+    pub card: Card,
 
     #[index]
     pub username: String,
@@ -152,6 +153,7 @@ pub async fn init_db() -> toasty::Db {
         .register::<CardDesign>()
         .register::<CardAbility>()
         .register::<Card>()
+        .register::<CardScan>()
         .connect("sqlite:./frcc.db")
         .await
         .unwrap();

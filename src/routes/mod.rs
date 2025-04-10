@@ -1,5 +1,5 @@
 use crate::{
-    db::{AuthToken, Card, CardDesign, User},
+    db::{AuthToken, Card, CardAbility, CardDesign, User},
     state::AppState,
     templates::TEMPLATES, util::optimize_and_save_model,
 };

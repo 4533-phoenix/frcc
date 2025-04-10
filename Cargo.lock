@@ -377,9 +377,9 @@ dependencies = [
 
 [[package]]
 name = "bstr"
-version = "1.11.3"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "531a9155a481e2ee699d4f98f43c0ca4ff8ee1bfd55c31e9e98fb29d2b176fe0"
+checksum = "234113d19d0d7d613b40e86fb654acf958910802bcceab913a4f9e7cda03b1a4"
 dependencies = [
  "memchr",
  "serde",
@@ -1400,9 +1400,9 @@ checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
 name = "jiff"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c102670231191d07d37a35af3eb77f1f0dbf7a71be51a962dcd57ea607be7260"
+checksum = "1f33145a5cbea837164362c7bd596106eb7c5198f97d1ba6f6ebb3223952e488"
 dependencies = [
  "jiff-static",
  "log",
@@ -1413,9 +1413,9 @@ dependencies = [
 
 [[package]]
 name = "jiff-static"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4cdde31a9d349f1b1f51a0b3714a5940ac022976f4b49485fc04be052b183b4c"
+checksum = "43ce13c40ec6956157a3635d97a1ee2df323b263f09ea14165131289cb0f5c19"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1529,9 +1529,9 @@ dependencies = [
 
 [[package]]
 name = "miniz_oxide"
-version = "0.8.7"
+version = "0.8.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff70ce3e48ae43fa075863cef62e8b43b71a4f2382229920e0df362592919430"
+checksum = "3be647b768db090acb35d5ec5db2b0e1f1de11133ca123b9eacf5137868f892a"
 dependencies = [
  "adler2",
  "simd-adler32",
@@ -2266,7 +2266,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "std-util"
 version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
 dependencies = [
  "heck",
  "pluralizer",
@@ -2493,15 +2493,15 @@ dependencies = [
 [[package]]
 name = "toasty"
 version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
 dependencies = [
  "anyhow",
  "async-stream",
  "by_address",
  "indexmap",
  "toasty-core",
- "toasty-driver-sqlite",
  "toasty-macros",
+ "toasty-sqlite",
  "tokio-stream",
  "url",
  "uuid",
@@ -2510,7 +2510,20 @@ dependencies = [
 [[package]]
 name = "toasty-codegen"
 version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+dependencies = [
+ "indexmap",
+ "proc-macro2",
+ "quote",
+ "std-util",
+ "syn",
+ "toasty-core",
+]
+
+[[package]]
+name = "toasty-codegen2"
+version = "0.1.0"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2521,7 +2534,7 @@ dependencies = [
 [[package]]
 name = "toasty-core"
 version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2531,9 +2544,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "toasty-driver-sqlite"
+name = "toasty-macros"
 version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "toasty-codegen",
+ "toasty-codegen2",
+ "toasty-core",
+]
+
+[[package]]
+name = "toasty-sql"
+version = "0.1.0"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
+dependencies = [
+ "anyhow",
+ "toasty-core",
+]
+
+[[package]]
+name = "toasty-sqlite"
+version = "0.1.0"
+source = "git+https://github.com/frc4533-lincoln/toasty?branch=schema-gen#d5853431323cc6c197093a947dacc9c5aaca097a"
 dependencies = [
  "anyhow",
  "rusqlite",
@@ -2542,27 +2577,6 @@ dependencies = [
  "toasty-core",
  "toasty-sql",
  "url",
-]
-
-[[package]]
-name = "toasty-macros"
-version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "toasty-codegen",
- "toasty-core",
-]
-
-[[package]]
-name = "toasty-sql"
-version = "0.1.0"
-source = "git+https://github.com/tokio-rs/toasty?branch=main#39eac05f253d9624348c595a48a88c5d72fb74db"
-dependencies = [
- "anyhow",
- "toasty-core",
 ]
 
 [[package]]
