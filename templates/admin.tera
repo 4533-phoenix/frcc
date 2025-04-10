@@ -434,7 +434,7 @@
         });
         
         // Search Users
-        userSearchBtn.addEventListener('click', function() {
+        userSearchBtn.addEventListener('click', async function() {
             const searchTerm = userSearchInput.value.trim();
             if (!searchTerm) {
                 showAlert('Please enter a search term', 'error');
@@ -443,16 +443,18 @@
             
             // Mock API call - This will be replaced with a real API call
             // For now, we'll generate random user data for demo purposes
-            const users = (await fetch('/api/users')).json();
+            const users = (await (await fetch('/api/users')).json());
+
+						console.log(users);
             
             userTableBody.innerHTML = '';
             
-            if (mockUsers.length === 0) {
+            if (users.length === 0) {
                 userTableBody.innerHTML = '<tr><td colspan="4">No users found</td></tr>';
                 return;
             }
             
-            mockUsers.forEach(user => {
+            users.forEach(user => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.username}</td>
@@ -477,36 +479,29 @@
         });
         
         // Load User for Edit
-        function loadUserForEdit(userId) {
+        async function loadUserForEdit(username) {
             // Mock API call - This will be replaced with a real API call
             // We're simulating getting user details for editing
-            const mockUserDetails = {
-                id: userId,
-                username: userId === '1' ? 'test_user' : 'test_admin',
-                team: userId === '1' ? { id: '101', name: 'Phoenix', number: '4533' } : null,
-                is_site_admin: userId === '2',
-                is_team_admin: userId === '1',
-                active: true
-            };
+            const userDetails = (await (await fetch(`/api/user/${username}`)).json());
             
             // Populate form with mock data
-            document.getElementById('editUserId').value = mockUserDetails.id;
-            document.getElementById('editUsername').value = mockUserDetails.username;
+            document.getElementById('editUserId').value = userDetails.id;
+            document.getElementById('editUsername').value = userDetails.username;
             
             const teamSelect = document.getElementById('editTeam');
             teamSelect.innerHTML = '<option value="">No Team</option>';
             // Add the user's team if they have one
             if (mockUserDetails.team) {
                 const option = document.createElement('option');
-                option.value = mockUserDetails.team.id;
-                option.textContent = `${mockUserDetails.team.name} (#${mockUserDetails.team.number})`;
+                option.value = userDetails.team;
+                option.textContent = userDetails.team;
                 option.selected = true;
                 teamSelect.appendChild(option);
             }
             
             // Set role
             const roleSelect = document.getElementById('editRole');
-            if (mockUserDetails.is_site_admin) {
+            if (mockUserDetails.is_admin) {
                 roleSelect.value = 'site_admin';
             } else if (mockUserDetails.is_team_admin) {
                 roleSelect.value = 'team_admin';
