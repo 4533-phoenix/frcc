@@ -339,23 +339,22 @@
                     </div>
                     
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="editRole">Role</label>
-                            <select id="editRole" name="role">
-                                <option value="user">Regular User</option>
-                                <option value="team_admin">Team Admin</option>
-                                <option value="site_admin">Site Admin</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="editActive">Account Status</label>
+											<div class="form-group">
                             <div style="padding-top: 0.5rem;">
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="editActive" name="active" checked>
+                                    <input type="checkbox" id="is_verified" checked>
                                     <span class="toggle-slider"></span>
                                 </label>
-                                <span style="margin-left: 0.5rem;">Active</span>
+                                <span style="margin-left: 0.5rem;">Verified</span>
+                            </div>
+                      </div>
+											<div class="form-group">
+                            <div style="padding-top: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="is_admin" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span style="margin-left: 0.5rem;">Site admin</span>
                             </div>
                         </div>
                     </div>
@@ -405,9 +404,11 @@
         }
         
         // Generate Invite Code
-        generateInviteBtn.addEventListener('click', function() {
+        generateInviteBtn.addEventListener('click', async function() {
             // Mock API call - This will be replaced with a real API call
-            const mockCode = 'INVITE-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+						const code = await (await fetch('/api/invites', {
+							method: 'PUT',
+						})).text();
             
             // Clear "no codes" message if it's there
             if (inviteCodesList.innerHTML.includes('No invite codes generated yet')) {
@@ -418,8 +419,8 @@
             const codeItem = document.createElement('div');
             codeItem.className = 'code-item';
             codeItem.innerHTML = `
-                <span class="code">${mockCode}</span>
-                <button class="copy-button" data-code="${mockCode}">Copy</button>
+                <span class="code">${code}</span>
+                <button class="copy-button" data-code="${code}">Copy</button>
             `;
             
             // Add to the top of the list
@@ -485,13 +486,13 @@
             const userDetails = (await (await fetch(`/api/user/${username}`)).json());
             
             // Populate form with mock data
-            document.getElementById('editUserId').value = userDetails.id;
+            document.getElementById('editUserId').value = userDetails.username;
             document.getElementById('editUsername').value = userDetails.username;
             
             const teamSelect = document.getElementById('editTeam');
             teamSelect.innerHTML = '<option value="">No Team</option>';
             // Add the user's team if they have one
-            if (mockUserDetails.team) {
+            if (userDetails.team) {
                 const option = document.createElement('option');
                 option.value = userDetails.team;
                 option.textContent = userDetails.team;
@@ -500,17 +501,8 @@
             }
             
             // Set role
-            const roleSelect = document.getElementById('editRole');
-            if (mockUserDetails.is_admin) {
-                roleSelect.value = 'site_admin';
-            } else if (mockUserDetails.is_team_admin) {
-                roleSelect.value = 'team_admin';
-            } else {
-                roleSelect.value = 'user';
-            }
-            
-            // Set active status
-            document.getElementById('editActive').checked = mockUserDetails.active;
+            document.getElementById('is_verified').checked = userDetails.is_verified;
+            document.getElementById('is_admin').checked = userDetails.is_admin;
             
             // Show form
             userEditForm.style.display = 'block';
@@ -523,19 +515,26 @@
         });
         
         // Handle Edit Form Submit
-        editUserForm.addEventListener('submit', function(event) {
+        editUserForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             
             const userId = document.getElementById('editUserId').value;
-            const formData = {
+            const formData = JSON.stringify({
                 username: document.getElementById('editUsername').value,
-                team_id: document.getElementById('editTeam').value || null,
-                role: document.getElementById('editRole').value,
-                active: document.getElementById('editActive').checked
-            };
+                team: null, //document.getElementById('editTeam').value || null,
+                is_verified: document.getElementById('is_verified').checked,
+                is_admin: document.getElementById('is_admin').checked
+            });
             
             // Mock API call - This will be replaced with a real API call
             console.log('Updating user:', userId, formData);
+						await fetch(`/api/user/${userId}`, {
+							method: 'PUT',
+							headers: {
+    						"Content-Type": "application/json",
+  						},
+							body: formData,
+						});
             
             showAlert('User updated successfully!', 'success');
             userEditForm.style.display = 'none';

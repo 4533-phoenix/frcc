@@ -404,7 +404,7 @@ struct UserData {
     username: String,
     is_admin: bool,
     is_verified: bool,
-    team: Option<u16>,
+    team: Option<String>,
 }
 
 async fn get_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>) -> impl IntoResponse {
@@ -442,17 +442,17 @@ async fn get_users(State(state): State<AppState>, Auth(user): Auth) -> impl Into
     }
 }
 
-async fn modify_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>, Form(data): Form<UserData>) -> impl IntoResponse {
+async fn modify_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>, Json(data): Json<UserData>) -> impl IntoResponse {
     if user.is_admin.is_some() {
         let mut user = User::get_by_username(&state.db, username).await.unwrap();
         let mut user = user.update();
         user = user.is_admin(if data.is_admin {
-            Some(String::new())
+            Some(String::from("skibidi"))
         } else {
             None
         });
         user = user.is_verified(if data.is_verified {
-            Some(String::new())
+            Some(String::from("skibidi"))
         } else {
             None
         });
