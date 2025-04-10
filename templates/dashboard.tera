@@ -78,6 +78,13 @@
                     {% endif %}
                 </div>
                 {% endif %}
+                
+                {% if is_site_admin %}
+                <div class="badge success site-admin-badge">
+                    <span class="badge-icon"></span>
+                    Site Administrator
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -103,7 +110,6 @@
         <!-- Quick Actions -->
         <div class="mb-4">
             <h2 class="section-title">
-                <span class="section-icon"></span>
                 Quick Actions
             </h2>
 
@@ -112,13 +118,11 @@
                     <div class="action-card-header">
                         <h3 class="action-card-title">My Cards</h3>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                            <path
-                                d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2zm16 14H5V5h14v14zM8.5 11.5l1.5-2 1.5 2-1.5 2-1.5-2zm4.5 3.5l1.5-2 1.5 2-1.5 2-1.5-2z" />
+                            <path d="M5 6 h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1zm2 -2h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1zm2 -2h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1z"/>
                         </svg>
                     </div>
                     <div class="action-card-body">
-                        <p class="action-card-desc">Browse and manage your card collection. View details and organize by
-                            year.</p>
+                        <p class="action-card-desc">Browse and manage your card collection.</p>
                         <a href="/cards" class="btn btn-primary">View Collection</a>
                     </div>
                 </div>
@@ -133,10 +137,26 @@
                     </div>
                     <div class="action-card-body">
                         <p class="action-card-desc">Scan a new card using your camera to add it to your collection.</p>
-                        <a href="/scan" class="btn btn-secondary">Scan Now</a>
+                        <a href="/scan" class="btn btn-primary">Scan Now</a>
                     </div>
                 </div>
+                
+                {% if is_site_admin %}
+                <div class="action-card">
+                    <div class="action-card-header">
+                        <h3 class="action-card-title">Admin Panel</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <div class="action-card-body">
+                        <p class="action-card-desc">Access the administration panel to manage users, cards, and site settings.</p>
+                        <a href="/admin" class="btn btn-primary">Admin Panel</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
+
         </div>
 
     </div>
