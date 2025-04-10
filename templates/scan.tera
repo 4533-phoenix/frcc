@@ -10,7 +10,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .camera-container {
         flex: 1;
         position: relative;
@@ -20,13 +20,13 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     #video {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    
+
     .info-panel {
         width: 350px;
         background-color: var(--background-primary);
@@ -36,7 +36,7 @@
         transition: transform 0.3s ease;
         z-index: 10;
     }
-    
+
     .camera-controls {
         position: absolute;
         bottom: 20px;
@@ -46,7 +46,7 @@
         display: flex;
         gap: 1rem;
     }
-    
+
     .control-btn {
         background: rgba(0, 0, 0, 0.6);
         color: white;
@@ -60,18 +60,18 @@
         cursor: pointer;
         transition: var(--transition);
     }
-    
+
     .control-btn:hover {
         background: rgba(0, 0, 0, 0.8);
         transform: scale(1.05);
     }
-    
+
     .control-icon {
         width: 24px;
         height: 24px;
         background-color: white;
     }
-    
+
     .switch-camera-icon {
         mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
         -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
@@ -82,7 +82,7 @@
         mask-position: center;
         -webkit-mask-position: center;
     }
-    
+
     .camera-loading {
         position: absolute;
         top: 50%;
@@ -91,7 +91,7 @@
         color: white;
         text-align: center;
     }
-    
+
     .loading-spinner {
         width: 50px;
         height: 50px;
@@ -101,11 +101,13 @@
         animation: spin 1s ease-in-out infinite;
         margin: 0 auto 1rem;
     }
-    
+
     @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+            transform: rotate(360deg);
+        }
     }
-    
+
     .card-detected {
         position: absolute;
         top: 20px;
@@ -120,44 +122,59 @@
         transition: opacity 0.3s ease;
         z-index: 5;
     }
-    
+
     .card-detected.visible {
         opacity: 1;
         animation: pulse 2s infinite;
     }
-    
+
     @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(95, 190, 203, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(95, 190, 203, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(95, 190, 203, 0); }
+        0% {
+            box-shadow: 0 0 0 0 rgba(95, 190, 203, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(95, 190, 203, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(95, 190, 203, 0);
+        }
     }
-    
+
     .scan-instructions {
         text-align: center;
         padding: 2rem 0;
     }
-    
+
     .scan-instructions img {
         width: 100px;
         height: 100px;
         margin: 0 auto 1rem;
         opacity: 0.7;
     }
-    
+
     .card-info {
         display: none;
     }
-    
+
     .card-info.visible {
         display: block;
         animation: fadeIn 0.5s ease;
     }
-    
+
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    
+
     .card-image {
         width: 100%;
         height: 200px;
@@ -165,18 +182,18 @@
         border-radius: var(--border-radius);
         margin-bottom: 1.5rem;
     }
-    
+
     .card-stats {
         margin-top: 1.5rem;
     }
-    
+
     .stat-row {
         display: flex;
         justify-content: space-between;
         padding: 0.5rem 0;
         border-bottom: 1px solid rgba(95, 190, 203, 0.2);
     }
-    
+
     .stat-label {
         font-weight: 600;
         color: var(--primary);
@@ -190,38 +207,39 @@
 <section class="scan-container" id="scanContainer">
     <div class="camera-container">
         <video id="video" autoplay playsinline></video>
-        
+
         <div class="camera-loading" id="cameraLoading">
             <div class="loading-spinner"></div>
             <p>Initializing camera...</p>
         </div>
-        
+
         <div class="card-detected" id="cardDetected">
             Card Detected!
         </div>
-        
+
         <div class="camera-controls">
             <button class="control-btn" id="switchCameraBtn" aria-label="Switch camera">
                 <span class="control-icon switch-camera-icon"></span>
             </button>
         </div>
     </div>
-    
+
     <div class="info-panel" id="infoPanel">
         <div class="scan-instructions" id="scanInstructions">
             <img src="/images/aztec.svg" alt="Scan icon" aria-hidden="true">
             <h2>Scan a Card</h2>
             <p>Point your camera at any FCC card to view its details and AR content.</p>
         </div>
-        
+
         <div class="card-info" id="cardInfo">
             <h2 id="teamName">Team Name</h2>
             <h3 id="teamNumber">Team Number</h3>
-            
+
             <div class="card-image" id="cardImage"></div>
-            
-            <p id="cardDescription">Information about the team and their robot will appear here when you scan a card.</p>
-            
+
+            <p id="cardDescription">Information about the team and their robot will appear here when you scan a card.
+            </p>
+
             <div class="card-stats">
                 <div class="stat-row">
                     <span class="stat-label">Year</span>
@@ -236,7 +254,7 @@
                     <span id="cardAwards">Innovation Award</span>
                 </div>
             </div>
-            
+
             <div class="button-container">
                 <button class="btn btn-primary" id="viewArBtn">View in AR</button>
                 <button class="btn btn-secondary" id="addToCollectionBtn">Add to Collection</button>
@@ -246,7 +264,7 @@
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const elements = {
             video: document.getElementById('video'),
             loading: document.getElementById('cameraLoading'),
@@ -263,7 +281,7 @@
             arButton: document.getElementById('viewArBtn'),
             collectionButton: document.getElementById('addToCollectionBtn')
         };
-        
+
         const state = {
             stream: null,
             scanInterval: null,
@@ -275,7 +293,7 @@
         };
 
         // ===== CAMERA INITIALIZATION =====
-        
+
         async function start() {
             try {
                 await navigator.mediaDevices.getUserMedia({ video: true });
@@ -289,16 +307,16 @@
                 document.getElementById('retryBtn').addEventListener('click', start);
             }
         }
-        
+
         async function initCamera() {
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 state.cameras = devices.filter(device => device.kind === 'videoinput');
-                
+
                 if (state.cameras.length === 0) {
                     throw new Error('No cameras found');
                 }
-                
+
                 await startCamera();
                 elements.loading.style.display = 'none';
                 elements.switchBtn.style.display = state.cameras.length > 1 ? 'flex' : 'none';
@@ -312,33 +330,33 @@
                 document.getElementById('retryBtn').addEventListener('click', initCamera);
             }
         }
-        
+
         async function startCamera() {
             if (state.stream) {
                 state.stream.getTracks().forEach(track => track.stop());
             }
-            
+
             if (state.scanInterval) {
                 clearInterval(state.scanInterval);
                 state.scanInterval = null;
             }
-            
+
             try {
                 const constraints = {
                     video: {
                         facingMode: 'environment',
-                        deviceId: state.cameras.length > 0 && state.currentCamera >= 0 ? 
+                        deviceId: state.cameras.length > 0 && state.currentCamera >= 0 ?
                             { ideal: state.cameras[state.currentCamera].deviceId } : undefined
                     }
                 };
-                
+
                 state.stream = await navigator.mediaDevices.getUserMedia(constraints);
                 elements.video.srcObject = state.stream;
-                
+
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 state.cameras = devices.filter(device => device.kind === 'videoinput');
                 elements.switchBtn.style.display = state.cameras.length > 1 ? 'flex' : 'none';
-                
+
                 if (state.currentCamera >= state.cameras.length) {
                     state.currentCamera = 0;
                 }
@@ -346,16 +364,16 @@
                 throw error;
             }
         }
-        
+
         async function switchCamera() {
             state.currentCamera = (state.currentCamera + 1) % state.cameras.length;
             state.scanning = false;
             await startCamera();
             startScanning();
         }
-        
+
         // ===== BARCODE SCANNING =====
-        
+
         function startScanning() {
             state.scanning = true;
             state.scanInterval = setInterval(() => {
@@ -364,25 +382,25 @@
                 }
             }, 500);
         }
-        
+
         async function scanBarcode() {
             if (!elements.video.videoWidth) return;
-            
+
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = elements.video.videoWidth;
                 canvas.height = elements.video.videoHeight;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(elements.video, 0, 0, canvas.width, canvas.height);
-                
+
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                
+
                 try {
                     const results = await ZXingWASM.readBarcodes(imageData, {
                         formats: ["Aztec"],
                         tryHarder: true
                     });
-                    
+
                     if (results && results.length > 0) {
                         processDetectedCode(results[0].text, results[0].format);
                     }
@@ -393,40 +411,40 @@
                 // Silent fail - frame capture errors are expected
             }
         }
-        
+
         // ===== CARD DATA PROCESSING =====
-        
+
         function processDetectedCode(text, format) {
             try {
                 if (!text.startsWith('FRCC-')) return;
-                
+
                 const cardId = text.substring(5);
-                
+
                 // Debounce scanning - don't process same card repeatedly
                 const now = Date.now();
                 if (state.lastScannedId === cardId && now - state.lastScanTime < 5000) {
                     return;
                 }
-                
+
                 // Update debounce tracking
                 state.lastScannedId = cardId;
                 state.lastScanTime = now;
-                
+
                 requestCardData(cardId);
             } catch (error) {
                 // Silent fail
             }
         }
-        
+
         function requestCardData(cardId) {
             elements.detected.textContent = "Card Found!";
             elements.detected.classList.add('visible');
-            
+
             // Hide the notification after 3 seconds
             setTimeout(() => {
                 elements.detected.classList.remove('visible');
             }, 3000);
-            
+
             // Make a request to the backend API
             fetch(`/api/cards/${cardId}`)
                 .then(response => {
@@ -443,35 +461,35 @@
                     // You can show an error message to the user here
                 });
         }
-        
+
         function displayCardData(cardData) {
             // Display team info
             elements.teamName.textContent = cardData.team_name || "Team Name";
             elements.teamNumber.textContent = `Team ${cardData.team_number}` || "Team Number";
-            
+
             // Set card image if available
             if (cardData.image_path) {
                 elements.cardImage.style.background = `url('${cardData.image_path}') no-repeat center/cover`;
             } else {
                 elements.cardImage.style.background = 'var(--gradient-primary)';
             }
-            
+
             // Set description or note
             elements.description.textContent = cardData.note || "No description available";
-            
+
             // Set other details
             elements.year.textContent = cardData.card_year || "N/A";
             elements.competition.textContent = "FIRST Championship"; // This could come from the backend in the future
-            
+
             // Create abilities display
             if (cardData.abilities && cardData.abilities.length > 0) {
                 // Clear existing awards
                 elements.awards.innerHTML = '';
-                
+
                 // Create abilities list
                 const abilitiesList = document.createElement('div');
                 abilitiesList.className = 'abilities-list';
-                
+
                 cardData.abilities.forEach(ability => {
                     const abilityItem = document.createElement('div');
                     abilityItem.className = 'ability-item';
@@ -481,29 +499,29 @@
                     `;
                     abilitiesList.appendChild(abilityItem);
                 });
-                
+
                 // Add abilities to the awards element (repurposing it for abilities)
                 elements.awards.appendChild(abilitiesList);
             } else {
                 elements.awards.textContent = "None listed";
             }
-            
+
             // Update AR button to use 3D model path if available
             if (cardData.model_3d_path) {
                 elements.arButton.dataset.modelPath = cardData.model_3d_path;
             }
-            
+
             // Show card info and hide instructions
             elements.instructions.style.display = 'none';
             elements.cardInfo.classList.add('visible');
-            
+
             // Pause scanning while showing card
             clearInterval(state.scanInterval);
             state.scanInterval = null;
-            
+
             // Setup button actions
             setupCardButtons(cardData);
-            
+
             // Resume scanning after a delay
             setTimeout(() => {
                 if (state.scanning) {
@@ -511,14 +529,14 @@
                 }
             }, 5000);
         }
-        
+
         function setupCardButtons(cardData) {
-            elements.collectionButton.onclick = function() {
+            elements.collectionButton.onclick = function () {
                 this.disabled = true;
                 this.textContent = "Added to Collection";
                 this.classList.remove('btn-secondary');
                 this.classList.add('btn-primary');
-                
+
                 // Here you would make a call to add the card to the user's collection
                 fetch('/api/collection/add', {
                     method: 'POST',
@@ -530,8 +548,8 @@
                     console.error('Error adding card to collection:', error);
                 });
             };
-            
-            elements.arButton.onclick = function() {
+
+            elements.arButton.onclick = function () {
                 // Use the 3D model path from the card data if available
                 const modelPath = this.dataset.modelPath || null;
                 if (modelPath) {
@@ -541,9 +559,9 @@
                 }
             };
         }
-        
+
         elements.switchBtn.addEventListener('click', switchCamera);
-        
+
         start();
     });
 </script>

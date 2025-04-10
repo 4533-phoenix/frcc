@@ -11,7 +11,7 @@
         margin: 0;
         margin-top: 0.2rem;
     }
-    
+
     .password-requirements {
         font-size: 0.85rem;
         margin-top: 0.5rem;
@@ -30,36 +30,37 @@
                 <h1 id="signup-heading" class="gradient-text">Sign Up</h1>
                 <p>Create your FRCC account</p>
             </div>
-            
+
             <form class="auth-form" action="/api/register" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" autocomplete="username" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" minlength="8" required>
                     <p class="password-requirements">Password must be at least 8 characters long</p>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" autocomplete="new-password" required>
                 </div>
-                
+
                 <div class="checkbox-group">
                     <input type="checkbox" id="terms" name="terms" required>
-                    <label for="terms">I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a></label>
+                    <label for="terms">I agree to the <a href="/terms">Terms of Service</a> and <a
+                            href="/privacy">Privacy Policy</a></label>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary submit-btn">Create Account</button>
             </form>
-            
+
             <div class="auth-separator">
                 <span>OR</span>
             </div>
-            
+
             <div class="auth-alt">
                 <p>Already have an account? <a href="/signin">Sign In</a></p>
             </div>
@@ -68,12 +69,12 @@
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const form = document.querySelector('.auth-form');
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirmPassword');
-        
-        form.addEventListener('submit', function(event) {
+
+        form.addEventListener('submit', function (event) {
             if (password.value !== confirmPassword.value) {
                 event.preventDefault();
                 confirmPassword.setCustomValidity("Passwords don't match");
@@ -82,8 +83,8 @@
                 confirmPassword.setCustomValidity('');
             }
         });
-        
-        confirmPassword.addEventListener('input', function() {
+
+        confirmPassword.addEventListener('input', function () {
             if (password.value !== confirmPassword.value) {
                 confirmPassword.setCustomValidity("Passwords don't match");
             } else {

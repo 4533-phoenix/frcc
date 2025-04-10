@@ -18,7 +18,7 @@
         mask-position: center;
         -webkit-mask-position: center;
     }
-    
+
     /* Icon types with simplified CSS */
     .section-icon {
         width: 28px;
@@ -31,14 +31,26 @@
         mask-position: center;
         -webkit-mask-position: center;
     }
-    
-    .approach-icon { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/%3E%3C/svg%3E"); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/%3E%3C/svg%3E"); }
-    
-    .why-icon { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17h2v-2h-2v2zm2.07-7.75l-.9.92C11.45 12.9 11 13.5 11 15h2c0-1.13.47-1.78.88-2.17l.9-.92c.76-.69.76-1.89.01-2.69-.76-.81-2.01-.81-2.78 0-1.13 1.22-.74 1.81-.74 2.83h2c0-1.08.33-1.08.93-1.72.49-.51.49-1.33 0-1.85-.5-.52-1.28-.52-1.78 0-.49.52-.49 1.34 0 1.85z'/%3E%3C/svg%3E"); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17h2v-2h-2v2zm2.07-7.75l-.9.92C11.45 12.9 11 13.5 11 15h2c0-1.13.47-1.78.88-2.17l.9-.92c.76-.69.76-1.89.01-2.69-.76-.81-2.01-.81-2.78 0-1.13 1.22-.74 1.81-.74 2.83h2c0-1.08.33-1.08.93-1.72.49-.51.49-1.33 0-1.85-.5-.52-1.28-.52-1.78 0-.49.52-.49 1.34 0 1.85z'/%3E%3C/svg%3E"); }
-    
-    .third-party-icon { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E"); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E"); }
-    
-    .contact-icon { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E"); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E"); }
+
+    .approach-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/%3E%3C/svg%3E");
+    }
+
+    .why-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17h2v-2h-2v2zm2.07-7.75l-.9.92C11.45 12.9 11 13.5 11 15h2c0-1.13.47-1.78.88-2.17l.9-.92c.76-.69.76-1.89.01-2.69-.76-.81-2.01-.81-2.78 0-1.13 1.22-.74 1.81-.74 2.83h2c0-1.08.33-1.08.93-1.72.49-.51.49-1.33 0-1.85-.5-.52-1.28-.52-1.78 0-.49.52-.49 1.34 0 1.85z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17h2v-2h-2v2zm2.07-7.75l-.9.92C11.45 12.9 11 13.5 11 15h2c0-1.13.47-1.78.88-2.17l.9-.92c.76-.69.76-1.89.01-2.69-.76-.81-2.01-.81-2.78 0-1.13 1.22-.74 1.81-.74 2.83h2c0-1.08.33-1.08.93-1.72.49-.51.49-1.33 0-1.85-.5-.52-1.28-.52-1.78 0-.49.52-.49 1.34 0 1.85z'/%3E%3C/svg%3E");
+    }
+
+    .third-party-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E");
+    }
+
+    .contact-icon {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+    }
 
     .closing-note {
         font-style: italic;
@@ -61,48 +73,61 @@
                 <h1 id="privacy-heading" class="gradient-text">Privacy Policy</h1>
                 <p class="meta-text">Last updated: {{ now() | date(format="%B %d, %Y") }}</p>
             </div>
-            
+
             <div class="content-box">
-                <h2 id="approach-heading" class="icon-heading"><span class="section-icon approach-icon" aria-hidden="true"></span>Our Approach to Privacy</h2>
+                <h2 id="approach-heading" class="icon-heading"><span class="section-icon approach-icon"
+                        aria-hidden="true"></span>Our Approach to Privacy</h2>
                 <p>
-                    At <i>FIRST</i> Robotics Card Competition (FRCC), we believe privacy is a fundamental right, not a commodity to be traded. 
+                    At <i>FIRST</i> Robotics Card Competition (FRCC), we believe privacy is a fundamental right, not a
+                    commodity to be traded.
                     Unlike many companies today, we've taken a firm stance against unnecessary data collection.
                 </p>
-                
+
                 <div class="highlight-box shimmer" role="region" aria-labelledby="highlight-title">
-                    <div id="highlight-title" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem;">
-                        <span class="icon icon-large" aria-hidden="true" style="background-color: white;
+                    <div id="highlight-title"
+                        style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <span class="icon icon-large" aria-hidden="true"
+                            style="background-color: white;
                             mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h2c0-1.66 1.34-3 3-3s3 1.34 3 3v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z\'/%3E%3C/svg%3E');
                             -webkit-mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h2c0-1.66 1.34-3 3-3s3 1.34 3 3v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z\'/%3E%3C/svg%3E');">
                         </span>
                         We Do Not Collect Your Data
                     </div>
                     <p>
-                        It's simple: we don't collect any personal data or analytics about you. No tracking. No cookies. No user behavior monitoring.
+                        It's simple: we don't collect any personal data or analytics about you. No tracking. No cookies.
+                        No user behavior monitoring.
                         Your interaction with FRCC remains completely private.
                     </p>
                 </div>
-                
-                <h2 id="why-heading" class="icon-heading"><span class="section-icon why-icon" aria-hidden="true"></span>Why We Made This Choice</h2>
+
+                <h2 id="why-heading" class="icon-heading"><span class="section-icon why-icon"
+                        aria-hidden="true"></span>Why We Made This Choice</h2>
                 <p>
-                    We believe that software can be useful and sustainable without harvesting user data. Some companies started with mantras like 
-                    "Don't be evil" only to quietly remove such principles from their code of conduct as their business models became increasingly 
+                    We believe that software can be useful and sustainable without harvesting user data. Some companies
+                    started with mantras like
+                    "Don't be evil" only to quietly remove such principles from their code of conduct as their business
+                    models became increasingly
                     dependent on data collection and surveillance. We chose a different path.
                 </p>
-                
-                <h2 id="third-party-heading" class="icon-heading"><span class="section-icon third-party-icon" aria-hidden="true"></span>Third-Party Services</h2>
+
+                <h2 id="third-party-heading" class="icon-heading"><span class="section-icon third-party-icon"
+                        aria-hidden="true"></span>Third-Party Services</h2>
                 <p>
-                    Our application is self-contained. We don't use third-party analytics services, advertising networks, or tracking tools.
+                    Our application is self-contained. We don't use third-party analytics services, advertising
+                    networks, or tracking tools.
                     You can use FRCC with confidence that your activities remain private.
                 </p>
-                
-                <h2 id="contact-heading" class="icon-heading"><span class="section-icon contact-icon" aria-hidden="true"></span>Contact Information</h2>
+
+                <h2 id="contact-heading" class="icon-heading"><span class="section-icon contact-icon"
+                        aria-hidden="true"></span>Contact Information</h2>
                 <p>
-                    If you have questions about this privacy policy or our approach to user data, please contact us at: <a href="mailto:fillinlater@example.com">fillinlater@example.com</a>
+                    If you have questions about this privacy policy or our approach to user data, please contact us at:
+                    <a href="mailto:fillinlater@example.com">fillinlater@example.com</a>
                 </p>
-                
+
                 <p class="closing-note">
-                    Remember when tech companies championed user privacy instead of exploiting it? We do too, and we're sticking to those principles.
+                    Remember when tech companies championed user privacy instead of exploiting it? We do too, and we're
+                    sticking to those principles.
                 </p>
             </div>
         </div>
