@@ -446,7 +446,7 @@
             }, 3000);
 
             // Make a request to the backend API
-            fetch(`/api/cards/${cardId}`)
+            fetch(`/api/scan/${cardId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Card not found');

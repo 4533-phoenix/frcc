@@ -5,7 +5,7 @@ use crate::{
     util::optimize_and_save_model,
 };
 use axum::{
-    extract::{FromRequestParts, Query, State},
+    extract::{FromRequestParts, Path, Query, State},
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Redirect, Response},
     routing::{get, post, put},
@@ -39,6 +39,7 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/logout", get(logout))
         .route("/register", post(register))
         .route("/cards", get(get_cards).post(create_card))
+        .route("/scan", post(scan_card))
         //.route("/cards/:id", get(get_card).put(update_card).delete(delete_card))
         //.route("/collection", get(get_collection).put(add_to_collection))
         .route("/invites", put(create_invite_code))
@@ -364,4 +365,20 @@ async fn create_card(
             .await
             .unwrap();
     }
+}
+
+async fn scan_card(State(state): State<AppState>, Auth(user): Auth, Path(id): Path<String>) -> impl IntoResponse {
+    let card = Card::get_by_id(&state.db, &id).await.unwrap();
+    let design = card.card_design().get(&state.db).await.unwrap();
+    let team = user.team().get(&state.db).await.unwrap().unwrap();
+
+    Json(CardData {
+        bot_name: Some(design.name.clone()),
+        card_id: Some(id),
+        design_id: design.id.clone(),
+        team_number: team.number as u64,
+        team_name: team.name.clone(),
+        year: design.year as u16,
+        abilities: None,
+    })
 }
