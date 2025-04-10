@@ -1,10 +1,10 @@
 use crate::{
-    db::{AuthToken, CardDesign, User},
+    db::{AuthToken, Card, CardDesign, User},
     state::AppState,
     templates::TEMPLATES, util::optimize_and_save_model,
 };
 use axum::{
-    extract::{FromRequestParts, State},
+    extract::{FromRequestParts, Query, State},
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Redirect, Response},
     routing::{get, post, put},
@@ -103,13 +103,33 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
     // In a real application, we would fetch this data from a database
     // based on the authenticated user's session
     let mut context = Context::new();
+    let scans = user.scans().all(&state.db).await.unwrap().collect::<Vec<_>>().await.unwrap();
+
+    let mut cards = Vec::new();
+
+    for scan in scans {
+        let card = Card::get_by_id(&state.db, &scan.card_id).await.unwrap();
+        let design = card.card_design().get(&state.db).await.unwrap();
+        cards.push(CardData {
+            design_id: design.id,
+            card_id: Some(scan.card_id),
+            team_number: design.team_number as u64,
+            bot_name: Some(design.name),
+            year: design.year as u16,
+            abilities: None,
+        });
+    }
+
     context.insert("user_name", &user.username);
     context.insert("profile_pic", "/images/default-profile.png");
-    context.insert("cards_collected", &user.cards().all(&state.db).await.unwrap().collect::<Vec<_>>().await.unwrap().len().to_string());
-    context.insert("has_team", "true");
-    context.insert("team_name", "Awesome Team");
-    context.insert("team_number", "123");
-    context.insert("is_verified", "true");
+    context.insert("cards_collected", &cards);
+    if let Some(team) = user.team().get(&state.db).await.unwrap() {
+        context.insert("has_team", "true");
+        context.insert("team_name", &team.name);
+        context.insert("team_number", &(team.number as u64));
+    } else {
+        context.insert("has_team", "false");
+    }
 
     let content = TEMPLATES.render("dashboard.tera", &context).unwrap();
     Response::builder()
@@ -148,13 +168,7 @@ async fn login(
     }
 }
 
-#[derive(Deserialize)]
-struct RegisterForm {
-    username: String,
-    password: String,
-}
-
-async fn register(State(state): State<AppState>, form: Form<RegisterForm>) -> impl IntoResponse {
+async fn register(State(state): State<AppState>, form: Form<LoginForm>) -> impl IntoResponse {
     state
         .create_user(None, &form.username, &form.password)
         .await;
@@ -204,33 +218,50 @@ impl FromRequestParts<AppState> for Auth {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct Card {
-    id: String,
+struct CardData {
+    design_id: String,
+    card_id: Option<String>,
     team_number: u64,
     year: u16,
-    bot_name: String,
+    bot_name: Option<String>,
+    abilities: Option<Vec<CardAbilityData>>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct CardAbilityData {
+    stat: u8,
+    title: String,
+    description: String,
+}
+
+#[derive(Deserialize)]
+struct GetCardsParams {
+    user: Option<String>,
+}
+
+//async fn get_cards(State(state): State<AppState>, Query(params): Query<GetCardsParams>) -> impl IntoResponse {
 async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
     let designs = state
-        .db
-        .all(Select::<CardDesign>::all())
-        .await
-        .unwrap()
-        .collect::<Vec<CardDesign>>()
-        .await
-        .unwrap();
+      .db
+      .all(Select::<CardDesign>::all())
+      .await
+      .unwrap()
+      .collect::<Vec<_>>()
+      .await
+      .unwrap();
 
     Json(
         designs
             .iter()
-            .map(|design| Card {
-                id: design.id.clone(),
+            .map(|design| CardData {
+                design_id: design.id.clone(),
+                card_id: None,
                 team_number: design.team_number as u64,
                 year: design.year as u16,
-                bot_name: design.name.clone(),
+                bot_name: Some(design.name.clone()),
+                abilities: None,
             })
-            .collect::<Vec<Card>>(),
+            .collect::<Vec<_>>(),
     )
 }
 
