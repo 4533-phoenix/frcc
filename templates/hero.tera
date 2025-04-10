@@ -4,7 +4,6 @@
 {{ super() }}
 
 <style>
-    /* Hero-specific styles that aren't in the main stylesheet */
     .hero {
         padding: 6rem 0 8rem;
         overflow: hidden;
@@ -29,7 +28,6 @@
         color: var(--secondary);
     }
 
-    /* 3D Card Display - Specific to the hero page */
     .hero-cards {
         position: relative;
         height: 400px;
@@ -75,12 +73,11 @@
         filter: brightness(0.9);
     }
 
-    /* Card switch button */
     .card-switch-container {
         width: 100%;
-        display: none; /* Hide by default on desktop */
+        display: none;
         justify-content: center;
-        margin-top: 420px;  /* Position below the cards */
+        margin-top: 420px;
     }
 
     .card-switch-btn {
@@ -123,7 +120,6 @@
         transform: rotate(180deg);
     }
 
-    /* Special positions for swapped state */
     .hero-cards.swapped .card-front {
         transform: rotateY(-15deg) translateZ(-50px) translateX(100px);
         z-index: 1;
@@ -136,7 +132,6 @@
         filter: brightness(1);
     }
 
-    /* Hover effects for swapped state */
     .hero-cards.swapped:hover .card-front {
         transform: rotateY(0deg) translateZ(0) translateX(250px);
         filter: brightness(0.9);
@@ -147,7 +142,6 @@
         filter: brightness(1);
     }
 
-    /* Account Info Section */
     .account-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -168,7 +162,6 @@
         height: 350px;
     }
 
-    /* Location Section */
     .location-section {
         padding: 3rem 0;
         background: linear-gradient(to bottom, var(--background-primary), var(--background-secondary));
@@ -265,7 +258,6 @@
         }
     }
     
-    /* Hero Cards Mobile Layout - ONE CARD AT A TIME */
     @media (max-width: 576px) {
         .hero {
             padding: 3rem 0 4rem;
@@ -275,25 +267,22 @@
             font-size: 2rem;
         }
         
-        /* Mobile Single Card Display */
         .hero-cards {
-            height: 240px;  /* Fixed height for container */
+            height: 240px;
             perspective: none;
             position: relative;
             width: 100%;
             max-width: 180px;
             margin: 2rem auto;
-            /* Remove transform origins and perspective */
             transform: none !important;
             transform-style: flat;
         }
         
-        /* Card switch container above the cards */
         .card-switch-container {
             margin: 0 0 1rem 0;
             order: -1;
             text-align: center;
-            display: flex; /* Show only on mobile */
+            display: flex;
         }
         
         .card-switch-btn {
@@ -301,24 +290,22 @@
         }
         
         .hero-card {
-            position: absolute;  /* Position absolutely within container */
-            width: 100%;         /* Take full width of container */
-            height: 240px;       /* Fixed height */
-            left: 50%;           /* Center horizontally */
+            position: absolute;
+            width: 100%;
+            height: 240px;
+            left: 50%;
             top: 0;
-            transform: translateX(-50%) !important; /* Center horizontally while preserving other properties */
-            animation: none !important; /* Force no animations */
-            filter: none !important;    /* Force no filters */
-            transition: opacity 0.3s ease !important; /* Only transition opacity */
+            transform: translateX(-50%) !important;
+            animation: none !important;
+            filter: none !important;
+            transition: opacity 0.3s ease !important;
         }
         
-        /* Hide the back card by default */
         .hero-card.card-back {
             opacity: 0;
             visibility: hidden;
         }
         
-        /* When swapped, show back card and hide front card */
         .hero-cards.swapped .card-front {
             opacity: 0;
             visibility: hidden;
@@ -329,7 +316,6 @@
             visibility: visible;
         }
         
-        /* Smaller cards on tiny screens */
         @media (max-width: 360px) {
             .hero-cards, .hero-card {
                 height: 200px;
@@ -359,7 +345,6 @@
             </div>
         </div>
         
-        <!-- Wrap the cards and switch button in a flex container on mobile -->
         <div class="hero-cards-container">
             <div class="card-switch-container">
                 <button class="card-switch-btn" id="cardSwitchBtn" aria-label="Flip to see other side of card">
@@ -427,19 +412,13 @@
     </div>
 </section>
 
-<!-- Location Section -->
 <section class="location-section" aria-labelledby="location-heading">
     <div class="container">
         <div class="location-container">
             <div class="location-map" aria-label="Map of South Carolina with Mount Pleasant highlighted">
                 <svg class="sc-map" viewBox="100 100 300 300" xmlns="http://www.w3.org/2000/svg">
-                    <!-- South Carolina outline -->
                     <path class="sc-outline" fill-rule="evenodd" d="M96 47 34 60c-5 2-8 5-16 18-11 18-11 22-1 30 23 21 25 22 37 17h3l13 22c60 96 54 87 70 101 15 12 15 12 17 29 1 18 2 21 14 44 13 25 16 27 31 31 9 2 12 1 31-15 17-16 20-19 16-27l-2-2 44-31c53-37 50-34 60-55 10-19 10-19 25-29 15-11 17-16 12-23-4-6-82-82-86-84l-4-2h-77v-4c0-15-17-29-27-23-2 2-3 2-4-1-2-4-6-6-11-8-3-1-68-2-83-1m81 13c1 0 3 2 3 4 4 6 11 9 17 5l4-2 4 5 5 5-1 5 1 9c3 5 2 5 46 5h40l42 41 40 39-3 3c-23 15-23 15-33 36s-6 16-58 53c-30 20-46 32-47 34-2 3-2 9 0 12l1 2-14 12c-16 14-16 14-23 11-8-2-8-3-19-23-12-24-11-22-14-41-2-21-3-22-16-33-17-15-18-16-32-39l-55-87c-4-4-9-5-16-2-5 2-4 3-17-9-6-4-10-8-10-9 0-2 13-23 16-24a371 371 0 0 1 139-12"/>
-                    
-                    <!-- Circle for Mount Pleasant -->
                     <circle class="location-star" cx="300" cy="260" r="8" />
-                    
-                    <!-- Text labels -->
                     <text x="330" y="280" text-anchor="middle" fill="var(--primary)" font-size="8" font-weight="bold">Mount Pleasant</text>
                 </svg>
             </div>
@@ -452,7 +431,6 @@
     </div>
 </section>
 
-<!-- Modal for fullscreen image view -->
 <div class="modal" id="imageModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-content" role="document">
         <button class="close-modal" onclick="closeModal()" aria-label="Close image view">&times;</button>
@@ -462,7 +440,6 @@
 </div>
 
 <script>
-    // Modal functionality
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     let lastFocus = null;
@@ -471,12 +448,8 @@
         modalImg.src = imgSrc;
         modal.classList.add('active');
         modal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
-        
-        // Store the element that had focus before opening modal
+        document.body.style.overflow = 'hidden';
         lastFocus = document.activeElement;
-        
-        // Focus on the close button
         setTimeout(() => {
             document.querySelector('.close-modal').focus();
         }, 50);
@@ -485,38 +458,31 @@
     function closeModal() {
         modal.classList.remove('active');
         modal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = ''; // Restore scrolling
-        
-        // Return focus to the element that had focus before the modal was opened
+        document.body.style.overflow = '';
         if (lastFocus) {
             lastFocus.focus();
         }
     }
     
-    // Close modal when clicking outside of the image
     modal.addEventListener('click', function(event) {
         if (event.target === modal) {
             closeModal();
         }
     });
     
-    // Close modal with ESC key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && modal.classList.contains('active')) {
             closeModal();
         }
     });
     
-    // Handle keyboard interaction with cards
     function handleCardKeyDown(event, imgSrc) {
-        // If Enter or Space key is pressed
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             openModal(imgSrc);
         }
     }
 
-    // Simplified card switching for mobile - ONE CARD AT A TIME
     document.addEventListener('DOMContentLoaded', function() {
         const heroCards = document.querySelector('.hero-cards');
         const switchBtn = document.getElementById('cardSwitchBtn');
@@ -524,7 +490,6 @@
         const cardFront = document.querySelector('.card-front');
         const cardBack = document.querySelector('.card-back');
         
-        // Display button only on mobile
         const cardSwitchContainer = document.querySelector('.card-switch-container');
         if (isMobile) {
             cardSwitchContainer.style.display = 'flex';
@@ -534,36 +499,26 @@
         }
         
         switchBtn.addEventListener('click', function() {
-            // Toggle active class on button
             this.classList.toggle('active');
-            
-            // Toggle swapped class on the cards container
             heroCards.classList.toggle('swapped');
-            
-            // Update accessibility attributes
             const isSwapped = heroCards.classList.contains('swapped');
             
-            // Update button text based on which card is showing
             if (isMobile) {
                 this.setAttribute('aria-label', isSwapped ? 'Show front of card' : 'Show back of card');
             } else {
                 this.setAttribute('aria-label', isSwapped ? 'Return cards to original positions' : 'Switch card positions');
             }
             
-            // Update tab order for better accessibility
             if (isSwapped) {
                 cardFront.setAttribute('tabindex', '-1');
                 cardBack.setAttribute('tabindex', '0');
-                // Focus on the back card when it becomes visible (on mobile)
                 if (isMobile) cardBack.focus();
             } else {
                 cardFront.setAttribute('tabindex', '0');
                 cardBack.setAttribute('tabindex', '-1');
-                // Focus on the front card when it becomes visible (on mobile)
                 if (isMobile) cardFront.focus();
             }
             
-            // Announcement for screen readers
             const announcement = document.createElement('div');
             announcement.className = 'sr-only';
             announcement.setAttribute('aria-live', 'polite');
@@ -575,15 +530,12 @@
             }, 1000);
         });
         
-        // Set initial tab order
         cardFront.setAttribute('tabindex', '0');
         cardBack.setAttribute('tabindex', '-1');
         
-        // Handle resize events
         window.addEventListener('resize', function() {
             const newIsMobile = window.innerWidth <= 576;
             
-            // Update button visibility on resize
             if (newIsMobile) {
                 cardSwitchContainer.style.display = 'flex';
             } else {
@@ -591,13 +543,12 @@
             }
             
             if (newIsMobile !== isMobile) {
-                location.reload(); // Refresh to apply correct layout
+                location.reload();
             }
         });
     });
 </script>
 
-<!-- Add screen reader only styles -->
 <style>
     .sr-only {
         position: absolute;
