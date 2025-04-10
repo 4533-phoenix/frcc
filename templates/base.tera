@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     {% block head %}
     <meta charset="UTF-8">
@@ -9,16 +10,19 @@
 
     {% include "style.tera" %}
 </head>
+
 <body>
     <header role="banner">
         <div class="container">
             <div class="logo">
                 <h1><a href="/" style="text-decoration: none; color: inherit;" class="wavy-text" aria-label="FRCC Home">
-                    <span aria-hidden="true">F</span><span aria-hidden="true">R</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
-                </a></h1>
+                        <span aria-hidden="true">F</span><span aria-hidden="true">R</span><span
+                            aria-hidden="true">C</span><span aria-hidden="true">C</span>
+                    </a></h1>
             </div>
             <nav role="navigation" aria-label="Main navigation">
-                <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Toggle menu">
+                <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu"
+                    aria-label="Toggle menu">
                     <span class="menu-icon"></span>
                 </button>
                 <ul id="main-menu">
@@ -26,12 +30,12 @@
                     <li><a href="/cards">Cards</a></li>
                     <li><a href="/scan">Scan</a></li>
                     <li><a href="/about">About</a></li>
-										{% if is_auth %}
-										<li><a href="/dashboard">Dashboard</a></li>
-										<li><a href="/api/logout" class="btn btn-primary">Logout</a></li>
-										{% else %}
+                    {% if is_auth %}
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/api/logout" class="btn btn-primary">Logout</a></li>
+                    {% else %}
                     <li><a href="/signin" class="btn btn-primary">Sign In</a></li>
-										{% endif %}
+                    {% endif %}
                 </ul>
             </nav>
         </div>
@@ -46,7 +50,8 @@
             <div class="footer-content">
                 <div class="footer-logo">
                     <h2 class="wavy-text" aria-label="FRCC">
-                        <span aria-hidden="true">F</span><span aria-hidden="true">R</span><span aria-hidden="true">C</span><span aria-hidden="true">C</span>
+                        <span aria-hidden="true">F</span><span aria-hidden="true">R</span><span
+                            aria-hidden="true">C</span><span aria-hidden="true">C</span>
                     </h2>
                     <p><i>FIRST</i> Robotics Card Competition</p>
                 </div>
@@ -61,32 +66,34 @@
                 </div>
                 <div class="footer-open-source">
                     <h3>Open Source</h3>
-                    <p>FRCC is open source! <a href="#" aria-label="View FRCC source code on GitHub">View on GitHub</a></p>
+                    <p>FRCC is open source! <a href="#" aria-label="View FRCC source code on GitHub">View on GitHub</a>
+                    </p>
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; {{ now() | date(format="%Y") }} <i>FIRST</i> Robotics Card Competition. All rights reserved.</p>
+                <p>&copy; {{ now() | date(format="%Y") }} <i>FIRST</i> Robotics Card Competition. All rights reserved.
+                </p>
             </div>
         </div>
     </footer>
 
     <script>
         // Simplified mobile menu toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const menuToggle = document.querySelector('.mobile-menu-toggle');
             const mainMenu = document.getElementById('main-menu');
-            
+
             if (!menuToggle || !mainMenu) return;
-            
+
             // Variables for menu state
             const isMobile = () => window.innerWidth <= 768;
-            
+
             // Initial setup
             function updateMenuState() {
                 // On mobile: show toggle, hide menu by default
                 // On desktop: hide toggle, show menu
                 menuToggle.style.display = isMobile() ? 'block' : 'none';
-                
+
                 if (!isMobile()) {
                     mainMenu.style.display = 'flex';
                     mainMenu.classList.remove('active');
@@ -96,18 +103,18 @@
                     mainMenu.style.display = 'none';
                 }
             }
-            
+
             // Toggle menu on button click
-            menuToggle.addEventListener('click', function(e) {
+            menuToggle.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const willExpand = this.getAttribute('aria-expanded') !== 'true';
                 this.setAttribute('aria-expanded', willExpand);
-                
+
                 mainMenu.classList.toggle('active');
                 document.body.classList.toggle('menu-open');
-                
+
                 if (willExpand) {
                     mainMenu.style.display = 'flex';
                 } else if (isMobile()) {
@@ -118,18 +125,18 @@
                     }, 300);
                 }
             });
-            
+
             // Close when clicking outside
-            document.addEventListener('click', function(e) {
-                if (isMobile() && 
-                    mainMenu.classList.contains('active') && 
-                    !mainMenu.contains(e.target) && 
+            document.addEventListener('click', function (e) {
+                if (isMobile() &&
+                    mainMenu.classList.contains('active') &&
+                    !mainMenu.contains(e.target) &&
                     !menuToggle.contains(e.target)) {
-                    
+
                     menuToggle.setAttribute('aria-expanded', 'false');
                     mainMenu.classList.remove('active');
                     document.body.classList.remove('menu-open');
-                    
+
                     setTimeout(() => {
                         if (!mainMenu.classList.contains('active') && isMobile()) {
                             mainMenu.style.display = 'none';
@@ -137,17 +144,18 @@
                     }, 300);
                 }
             });
-            
+
             // Handle window resize with debouncing
             let resizeTimer;
-            window.addEventListener('resize', function() {
+            window.addEventListener('resize', function () {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(updateMenuState, 100);
             });
-            
+
             // Initial setup
             updateMenuState();
         });
     </script>
 </body>
+
 </html>
