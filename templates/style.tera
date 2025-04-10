@@ -403,7 +403,8 @@
     .auth-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
     .auth-form .form-group { margin-bottom: 1.5rem; }
     .auth-form label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-    .auth-form input[type="text"], .auth-form input[type="email"], .auth-form input[type="password"] {
+    .auth-form input[type="text"], .auth-form input[type="email"], .auth-form input[type="password"], 
+    .auth-form input[type="number"] {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid rgba(95, 190, 203, 0.3);
@@ -418,44 +419,61 @@
         outline: none;
         box-shadow: 0 0 0 3px rgba(95, 190, 203, 0.2);
     }
+    
+    /* Disabled form elements */
+    .auth-form input:disabled, 
+    .auth-form select:disabled, 
+    .auth-form textarea:disabled,
+    button:disabled,
+    .btn:disabled,
+    .btn[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: rgba(95, 190, 203, 0.1);
+        border-color: rgba(95, 190, 203, 0.2);
+        color: var(--secondary);
+        box-shadow: none;
+    }
+    
+    /* Specific styling for disabled buttons */
+    .btn:disabled, 
+    .btn[disabled] {
+        background: linear-gradient(135deg, rgba(95, 190, 203, 0.5), rgba(47, 110, 118, 0.5));
+        transform: none !important;
+    }
+    
+    /* Hover states for disabled elements */
+    .btn:disabled:hover, 
+    .btn[disabled]:hover,
+    .auth-form input:disabled:hover, 
+    .auth-form select:disabled:hover, 
+    .auth-form textarea:disabled:hover {
+        transform: none !important;
+        box-shadow: none !important;
+        cursor: not-allowed;
+    }
+    
+    /* Visual cue for disabled elements */
+    .form-group:has(input:disabled) label,
+    .form-group:has(select:disabled) label,
+    .form-group:has(textarea:disabled) label {
+        opacity: 0.7;
+    }
+    
+    /* Help text for disabled fields */
+    .form-group:has(input:disabled) .help-text,
+    .form-group:has(select:disabled) .help-text,
+    .form-group:has(textarea:disabled) .help-text {
+        color: var(--secondary);
+        font-style: italic;
+    }
+    
     .auth-form .checkbox-group {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
     }
-    .auth-form .checkbox-group input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-        margin: 0;
-        margin-top: 0.2rem;
-    }
-    .auth-form .form-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
-    .auth-form .submit-btn { width: 100%; margin-top: 1rem; padding: 0.75rem 1.5rem; }
-    .auth-separator {
-        text-align: center;
-        margin: 1.5rem 0;
-        position: relative;
-    }
-    .auth-separator::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background-color: rgba(95, 190, 203, 0.2);
-    }
-    .auth-separator span {
-        position: relative;
-        background-color: var(--background-primary);
-        padding: 0 1rem;
-        font-size: 0.9rem;
-        color: var(--secondary);
-    }
-    .auth-alt { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; }
-    .password-requirements { font-size: 0.85rem; margin-top: 0.5rem; color: var(--secondary); }
 
     /* Page Headers */
     .page-header {

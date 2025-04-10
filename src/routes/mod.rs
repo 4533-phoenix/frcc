@@ -25,6 +25,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/scan", get(scan))
         .route("/dashboard", get(dashboard))
         .route("/admin", get(admin))
+        .route("/account", get(account))
         .with_state(state.clone())
         .nest("/api", get_api_router(state))
         .fallback_service(ServeDir::new(PathBuf::from("public")))
@@ -177,6 +178,29 @@ async fn admin(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResp
     Response::builder()
         .header("Content-Type", "text/html")
         .body(Body::from(content))
+        .unwrap()
+}
+
+async fn account(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+    let mut context = Context::new();
+    context.insert("is_auth", &is_auth);
+    context.insert("username", "robotics_fan123");
+    
+    let has_team = true;
+    context.insert("has_team", &has_team);
+    
+    if has_team {
+        context.insert("team_name", "Phoenix");
+        context.insert("team_number", "4533");
+        
+        let is_team_admin = true;
+        context.insert("is_team_admin", &is_team_admin);
+    }
+    
+    let content = TEMPLATES.render("account.tera", &context).unwrap();
+    Response::builder()
+        .header("Content-Type", "text/html")
+        .body(content)
         .unwrap()
 }
 
