@@ -37,7 +37,8 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/register", post(register))
         .route("/cards", get(get_cards).post(create_card))
         .route("/scan", post(scan_card))
-        .route("/user/{username}", get(get_user))//.put(modify_user))
+        .route("/user/{username}", get(get_user).put(modify_user))
+        .route("/users", get(get_users))
         //.route("/cards/:id", get(get_card).put(update_card).delete(delete_card))
         //.route("/collection", get(get_collection).put(add_to_collection))
         .route("/invites", put(create_invite_code))
@@ -401,24 +402,69 @@ async fn scan_card(State(state): State<AppState>, Auth(user): Auth, Path(id): Pa
 #[derive(Debug, Serialize, Deserialize)]
 struct UserData {
     username: String,
-    is_admin: Option<String>,
-    is_verified: Option<String>,
-    team: Option<String>,
+    is_admin: bool,
+    is_verified: bool,
+    team: Option<u16>,
 }
 
-async fn get_user(State(state): State<AppState>, Auth(user): Auth, username: String) -> impl IntoResponse {
+async fn get_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>) -> impl IntoResponse {
+    dbg!(&username);
     if user.is_admin.is_some() {
         let user = User::get_by_username(&state.db, username).await.unwrap();
         Json(UserData {
             username: user.username.clone(),
-            is_admin: user.is_admin.clone(),
-            is_verified: user.is_verified.clone(),
-            team: user.team().get(&state.db).await.unwrap().map(|t| t.name.clone()),
+            is_admin: user.is_admin.is_some(),
+            is_verified: user.is_verified.is_some(),
+            team: None, //user.team().get(&state.db).await.unwrap().map(|t| t.name.clone()),
         }).into_response()
     } else {
         Response::builder()
             .status(StatusCode::FORBIDDEN)
             .body("You are not an admin".to_string())
             .unwrap().into_response()
+    }
+}
+
+async fn get_users(State(state): State<AppState>, Auth(user): Auth) -> impl IntoResponse {
+    if user.is_admin.is_some() {
+        let users = state.db.all(Select::<User>::all()).await.unwrap().collect::<Vec<_>>().await.unwrap();
+        Json(users.iter().map(|u| UserData {
+            username: u.username.clone(),
+            is_admin: u.is_admin.is_some(),
+            is_verified: u.is_verified.is_some(),
+            team: None, //u.team
+        }).collect::<Vec<_>>()).into_response()
+    } else {
+        Response::builder()
+            .status(StatusCode::FORBIDDEN)
+            .body("You are not an admin".to_string())
+            .unwrap().into_response()
+    }
+}
+
+async fn modify_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>, Form(data): Form<UserData>) -> impl IntoResponse {
+    if user.is_admin.is_some() {
+        let mut user = User::get_by_username(&state.db, username).await.unwrap();
+        let mut user = user.update();
+        user = user.is_admin(if data.is_admin {
+            Some(String::new())
+        } else {
+            None
+        });
+        user = user.is_verified(if data.is_verified {
+            Some(String::new())
+        } else {
+            None
+        });
+        user.exec(&state.db).await.unwrap();
+        Response::builder()
+            .status(StatusCode::OK)
+            .body("User updated".to_string())
+            .unwrap()
+    } else {
+        Response::builder()
+            .status(StatusCode::FORBIDDEN)
+            .body("You are not an admin".to_string())
+            .unwrap()
     }
 }

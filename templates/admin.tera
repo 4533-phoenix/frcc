@@ -443,24 +443,7 @@
             
             // Mock API call - This will be replaced with a real API call
             // For now, we'll generate random user data for demo purposes
-            const mockUsers = [
-                {
-                    id: '1',
-                    username: searchTerm + '_user',
-                    team: { id: '101', name: 'Phoenix', number: '4533' },
-                    is_site_admin: false,
-                    is_team_admin: true,
-                    active: true
-                },
-                {
-                    id: '2',
-                    username: searchTerm + '_admin',
-                    team: null,
-                    is_site_admin: true,
-                    is_team_admin: false,
-                    active: true
-                }
-            ];
+            const users = (await fetch('/api/users')).json();
             
             userTableBody.innerHTML = '';
             
@@ -473,10 +456,10 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.username}</td>
-                    <td>${user.team ? `${user.team.name} (#${user.team.number})` : 'No Team'}</td>
-                    <td>${user.is_site_admin ? 'Site Admin' : (user.is_team_admin ? 'Team Admin' : 'User')}</td>
+                    <td>${user.team ? user.team : 'No Team'}</td>
+                    <td>${user.is_admin ? 'Site Admin' : (user.is_verified ? 'Team Admin' : 'User')}</td>
                     <td>
-                        <button class="btn btn-secondary edit-user-btn" data-user-id="${user.id}">Edit</button>
+                        <button class="btn btn-secondary edit-user-btn" data-user-id="${user.username}">Edit</button>
                     </td>
                 `;
                 userTableBody.appendChild(row);
