@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-resvg = { version = "0.45.0", default-features = false, features = ["image-webp", "text", "raster-images"] }
+resvg = { version = "0.45.0", default-features = false, features = ["image-webp", "text", "raster-images", "system-fonts"] }
 rxing = { version = "0.7.1", default-features = false, features = ["client_support", "svg_write"] }
 svg = "0.18.0"
