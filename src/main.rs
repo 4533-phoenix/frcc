@@ -4,13 +4,14 @@ extern crate serde;
 extern crate nanoid;
 #[macro_use]
 extern crate log;
-extern crate tokio;
 extern crate axum;
-extern crate tera;
-extern crate once_cell;
+extern crate entity;
 extern crate env_logger;
+extern crate once_cell;
+extern crate sea_orm;
+extern crate tera;
+extern crate tokio;
 extern crate tower_http;
-extern crate toasty;
 
 use std::env;
 
@@ -21,12 +22,12 @@ use tower_http::compression::CompressionLayer;
 mod routes;
 mod state;
 mod templates;
-mod db;
+//mod db;
 mod util;
 
 #[tokio::main]
 async fn main() {
-    frcc_card_gen::test();
+    //frcc_card_gen::test();
 
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)

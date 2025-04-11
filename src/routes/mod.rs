@@ -1,16 +1,19 @@
-use crate::{
-    db::{AuthToken, Card, CardAbility, CardDesign, User},
-    state::AppState,
-    templates::TEMPLATES,
-    util::optimize_and_save_model,
-};
+use crate::{state::AppState, templates::TEMPLATES, util::optimize_and_save_model};
 use axum::{
-    body::Body, extract::{FromRequestParts, Path, Query, State}, http::{HeaderMap, StatusCode}, response::{IntoResponse, Redirect, Response}, routing::{get, post, put}, Form, Json, Router
+    Form, Json, Router,
+    body::Body,
+    extract::{FromRequestParts, Path, Query, State},
+    http::{HeaderMap, StatusCode},
+    response::{IntoResponse, Redirect, Response},
+    routing::{get, post, put},
 };
-use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
+use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use entity::{card_design, prelude::*, user};
+use sea_orm::{
+    ActiveValue::Set, EntityTrait, IntoActiveModel, IntoIdentity, QueryFilter, prelude::Expr,
+};
 use std::path::PathBuf;
 use tera::Context;
-use toasty::stmt::Select;
 
 use tower_http::services::ServeDir;
 
@@ -120,25 +123,35 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
     // In a real application, we would fetch this data from a database
     // based on the authenticated user's session
     let mut context = Context::new();
-    let scans = user
-        .scans()
-        .all(&state.db)
-        .await
-        .unwrap()
-        .collect::<Vec<_>>()
+    let scans = Scan::find()
+        .filter(Expr::col(entity::scan::Column::Username).eq(user.username.clone()))
+        .all(&*state.db)
         .await
         .unwrap();
 
     let mut cards = Vec::new();
 
     for scan in scans {
-        let card = Card::get_by_id(&state.db, &scan.card_id).await.unwrap();
-        let design = card.card_design().get(&state.db).await.unwrap();
+        let card = Card::find_by_id(&scan.card)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
+        let design = CardDesign::find_by_id(card.design)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
         cards.push(CardData {
-            design_id: design.id.clone(),
-            card_id: Some(scan.card_id),
-            team_number: design.team_number as u64,
-            team_name: design.team().get(&state.db).await.unwrap().name,
+            design_id: design.id.to_string(),
+            card_id: Some(scan.card),
+            team_number: design.team as u64,
+            team_name: CardDesign::find_by_id(design.team)
+                .one(&*state.db)
+                .await
+                .unwrap()
+                .unwrap()
+                .name,
             bot_name: Some(design.name),
             year: design.year as u16,
             abilities: None,
@@ -149,7 +162,12 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
     context.insert("user_name", &user.username);
     context.insert("profile_pic", "/images/default-profile.png");
     context.insert("cards_collected", &cards);
-    if let Some(team) = user.team().get(&state.db).await.unwrap() {
+    if let Some(team_num) = user.team {
+        let team = Team::find_by_id(team_num)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
         context.insert("has_team", &true);
         context.insert("team_name", &team.name);
         context.insert("team_number", &(team.number as u64));
@@ -166,7 +184,7 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
 
 async fn admin(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
     // Check if the user is a site admin
-    if user.is_admin.is_none() {
+    if !user.is_admin {
         return Redirect::to("/dashboard").into_response();
     }
 
@@ -185,18 +203,18 @@ async fn account(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
     let mut context = Context::new();
     context.insert("is_auth", &is_auth);
     context.insert("username", "robotics_fan123");
-    
+
     let has_team = true;
     context.insert("has_team", &has_team);
-    
+
     if has_team {
         context.insert("team_name", "Phoenix");
         context.insert("team_number", "4533");
-        
+
         let is_team_admin = true;
         context.insert("is_team_admin", &is_team_admin);
     }
-    
+
     let content = TEMPLATES.render("account.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
@@ -215,8 +233,10 @@ async fn login(
     mut jar: CookieJar,
     form: Form<LoginForm>,
 ) -> impl IntoResponse {
-    let user = User::get_by_username(&state.db, &form.username)
+    let user = User::find_by_id(&form.username)
+        .one(&*state.db)
         .await
+        .unwrap()
         .unwrap();
     if !state.check_user_password(&user.password, &form.password) {
         Response::builder()
@@ -225,7 +245,7 @@ async fn login(
             .unwrap()
             .into_response()
     } else {
-        let mut cookie = Cookie::new("token", state.register_token(&user).await);
+        let mut cookie = Cookie::new("token", state.register_token(&user.username).await);
         cookie.set_path("/");
         jar = jar.add(cookie);
 
@@ -250,7 +270,7 @@ async fn register(State(state): State<AppState>, form: Form<LoginForm>) -> impl 
 }
 
 async fn create_invite_code(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
-    if user.is_admin.is_none() {
+    if user.is_admin {
         Response::builder()
             .status(StatusCode::FORBIDDEN)
             .body("You are not allowed to create invite codes".to_string())
@@ -274,7 +294,7 @@ impl FromRequestParts<AppState> for IsAuth {
     ) -> Result<Self, Self::Rejection> {
         let mut jar = CookieJar::from_headers(&parts.headers);
         if let Some(tok) = jar.get("token") {
-            let token = AuthToken::get_by_token(&state.db, tok.value()).await;
+            let token = AuthToken::find_by_id(tok.value()).one(&*state.db).await;
             if token.is_ok() {
                 return Ok(IsAuth(true));
             } else {
@@ -287,7 +307,7 @@ impl FromRequestParts<AppState> for IsAuth {
     }
 }
 
-pub struct Auth(pub User);
+pub struct Auth(pub user::Model);
 impl FromRequestParts<AppState> for Auth {
     type Rejection = Response;
 
@@ -297,9 +317,19 @@ impl FromRequestParts<AppState> for Auth {
     ) -> Result<Self, Self::Rejection> {
         let mut jar = CookieJar::from_headers(&parts.headers);
         if let Some(tok) = jar.get("token") {
-            let token = AuthToken::get_by_token(&state.db, tok.value()).await;
-            if token.is_ok() {
-                return Ok(Auth(token.unwrap().user().get(&state.db).await.unwrap()));
+            let token = AuthToken::find_by_id(tok.value())
+                .one(&*state.db)
+                .await
+                .unwrap();
+            if token.is_some() {
+                return Ok(Auth(
+                    User::find_by_id(token.unwrap().user)
+                        .one(&*state.db)
+                        .await
+                        .unwrap()
+                        .unwrap()
+                        .to_owned(),
+                ));
             } else {
                 jar = jar.remove(Cookie::from("token"));
                 Err((jar, Redirect::to("/login").into_response()).into_response())
@@ -335,23 +365,21 @@ struct GetCardsParams {
 
 //async fn get_cards(State(state): State<AppState>, Query(params): Query<GetCardsParams>) -> impl IntoResponse {
 async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
-    let designs = state
-        .db
-        .all(Select::<CardDesign>::all())
-        .await
-        .unwrap()
-        .collect::<Vec<_>>()
-        .await
-        .unwrap();
+    let designs = CardDesign::find().all(&*state.db).await.unwrap();
 
     let mut cards = Vec::new();
 
     for design in designs {
         cards.push(CardData {
-            design_id: design.id.clone(),
+            design_id: design.id.to_string(),
             card_id: None,
-            team_number: design.team_number as u64,
-            team_name: design.team().get(&state.db).await.unwrap().name,
+            team_number: design.team as u64,
+            team_name: Team::find_by_id(design.team)
+                .one(&*state.db)
+                .await
+                .unwrap()
+                .unwrap()
+                .name,
             year: design.year as u16,
             bot_name: Some(design.name.clone()),
             abilities: None,
@@ -366,7 +394,7 @@ async fn create_card(
     Auth(user): Auth,
     mut multipart: Multipart,
 ) -> impl IntoResponse {
-    if let Some(team_num) = user.team_number {
+    if let Some(team_num) = user.team {
         let id = nanoid!(33);
 
         let mut bot_name = None;
@@ -390,34 +418,45 @@ async fn create_card(
 
         optimize_and_save_model(id.clone(), model.unwrap().to_vec());
 
-        user.team()
-            .get(&state.db)
-            .await
-            .unwrap()
-            .unwrap()
-            .designs()
-            .create()
-            .id(id)
-            .team_number(team_num)
-            .name(bot_name.unwrap())
-            .year(2025)
-            .exec(&state.db)
-            .await
-            .unwrap();
+        CardDesign::insert(card_design::ActiveModel {
+            team: Set(team_num),
+            name: Set(bot_name.unwrap()),
+            year: Set(2025),
+            ..Default::default()
+        })
+        .exec(&*state.db)
+        .await
+        .unwrap();
     }
 }
 
-async fn scan_card(State(state): State<AppState>, Auth(user): Auth, Path(id): Path<String>) -> impl IntoResponse {
-    let card = Card::get_by_id(&state.db, &id).await.unwrap();
-    let design = card.card_design().get(&state.db).await.unwrap();
-    let team = user.team().get(&state.db).await.unwrap().unwrap();
+async fn scan_card(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let card = Card::find_by_id(&id)
+        .one(&*state.db)
+        .await
+        .unwrap()
+        .unwrap();
+    let design = CardDesign::find_by_id(card.design)
+        .one(&*state.db)
+        .await
+        .unwrap()
+        .unwrap();
+    let team = if let Some(team_num) = user.team {
+        Team::find_by_id(team_num).one(&*state.db).await.unwrap()
+    } else {
+        None
+    };
 
     Json(CardData {
-        bot_name: Some(design.name.clone()),
+        bot_name: Some(design.name),
         card_id: Some(id),
-        design_id: design.id.clone(),
-        team_number: team.number as u64,
-        team_name: team.name.clone(),
+        design_id: design.id.to_string(),
+        team_number: team.clone().map(|x| x.number).unwrap_or_default() as u64,
+        team_name: team.map(|x| x.name).unwrap_or_default().clone(),
         year: design.year as u16,
         abilities: None,
     })
@@ -431,56 +470,74 @@ struct UserData {
     team: Option<String>,
 }
 
-async fn get_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>) -> impl IntoResponse {
+async fn get_user(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(username): Path<String>,
+) -> impl IntoResponse {
     dbg!(&username);
-    if user.is_admin.is_some() {
-        let user = User::get_by_username(&state.db, username).await.unwrap();
+    if user.is_admin {
+        let user = User::find_by_id(username)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
         Json(UserData {
             username: user.username.clone(),
-            is_admin: user.is_admin.is_some(),
-            is_verified: user.is_verified.is_some(),
+            is_admin: user.is_admin,
+            is_verified: user.is_verified,
             team: None, //user.team().get(&state.db).await.unwrap().map(|t| t.name.clone()),
-        }).into_response()
+        })
+        .into_response()
     } else {
         Response::builder()
             .status(StatusCode::FORBIDDEN)
             .body("You are not an admin".to_string())
-            .unwrap().into_response()
+            .unwrap()
+            .into_response()
     }
 }
 
 async fn get_users(State(state): State<AppState>, Auth(user): Auth) -> impl IntoResponse {
-    if user.is_admin.is_some() {
-        let users = state.db.all(Select::<User>::all()).await.unwrap().collect::<Vec<_>>().await.unwrap();
-        Json(users.iter().map(|u| UserData {
-            username: u.username.clone(),
-            is_admin: u.is_admin.is_some(),
-            is_verified: u.is_verified.is_some(),
-            team: None, //u.team
-        }).collect::<Vec<_>>()).into_response()
+    if user.is_admin {
+        let users = User::find().all(&*state.db).await.unwrap();
+        Json(
+            users
+                .iter()
+                .map(|u| UserData {
+                    username: u.username.clone(),
+                    is_admin: u.is_admin,
+                    is_verified: u.is_verified,
+                    team: None, //u.team
+                })
+                .collect::<Vec<_>>(),
+        )
+        .into_response()
     } else {
         Response::builder()
             .status(StatusCode::FORBIDDEN)
             .body("You are not an admin".to_string())
-            .unwrap().into_response()
+            .unwrap()
+            .into_response()
     }
 }
 
-async fn modify_user(State(state): State<AppState>, Auth(user): Auth, Path(username): Path<String>, Json(data): Json<UserData>) -> impl IntoResponse {
-    if user.is_admin.is_some() {
-        let mut user = User::get_by_username(&state.db, username).await.unwrap();
-        let mut user = user.update();
-        user = user.is_admin(if data.is_admin {
-            Some(String::from("skibidi"))
-        } else {
-            None
-        });
-        user = user.is_verified(if data.is_verified {
-            Some(String::from("skibidi"))
-        } else {
-            None
-        });
-        user.exec(&state.db).await.unwrap();
+async fn modify_user(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(username): Path<String>,
+    Json(data): Json<UserData>,
+) -> impl IntoResponse {
+    if user.is_admin {
+        let mut user = User::find_by_id(username)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap()
+            .into_active_model();
+        user.is_admin = Set(data.is_admin);
+        user.is_verified = Set(data.is_verified);
+        User::update(user).exec(&*state.db).await.unwrap();
         Response::builder()
             .status(StatusCode::OK)
             .body("User updated".to_string())
