@@ -5,10 +5,10 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use entity::prelude::*;
-use sea_orm::{EntityTrait, QueryFilter, prelude::Expr};
+use sea_orm::{prelude::Expr, EntityTrait, QueryFilter};
 use tera::Context;
 
-use super::util::{Auth, IsAuth, build_context};
+use super::util::{build_context, Auth, IsAuth};
 
 // Helper function to ensure consistent context variables across all pages
 async fn create_standard_context(
@@ -45,12 +45,17 @@ pub async fn scan(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
 }
 
 pub async fn hero(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
-    let context = create_standard_context(is_auth, None, None).await;
-    let content = TEMPLATES.render("hero.tera", &context).unwrap();
-    Response::builder()
-        .header("Content-Type", "text/html")
-        .body(content)
-        .unwrap()
+    if is_auth {
+        Redirect::to("/dashboard").into_response()
+    } else {
+        let context = create_standard_context(is_auth, None, None).await;
+        let content = TEMPLATES.render("hero.tera", &context).unwrap();
+        Response::builder()
+            .header("Content-Type", "text/html")
+            .body(content)
+            .unwrap()
+            .into_response()
+    }
 }
 
 pub async fn about(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
