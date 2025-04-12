@@ -4,21 +4,23 @@
 {{ super() }}
 <style>
     /* Account-specific styles */
-    .account-icon, .team-icon, .security-icon {
+    .account-icon,
+    .team-icon,
+    .security-icon {
         display: inline-block;
         width: 24px;
         height: 24px;
         vertical-align: middle;
         margin-right: 0.5rem;
     }
-    
+
     .team-status {
         display: flex;
         align-items: center;
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
-    
+
     .team-number {
         font-size: 2rem;
         font-weight: 700;
@@ -27,17 +29,17 @@
         background: rgba(95, 190, 203, 0.1);
         border-radius: var(--border-radius);
     }
-    
+
     .team-details {
         flex-grow: 1;
     }
-    
+
     .account-container {
         display: grid;
         grid-template-columns: 1fr;
         gap: 2rem;
     }
-    
+
     @media (min-width: 992px) {
         .account-container {
             grid-template-columns: 2fr 1fr;
@@ -65,11 +67,12 @@
                 <div class="content-box">
                     <h2 class="account-section-title">
                         <svg class="account-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                         Account Information
                     </h2>
-                    
+
                     <div class="user-info-card">
                         <div class="user-avatar">
                             <span class="user-avatar-icon account-icon"></span>
@@ -77,23 +80,26 @@
                         <div class="user-details">
                             <div class="user-name">{{ username }}</div>
                             <div class="meta-text">Member since October 2023</div>
-                            
+
                             <div class="user-role">
                                 {% if is_site_admin %}
                                 <div class="role-badge admin-badge">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
-                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                        fill="currentColor" style="margin-right: 4px;">
+                                        <path
+                                            d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
                                     </svg>
                                     Site Admin
                                 </div>
                                 {% else %}
                                 <div class="role-badge">Standard User</div>
                                 {% endif %}
-                                
+
                                 {% if is_team_admin %}
                                 <div class="role-badge admin-badge">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
-                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                        fill="currentColor" style="margin-right: 4px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
                                     </svg>
                                     Team Admin
                                 </div>
@@ -107,7 +113,8 @@
                 <div class="content-box">
                     <h2 class="account-section-title">
                         <svg class="team-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
-                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                         </svg>
                         Team Membership
                     </h2>
@@ -124,7 +131,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    
+
                     <div class="info-box">
                         {% if is_team_admin %}
                         <p><strong>As a team admin</strong>, you can:</p>
@@ -134,10 +141,11 @@
                             <li>Approve members who request to join</li>
                         </ul>
                         {% else %}
-                        <p>You're a member of Team {{ team_name }}. Members can view team cards and participate in team activities.</p>
+                        <p>You're a member of Team {{ team_name }}. Members can view team cards and participate in team
+                            activities.</p>
                         {% endif %}
                     </div>
-                    
+
                     <div style="margin-top: 1.5rem;">
                         <form action="/api/account/leave_team" method="post">
                             <button type="submit" class="btn btn-secondary">Leave Team</button>
@@ -149,32 +157,35 @@
                     </div>
                     {% endif %}
                 </div>
-                
+
                 <!-- Add Invite Code section for site admins or verified users -->
                 {% if is_site_admin or is_verified %}
                 <div class="content-box">
                     <h2 class="account-section-title">
                         <svg class="team-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
-                            <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            <path
+                                d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
                         </svg>
                         Generate Invite Code
                     </h2>
-                    
+
                     <div class="form-container">
                         <div class="form-header">
-                            <h3 class="form-title">Create Team Admin Invite</h3>
+                            <h3 class="form-title">Create Invite Code</h3>
                         </div>
-                        
-                        <p>Generate a special code that allows others to join your team with admin privileges.</p>
-                        
-                        <div id="invite-code-container" style="display: none; margin: 1.5rem 0; padding: 1rem; background: rgba(95, 190, 203, 0.1); border-radius: var(--border-radius);">
-                            <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Your Invite Code:</h4>
+
+                        <p>Generate a special code that allows others to join any team as an admin.</p>
+
+                        <div id="invite-code-container"
+                            style="display: none; margin: 1.5rem 0; padding: 1rem; background: rgba(95, 190, 203, 0.1); border-radius: var(--border-radius);">
+                            <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Invite Code:</h4>
                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                <code id="invite-code" style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 4px; font-family: monospace; font-size: 1rem;">...</code>
+                                <code id="invite-code"
+                                    style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 4px; font-family: monospace; font-size: 1rem;">...</code>
                                 <button id="copy-invite-code" class="btn btn-secondary">Copy</button>
                             </div>
                         </div>
-                        
+
                         <div class="btn-row">
                             <button id="generate-invite-code" class="btn btn-primary">Generate New Invite Code</button>
                         </div>
@@ -182,7 +193,7 @@
                 </div>
                 {% endif %}
             </div>
-            
+
             <!-- Sidebar column -->
             <div>
                 <!-- Join Team Form -->
@@ -190,39 +201,42 @@
                     <h2 class="account-section-title">
                         {% if has_team %}
                         <svg class="team-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
-                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                         </svg>
                         Switch Teams
                         {% else %}
                         <svg class="team-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
-                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                         </svg>
                         Join a Team
                         {% endif %}
                     </h2>
-                    
+
                     <div class="form-container">
                         <div class="form-header">
                             <h3 class="form-title">Team Information</h3>
                         </div>
-                        
+
                         <form action="/api/account/join_team" method="post" class="auth-form">
                             <div class="form-group">
                                 <label for="teamNumber">Team Number</label>
-                                <input type="number" id="teamNumber" name="team_number" required 
-                                    placeholder="e.g. 4533" min="1" {% if has_team %}disabled{% endif %}>
+                                <input type="number" id="teamNumber" name="team_number" required placeholder="e.g. 4533"
+                                    min="1" {% if has_team %}disabled{% endif %}>
                             </div>
 
                             <div class="form-group">
                                 <label for="joinCode">Join Code (Optional)</label>
-                                <input type="text" id="joinCode" name="join_code" 
+                                <input type="text" id="joinCode" name="join_code"
                                     placeholder="Admin code (if you have one)" {% if has_team %}disabled{% endif %}>
                                 <p class="help-text">Admin join codes grant team administration privileges.</p>
                             </div>
 
                             <div class="btn-row">
                                 {% if has_team %}
-                                <button type="button" class="btn btn-secondary" disabled>Leave Current Team First</button>
+                                <button type="button" class="btn btn-secondary" disabled>Leave Current Team
+                                    First</button>
                                 {% else %}
                                 <button type="submit" class="btn btn-primary">Join Team</button>
                                 {% endif %}
@@ -230,37 +244,38 @@
                         </form>
                     </div>
                 </div>
-                
+
                 <!-- Security Settings -->
                 <div class="content-box">
                     <h2 class="account-section-title">
                         <svg class="security-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                            <path
+                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
                         </svg>
                         Security
                     </h2>
-                    
+
                     <div class="form-container">
                         <div class="form-header">
                             <h3 class="form-title">Change Password</h3>
                         </div>
-                        
+
                         <form action="/api/account/change_password" method="post" class="auth-form">
                             <div class="form-group">
                                 <label for="currentPassword">Current Password</label>
                                 <input type="password" id="currentPassword" name="current_password" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="newPassword">New Password</label>
                                 <input type="password" id="newPassword" name="new_password" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="confirmPassword">Confirm Password</label>
                                 <input type="password" id="confirmPassword" name="confirm_password" required>
                             </div>
-                            
+
                             <div class="btn-row">
                                 <button type="submit" class="btn btn-primary">Update Password</button>
                             </div>
@@ -275,43 +290,46 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Password change form validation
         const passwordForm = document.querySelector('form[action="/api/account/change_password"]');
         const newPassword = document.getElementById('newPassword');
         const confirmPassword = document.getElementById('confirmPassword');
-        
+
         if (passwordForm) {
-            passwordForm.addEventListener('submit', function(event) {
+            passwordForm.addEventListener('submit', function (event) {
                 if (newPassword.value !== confirmPassword.value) {
                     event.preventDefault();
                     FRCC.showNotification('Passwords do not match', 'error');
                 }
             });
         }
-        
+
         // Team join form validation
         const teamForm = document.querySelector('form[action="/api/account/join_team"]');
         const teamNumber = document.getElementById('teamNumber');
-        
+
         if (teamForm) {
-            teamForm.addEventListener('submit', function(event) {
+            teamForm.addEventListener('submit', function (event) {
                 if (!teamNumber.value || isNaN(teamNumber.value) || parseInt(teamNumber.value) <= 0) {
                     event.preventDefault();
                     FRCC.showNotification('Please enter a valid team number', 'error');
                 }
             });
         }
-        
+
         // Invite code generation functionality
         const generateInviteBtn = document.getElementById('generate-invite-code');
         const inviteCodeContainer = document.getElementById('invite-code-container');
         const inviteCodeElement = document.getElementById('invite-code');
         const copyInviteBtn = document.getElementById('copy-invite-code');
-        
+
         if (generateInviteBtn && inviteCodeContainer && inviteCodeElement) {
-            generateInviteBtn.addEventListener('click', function() {
-                fetch('/api/account/create_invite')
+            generateInviteBtn.addEventListener('click', function () {
+                // Update to use the correct API endpoint with PUT method
+                fetch('/api/invites', {
+                    method: 'PUT',
+                })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Failed to create invite code');
@@ -329,13 +347,27 @@
             });
 
             if (copyInviteBtn) {
-                copyInviteBtn.addEventListener('click', function() {
+                copyInviteBtn.addEventListener('click', function () {
                     const inviteCode = inviteCodeElement.textContent;
                     if (inviteCode && inviteCode !== '...') {
+                        // Store original button text
+                        const originalText = this.textContent;
+
                         FRCC.copyToClipboard(inviteCode)
                             .then(success => {
                                 if (success) {
+                                    // Change button text and add success class
+                                    this.textContent = "Copied!";
+                                    this.classList.add("btn-success");
+
+                                    // Show notification
                                     FRCC.showNotification('Invite code copied to clipboard', 'success');
+
+                                    // Reset button after delay
+                                    setTimeout(() => {
+                                        this.textContent = originalText;
+                                        this.classList.remove("btn-success");
+                                    }, 1500);
                                 } else {
                                     throw new Error('Failed to copy to clipboard');
                                 }
