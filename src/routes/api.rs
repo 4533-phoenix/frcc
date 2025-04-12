@@ -37,11 +37,7 @@ pub async fn login(
         .unwrap()
         .unwrap();
     if !state.check_user_password(&user.password, &form.password) {
-        Response::builder()
-            .status(StatusCode::UNAUTHORIZED)
-            .body("Invalid username or password".to_string())
-            .unwrap()
-            .into_response()
+        Redirect::to("/signin?error=invalid").into_response()
     } else {
         let mut cookie = Cookie::new("token", state.register_token(&user.username).await);
         cookie.set_path("/");
@@ -66,6 +62,10 @@ pub async fn register(
     mut jar: CookieJar,
     form: Form<LoginForm>,
 ) -> impl IntoResponse {
+    if User::find_by_id(&form.username).one(&*state.db).await.unwrap().is_some() {
+        return Redirect::to("/signup?error=taken").into_response();
+    }
+
     state
         .create_user(None, &form.username, &form.password)
         .await;

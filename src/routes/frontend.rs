@@ -1,14 +1,14 @@
 use crate::{state::AppState, templates::TEMPLATES};
 use axum::{
     body::Body,
-    extract::State,
+    extract::{Query, State},
     response::{IntoResponse, Redirect, Response},
 };
 use entity::prelude::*;
 use sea_orm::{prelude::Expr, EntityTrait, QueryFilter};
 use tera::Context;
 
-use super::util::{build_context, Auth, IsAuth};
+use super::{structs::ErrorParams, util::{build_context, Auth, IsAuth}};
 
 // Helper function to ensure consistent context variables across all pages
 async fn create_standard_context(
@@ -76,8 +76,9 @@ pub async fn privacy(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
         .unwrap()
 }
 
-pub async fn signin(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
-    let context = create_standard_context(is_auth, None, None).await;
+pub async fn signin(IsAuth(is_auth): IsAuth, Query(params): Query<ErrorParams>) -> impl IntoResponse {
+    let mut context = create_standard_context(is_auth, None, None).await;
+    context.insert("is_error", &params.error.is_some());
     let content = TEMPLATES.render("signin.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")
@@ -85,8 +86,9 @@ pub async fn signin(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
         .unwrap()
 }
 
-pub async fn signup(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
-    let context = create_standard_context(is_auth, None, None).await;
+pub async fn signup(IsAuth(is_auth): IsAuth, Query(params): Query<ErrorParams>) -> impl IntoResponse {
+    let mut context = create_standard_context(is_auth, None, None).await;
+    context.insert("is_error", &params.error.is_some());
     let content = TEMPLATES.render("signup.tera", &context).unwrap();
     Response::builder()
         .header("Content-Type", "text/html")

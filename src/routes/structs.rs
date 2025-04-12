@@ -100,3 +100,8 @@ impl CardData {
         }
     }
 }
+
+#[derive(Deserialize)]
+pub struct ErrorParams {
+    pub error: Option<String>,
+}
