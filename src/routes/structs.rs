@@ -19,6 +19,7 @@ pub struct CardAbilityData {
 pub struct GetCardsParams {
     pub user: Option<String>,
     pub team: Option<i32>,
+    pub year: Option<i16>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
