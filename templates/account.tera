@@ -3,105 +3,13 @@
 {% block head %}
 {{ super() }}
 <style>
+    /* Account-specific styles */
     .account-icon, .team-icon, .security-icon {
         display: inline-block;
         width: 24px;
         height: 24px;
         vertical-align: middle;
         margin-right: 0.5rem;
-    }
-    
-    .account-section-title {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        color: var(--primary);
-        font-weight: 600;
-        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
-        padding-bottom: 0.75rem;
-    }
-    
-    .user-info-card {
-        display: flex;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    
-    .user-avatar {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background-color: rgba(95, 190, 203, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 1.5rem;
-        flex-shrink: 0;
-    }
-    
-    .user-avatar-icon {
-        width: 32px;
-        height: 32px;
-        background-color: var(--primary);
-    }
-    
-    .user-details {
-        flex-grow: 1;
-    }
-    
-    .user-name {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-    
-    .user-role {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 0.5rem;
-    }
-    
-    .role-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.4rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        background: rgba(95, 190, 203, 0.1);
-        color: var(--primary);
-    }
-    
-    .admin-badge {
-        background: linear-gradient(135deg, rgba(77, 218, 110, 0.15), rgba(77, 218, 110, 0.05));
-        color: rgb(77, 218, 110);
-    }
-    
-    .form-container {
-        background: rgba(95, 190, 203, 0.03);
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        margin-top: 1.5rem;
-    }
-    
-    .form-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--secondary);
-        margin: 0;
-    }
-    
-    .btn-row {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        margin-top: 1.5rem;
     }
     
     .team-status {
@@ -134,26 +42,6 @@
         .account-container {
             grid-template-columns: 2fr 1fr;
         }
-    }
-
-    /* Updated styles to match dashboard */
-    .page-header {
-        background: var(--gradient-primary);
-        padding: 3rem 0;
-        margin-bottom: 2rem;
-        color: white;
-    }
-    
-    .user-info-card {
-        margin-bottom: 2rem;
-    }
-
-    .content-box {
-        background-color: var(--background-primary);
-        border-radius: var(--border-radius);
-        box-shadow: var(--card-shadow);
-        padding: 2rem;
-        margin-bottom: 2rem;
     }
 </style>
 {% endblock head %}
@@ -191,7 +79,17 @@
                             <div class="meta-text">Member since October 2023</div>
                             
                             <div class="user-role">
+                                {% if is_site_admin %}
+                                <div class="role-badge admin-badge">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
+                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                                    </svg>
+                                    Site Admin
+                                </div>
+                                {% else %}
                                 <div class="role-badge">Standard User</div>
+                                {% endif %}
+                                
                                 {% if is_team_admin %}
                                 <div class="role-badge admin-badge">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
@@ -251,6 +149,38 @@
                     </div>
                     {% endif %}
                 </div>
+                
+                <!-- Add Invite Code section for site admins or verified users -->
+                {% if is_site_admin or is_verified %}
+                <div class="content-box">
+                    <h2 class="account-section-title">
+                        <svg class="team-icon" width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)">
+                            <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                        </svg>
+                        Generate Invite Code
+                    </h2>
+                    
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h3 class="form-title">Create Team Admin Invite</h3>
+                        </div>
+                        
+                        <p>Generate a special code that allows others to join your team with admin privileges.</p>
+                        
+                        <div id="invite-code-container" style="display: none; margin: 1.5rem 0; padding: 1rem; background: rgba(95, 190, 203, 0.1); border-radius: var(--border-radius);">
+                            <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Your Invite Code:</h4>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <code id="invite-code" style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 4px; font-family: monospace; font-size: 1rem;">...</code>
+                                <button id="copy-invite-code" class="btn btn-secondary">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-row">
+                            <button id="generate-invite-code" class="btn btn-primary">Generate New Invite Code</button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             
             <!-- Sidebar column -->
@@ -371,6 +301,51 @@
                     FRCC.showNotification('Please enter a valid team number', 'error');
                 }
             });
+        }
+        
+        // Invite code generation functionality
+        const generateInviteBtn = document.getElementById('generate-invite-code');
+        const inviteCodeContainer = document.getElementById('invite-code-container');
+        const inviteCodeElement = document.getElementById('invite-code');
+        const copyInviteBtn = document.getElementById('copy-invite-code');
+        
+        if (generateInviteBtn && inviteCodeContainer && inviteCodeElement) {
+            generateInviteBtn.addEventListener('click', function() {
+                fetch('/api/account/create_invite')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to create invite code');
+                        }
+                        return response.text();
+                    })
+                    .then(inviteCode => {
+                        inviteCodeElement.textContent = inviteCode;
+                        inviteCodeContainer.style.display = 'block';
+                        FRCC.showNotification('Invite code generated successfully', 'success');
+                    })
+                    .catch(error => {
+                        FRCC.showNotification(error.message, 'error');
+                    });
+            });
+
+            if (copyInviteBtn) {
+                copyInviteBtn.addEventListener('click', function() {
+                    const inviteCode = inviteCodeElement.textContent;
+                    if (inviteCode && inviteCode !== '...') {
+                        FRCC.copyToClipboard(inviteCode)
+                            .then(success => {
+                                if (success) {
+                                    FRCC.showNotification('Invite code copied to clipboard', 'success');
+                                } else {
+                                    throw new Error('Failed to copy to clipboard');
+                                }
+                            })
+                            .catch(error => {
+                                FRCC.showNotification(error.message, 'error');
+                            });
+                    }
+                });
+            }
         }
     });
 </script>

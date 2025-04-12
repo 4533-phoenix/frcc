@@ -272,27 +272,6 @@
     <div class="container">
         <!-- Alert message area -->
         <div id="alertBox" class="admin-alert"></div>
-
-        <!-- Invite Codes Section -->
-        <div class="content-box">
-            <h2 class="section-title">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--primary)" style="margin-right: 0.5rem;">
-                    <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                </svg>
-                Invite Codes
-            </h2>
-            <p>Generate new invite codes for users to join the platform.</p>
-            
-            <div class="flex flex-gap">
-                <button id="generateInviteBtn" class="btn btn-primary">Generate New Invite Code</button>
-            </div>
-            
-            <div id="inviteCodesList" class="code-list">
-                <div class="code-item">
-                    <span class="code">No invite codes generated yet</span>
-                </div>
-            </div>
-        </div>
         
         <!-- User Management Section -->
         <div class="content-box">
