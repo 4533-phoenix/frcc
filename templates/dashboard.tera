@@ -60,19 +60,6 @@
     .profile-image-container {
         width: 100px;
         height: 100px;
-        border-radius: 50%;
-        overflow: hidden;
-        background-color: rgba(95, 190, 203, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 4px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .default-user-svg {
-        width: 80%;
-        height: 80%;
     }
 
     /* Badges container */
@@ -108,7 +95,7 @@
     <div class="container">
         <div class="user-profile">
             <div class="profile-image-container">
-                <svg viewBox="0 0 100 100" class="profile-image default-user-svg">
+                <svg viewBox="0 0 100 100" class="profile-image">
                     <circle cx="50" cy="35" r="22" fill="white" />
                     <path d="M50,65 C33,65 20,77 20,95 L80,95 C80,77 67,65 50,65 Z" fill="white" />
                 </svg>
