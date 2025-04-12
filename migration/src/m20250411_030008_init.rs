@@ -33,7 +33,9 @@ enum User {
 #[derive(DeriveIden)]
 enum UserTeam {
     Table,
-    Username,
+    User,
+    Team,
+    IsAdmin,
 }
 
 #[derive(DeriveIden)]
@@ -109,13 +111,33 @@ impl MigrationTrait for Migration {
                     .col(string(User::Username).not_null().primary_key())
                     .col(string(User::Password).not_null())
                     .col(string_null(User::InvitedWithCode))
-                    .col(unsigned_null(User::Team))
                     .col(boolean(User::IsAdmin).default(true))
                     .col(boolean(User::IsVerified).default(false))
                     .to_owned(),
             )
             .await?;
         println!("done");
+
+        manager.create_table(Table::create()
+            .table(UserTeam::Table)
+            .if_not_exists()
+            .col(string(UserTeam::User).primary_key())
+            .col(unsigned(UserTeam::Team))
+            .col(boolean(UserTeam::IsAdmin).default(false))
+            .foreign_key(ForeignKey::create()
+                .from(UserTeam::Table, UserTeam::User)
+                .to(User::Table, User::Username)
+                .on_update(ForeignKeyAction::Cascade)
+                .on_delete(ForeignKeyAction::Cascade)
+            )
+            .foreign_key(ForeignKey::create()
+                .from(UserTeam::Table, UserTeam::Team)
+                .to(Team::Table, Team::Number)
+                .on_update(ForeignKeyAction::Cascade)
+                .on_delete(ForeignKeyAction::Cascade)
+            )
+            .to_owned()
+        ).await?;
 
         manager
             .create_table(

@@ -9,3 +9,4 @@ pub mod invite;
 pub mod scan;
 pub mod team;
 pub mod user;
+pub mod user_team;

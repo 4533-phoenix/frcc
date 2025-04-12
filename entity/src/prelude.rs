@@ -7,3 +7,4 @@ pub use super::invite::Entity as Invite;
 pub use super::scan::Entity as Scan;
 pub use super::team::Entity as Team;
 pub use super::user::Entity as User;
+pub use super::user_team::Entity as UserTeam;

@@ -35,6 +35,36 @@ impl AppState {
         state
     }
 
+    pub async fn get_team(&self, team_number: i32) -> entity::team::Model {
+        if let Some(team) = Team::find_by_id(team_number).one(&*self.db).await.unwrap() {
+            team
+        } else {
+            let active_model = entity::team::ActiveModel {
+                number: Set(team_number as i32),
+                name: Set(String::new()),
+            };
+
+            Team::insert(active_model).exec(&*self.db).await.unwrap();
+
+            Team::find_by_id(team_number).one(&*self.db).await.unwrap().unwrap()
+        }
+    }
+
+    pub async fn get_user_team(&self, username: &str) -> Option<entity::team::Model> {
+        if let Some(user_team) = UserTeam::find_by_id(username).one(&*self.db).await.unwrap() {
+            Some(self.get_team(user_team.team).await)
+        } else {
+            None
+        }
+    }
+    pub async fn is_team_admin(&self, username: &str) -> bool {
+        if let Some(user_team) = UserTeam::find_by_id(username).one(&*self.db).await.unwrap() {
+            user_team.is_admin
+        } else {
+            false
+        }
+    }
+
     pub fn check_user_password(&self, hash: &str, password: &str) -> bool {
         dbg!(password);
         if Argon2::default()

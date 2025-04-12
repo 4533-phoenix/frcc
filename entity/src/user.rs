@@ -9,7 +9,6 @@ pub struct Model {
     pub username: String,
     pub password: String,
     pub invited_with_code: Option<String>,
-    pub team: Option<i32>,
     pub is_admin: bool,
     pub is_verified: bool,
 }
@@ -22,6 +21,8 @@ pub enum Relation {
     Invite,
     #[sea_orm(has_many = "super::scan::Entity")]
     Scan,
+    #[sea_orm(has_one = "super::user_team::Entity")]
+    UserTeam,
 }
 
 impl Related<super::auth_token::Entity> for Entity {
@@ -39,6 +40,12 @@ impl Related<super::invite::Entity> for Entity {
 impl Related<super::scan::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Scan.def()
+    }
+}
+
+impl Related<super::user_team::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::UserTeam.def()
     }
 }
 
