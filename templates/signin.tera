@@ -15,6 +15,12 @@
                 <p>Access your card collection</p>
             </div>
 
+						{% if is_error %}
+						<div class="auth-error">
+								<p>Incorrect username or password.</p>
+						</div>
+						{% endif %}
+
             <form class="auth-form" action="/api/login" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>

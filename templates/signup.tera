@@ -15,6 +15,12 @@
                 <p>Create your FRCC account</p>
             </div>
 
+						{% if is_error %}
+						<div class="auth-error">
+								<p>Username already taken.</p>
+						</div>
+						{% endif %}
+
             <form class="auth-form" action="/api/register" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>
