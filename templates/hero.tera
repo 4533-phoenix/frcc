@@ -398,7 +398,7 @@
                     amazing bots in the competition.</p>
                 <p>Create a free account to collect, save, and upload new cards. Join our community of robotics
                     enthusiasts!</p>
-                <a href="#" class="btn btn-primary" aria-label="Create your FRCC account">Create Account</a>
+                <a href="/signup" class="btn btn-primary" aria-label="Create your FRCC account">Create Account</a>
             </div>
             <div class="account-image" aria-hidden="true">
                 <div class="gradient-card shimmer"></div>
@@ -412,7 +412,7 @@
         <h2 id="open-source-heading">Open Source Project</h2>
         <p>FRCC is an open-source project dedicated to the robotics community. Contribute to our development on GitHub.
         </p>
-        <a href="#" class="btn btn-secondary" aria-label="View FRCC source code on GitHub">View Source Code</a>
+        <a href="https://github.com/4533-phoenix/frcc" class="btn btn-secondary" aria-label="View FRCC source code on GitHub">View Source Code</a>
     </div>
 </section>
 
