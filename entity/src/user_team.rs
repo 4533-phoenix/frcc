@@ -9,10 +9,19 @@ pub struct Model {
     pub user: String,
     pub team: i32,
     pub is_admin: bool,
+    pub invite: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::invite::Entity",
+        from = "Column::Invite",
+        to = "super::invite::Column::Code",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    Invite,
     #[sea_orm(
         belongs_to = "super::team::Entity",
         from = "Column::Team",
@@ -29,6 +38,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     User,
+}
+
+impl Related<super::invite::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Invite.def()
+    }
 }
 
 impl Related<super::team::Entity> for Entity {

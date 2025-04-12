@@ -4,7 +4,7 @@ use argon2::{
 };
 use entity::{auth_token, prelude::*, user};
 use migration::{Migrator, MigratorTrait};
-use sea_orm::{ActiveValue::Set, Database, DatabaseConnection, EntityTrait};
+use sea_orm::{ActiveValue::Set, Database, DatabaseConnection, EntityTrait, PaginatorTrait};
 
 use std::sync::Arc;
 
@@ -80,6 +80,7 @@ impl AppState {
         let user = entity::user::ActiveModel {
             username: Set(username.to_string()),
             password: Set(hash.to_string()),
+            is_admin: Set(User::find().count(&*self.db).await.unwrap() == 0),
             ..Default::default()
         };
         User::insert(user).exec(&*self.db).await.unwrap();

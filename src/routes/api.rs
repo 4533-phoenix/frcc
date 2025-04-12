@@ -1,23 +1,30 @@
 use crate::{routes::structs::UserData, state::AppState, util::optimize_and_save_model};
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode, Uri, header},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    ActiveValue::Set, EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
-    prelude::Expr, sqlx::types::chrono,
+    prelude::Expr,
+    sqlx::types::chrono,
+    ActiveValue::{NotSet, Set},
+    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Unset,
 };
 
-use super::{structs::{CardData, ChangePassword, GetCardsParams, JoinTeamData, LoginForm, TeamData, UserTeamData}, util::Auth};
+use super::{
+    structs::{
+        CardData, ChangePassword, GetCardsParams, JoinTeamData, LoginForm, TeamData, UserTeamData,
+    },
+    util::Auth,
+};
 
 pub async fn login(
     State(state): State<AppState>,
@@ -70,22 +77,28 @@ pub async fn register(
     (jar, Redirect::to("/dashboard").into_response()).into_response()
 }
 
-pub async fn create_invite_code(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
-    if user.is_admin {
-        Response::builder()
-            .status(StatusCode::FORBIDDEN)
-            .body("You are not allowed to create invite codes".to_string())
-            .unwrap()
-    } else {
+pub async fn create_invite_code(
+    Auth(user): Auth,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if user.is_admin || user.is_verified {
         let invite_code = state.create_invite_code(&user.username).await.unwrap();
         Response::builder()
             .status(StatusCode::OK)
             .body(invite_code.to_string())
             .unwrap()
+    } else {
+        Response::builder()
+            .status(StatusCode::FORBIDDEN)
+            .body("You are not allowed to create invite codes".to_string())
+            .unwrap()
     }
 }
 
-pub async fn get_cards(State(state): State<AppState>, Query(params): Query<GetCardsParams>) -> impl IntoResponse {
+pub async fn get_cards(
+    State(state): State<AppState>,
+    Query(params): Query<GetCardsParams>,
+) -> impl IntoResponse {
     let designs = CardDesign::find().all(&*state.db).await.unwrap();
 
     let mut cards = Vec::new();
@@ -236,18 +249,39 @@ pub async fn join_team(
     Form(form): Form<JoinTeamData>,
 ) -> impl IntoResponse {
     let team_num: i32 = form.team_number.parse().unwrap();
-    let is_admin = UserTeam::find()
-        .filter(Expr::col(entity::user_team::Column::Team).eq(team_num))
-        .count(&*state.db)
-        .await
-        .unwrap()
-        == 0;
+
+    // User will become an admin if they:
+    //  1. used an invite code
+    //  2. it has not already been used
+    let is_admin = if let Some(code) = form.join_code.clone() {
+        if code.is_empty() {
+            false
+        } else {
+            UserTeam::find()
+                .filter(Expr::col(entity::user_team::Column::Invite).eq(code))
+                .count(&*state.db)
+                .await
+                .unwrap()
+                == 0
+        }
+    } else {
+        false
+    };
+
+    // Ensure the team exists
     let _team = state.get_team(team_num).await;
+
     let active_model = entity::user_team::ActiveModel {
         user: Set(user.username),
         team: Set(team_num),
         is_admin: Set(is_admin),
+        invite: if is_admin {
+            Set(form.join_code)
+        } else {
+            Set(None)
+        },
     };
+
     UserTeam::insert(active_model)
         .exec(&*state.db)
         .await
@@ -257,6 +291,17 @@ pub async fn join_team(
 }
 
 pub async fn leave_team(State(state): State<AppState>, Auth(user): Auth) -> impl IntoResponse {
+    // If the user used an invite to become a team admin, destroy the invite so it can't be reused
+    if let Some(invite) = UserTeam::find_by_id(&user.username)
+        .one(&*state.db)
+        .await
+        .unwrap()
+        .unwrap()
+        .invite
+    {
+        Invite::delete_by_id(invite).exec(&*state.db).await.unwrap();
+    }
+
     UserTeam::delete_by_id(user.username)
         .exec(&*state.db)
         .await
@@ -289,7 +334,10 @@ pub async fn change_password(
     }
 }
 
-pub async fn get_team(State(state): State<AppState>, Path(team_num): Path<u32>) -> impl IntoResponse {
+pub async fn get_team(
+    State(state): State<AppState>,
+    Path(team_num): Path<u32>,
+) -> impl IntoResponse {
     let team = Team::find_by_id(team_num as i32)
         .one(&*state.db)
         .await

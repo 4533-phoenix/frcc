@@ -22,7 +22,6 @@ enum User {
     Table,
     Username,
     Password,
-    InvitedWithCode,
     IsAdmin,
     IsVerified,
 }
@@ -32,6 +31,7 @@ enum UserTeam {
     Table,
     User,
     Team,
+    Invite,
     IsAdmin,
 }
 
@@ -115,9 +115,28 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(string(User::Username).not_null().primary_key())
                     .col(string(User::Password).not_null())
-                    .col(string_null(User::InvitedWithCode))
-                    .col(boolean(User::IsAdmin).default(true))
+                    .col(boolean(User::IsAdmin).default(false))
                     .col(boolean(User::IsVerified).default(false))
+                    .to_owned(),
+            )
+            .await?;
+
+        
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Invite::Table)
+                    .if_not_exists()
+                    .col(string(Invite::Code).primary_key())
+                    .col(string(Invite::Inviter))
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Invite::Table, Invite::Inviter)
+                            .to(User::Table, User::Username)
+                            .on_update(ForeignKeyAction::Cascade)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -130,6 +149,7 @@ impl MigrationTrait for Migration {
                     .col(string(UserTeam::User).primary_key())
                     .col(unsigned(UserTeam::Team))
                     .col(boolean(UserTeam::IsAdmin).default(false))
+                    .col(string_null(UserTeam::Invite))
                     .foreign_key(
                         ForeignKey::create()
                             .from(UserTeam::Table, UserTeam::User)
@@ -144,21 +164,10 @@ impl MigrationTrait for Migration {
                             .on_update(ForeignKeyAction::Cascade)
                             .on_delete(ForeignKeyAction::Cascade),
                     )
-                    .to_owned(),
-            )
-            .await?;
-
-        manager
-            .create_table(
-                Table::create()
-                    .table(Invite::Table)
-                    .if_not_exists()
-                    .col(string(Invite::Code).not_null().primary_key())
-                    .col(string(Invite::Inviter).not_null())
                     .foreign_key(
                         ForeignKey::create()
-                            .from(Invite::Table, Invite::Inviter)
-                            .to(User::Table, User::Username)
+                            .from(UserTeam::Table, UserTeam::Invite)
+                            .to(Invite::Table, Invite::Code)
                             .on_update(ForeignKeyAction::Cascade)
                             .on_delete(ForeignKeyAction::Cascade),
                     )

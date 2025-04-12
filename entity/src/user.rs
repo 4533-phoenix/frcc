@@ -8,7 +8,6 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub username: String,
     pub password: String,
-    pub invited_with_code: Option<String>,
     pub is_admin: bool,
     pub is_verified: bool,
 }
