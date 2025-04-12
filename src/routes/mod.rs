@@ -21,6 +21,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/dashboard", get(frontend::dashboard))
         .route("/admin", get(frontend::admin))
         .route("/account", get(frontend::account))
+        .route("/edit_cards", get(frontend::edit_cards))
         .with_state(state.clone())
         .nest("/api", get_api_router(state))
         .fallback_service(get(util::static_handler))
