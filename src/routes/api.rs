@@ -99,24 +99,57 @@ pub async fn get_cards(
     State(state): State<AppState>,
     Query(params): Query<GetCardsParams>,
 ) -> impl IntoResponse {
-    let designs = CardDesign::find().all(&*state.db).await.unwrap();
-
     let mut cards = Vec::new();
 
-    for design in designs {
-        cards.push(
-            CardData::from_card(
-                Card::find()
-                    .filter(Expr::col(entity::card::Column::Design).eq(design.id))
-                    .one(&*state.db)
-                    .await
-                    .unwrap()
-                    .unwrap(),
-                state.clone(),
-                false,
-            )
-            .await,
-        );
+    if let Some(user) = params.user {
+        let scans = Scan::find()
+            .filter(Expr::col(entity::scan::Column::Username).eq(user))
+            .all(&*state.db)
+            .await
+            .unwrap();
+
+        for scan in scans {
+            cards.push(
+                CardData::from_card(
+                    Card::find_by_id(scan.card)
+                        .one(&*state.db)
+                        .await
+                        .unwrap()
+                        .unwrap(),
+                    state.clone(),
+                    true,
+                )
+                .await,
+            );
+        }
+    } else {
+        let mut sel = CardDesign::find();
+
+        if let Some(team) = params.team {
+            sel = sel.filter(Expr::col(entity::card_design::Column::Team).eq(team));
+        }
+
+        if let Some(year) = params.year {
+            sel = sel.filter(Expr::col(entity::card_design::Column::Year).eq(year));
+        }
+
+        let designs = sel.all(&*state.db).await.unwrap();
+
+        for design in designs {
+            cards.push(
+                CardData::from_card(
+                    Card::find()
+                        .filter(Expr::col(entity::card::Column::Design).eq(design.id))
+                        .one(&*state.db)
+                        .await
+                        .unwrap()
+                        .unwrap(),
+                    state.clone(),
+                    false,
+                )
+                .await,
+            );
+        }
     }
 
     Json(cards)
