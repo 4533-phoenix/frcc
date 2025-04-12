@@ -122,26 +122,31 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        manager.create_table(Table::create()
-            .table(UserTeam::Table)
-            .if_not_exists()
-            .col(string(UserTeam::User).primary_key())
-            .col(unsigned(UserTeam::Team))
-            .col(boolean(UserTeam::IsAdmin).default(false))
-            .foreign_key(ForeignKey::create()
-                .from(UserTeam::Table, UserTeam::User)
-                .to(User::Table, User::Username)
-                .on_update(ForeignKeyAction::Cascade)
-                .on_delete(ForeignKeyAction::Cascade)
+        manager
+            .create_table(
+                Table::create()
+                    .table(UserTeam::Table)
+                    .if_not_exists()
+                    .col(string(UserTeam::User).primary_key())
+                    .col(unsigned(UserTeam::Team))
+                    .col(boolean(UserTeam::IsAdmin).default(false))
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(UserTeam::Table, UserTeam::User)
+                            .to(User::Table, User::Username)
+                            .on_update(ForeignKeyAction::Cascade)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(UserTeam::Table, UserTeam::Team)
+                            .to(Team::Table, Team::Number)
+                            .on_update(ForeignKeyAction::Cascade)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
+                    .to_owned(),
             )
-            .foreign_key(ForeignKey::create()
-                .from(UserTeam::Table, UserTeam::Team)
-                .to(Team::Table, Team::Number)
-                .on_update(ForeignKeyAction::Cascade)
-                .on_delete(ForeignKeyAction::Cascade)
-            )
-            .to_owned()
-        ).await?;
+            .await?;
 
         manager
             .create_table(
@@ -231,7 +236,8 @@ impl MigrationTrait for Migration {
                             .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
-            ).await?;
+            )
+            .await?;
 
         manager
             .create_table(

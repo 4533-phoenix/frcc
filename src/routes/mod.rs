@@ -1,21 +1,21 @@
 use crate::{state::AppState, templates::TEMPLATES, util::optimize_and_save_model};
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
+    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{header, HeaderMap, StatusCode, Uri},
+    http::{HeaderMap, StatusCode, Uri, header},
     response::{IntoResponse, Redirect, Response},
     routing::{get, post, put},
-    Form, Json, Router,
 };
-use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
+use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    prelude::Expr, sqlx::types::chrono, ActiveValue::Set, EntityTrait, IntoActiveModel,
-    PaginatorTrait, QueryFilter, QueryOrder,
+    ActiveValue::Set, EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
+    prelude::Expr, sqlx::types::chrono,
 };
 use std::path::PathBuf;
 use tera::Context;

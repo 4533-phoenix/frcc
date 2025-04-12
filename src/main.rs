@@ -4,16 +4,16 @@ extern crate serde;
 extern crate nanoid;
 #[macro_use]
 extern crate log;
+extern crate argon2;
 extern crate axum;
+extern crate axum_extra;
 extern crate entity;
 extern crate env_logger;
 extern crate sea_orm;
 extern crate tera;
+extern crate tmf;
 extern crate tokio;
 extern crate tower_http;
-extern crate argon2;
-extern crate tmf;
-extern crate axum_extra;
 #[macro_use]
 extern crate rust_embed;
 
@@ -40,8 +40,7 @@ async fn main() {
     let addr = format!("{}:{}", host, port);
     info!("Starting server on {}", addr);
 
-    let comression_layer = CompressionLayer::new()
-        .zstd(true);
+    let comression_layer = CompressionLayer::new().zstd(true);
 
     let state = AppState::new().await;
     let app = routes::get_router(state).layer(comression_layer);

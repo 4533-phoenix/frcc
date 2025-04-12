@@ -4,9 +4,7 @@ use argon2::{
 };
 use entity::{auth_token, prelude::*, user};
 use migration::{Migrator, MigratorTrait};
-use sea_orm::{
-    ActiveValue::Set, Database, DatabaseConnection, EntityTrait,
-};
+use sea_orm::{ActiveValue::Set, Database, DatabaseConnection, EntityTrait};
 
 use std::sync::Arc;
 
@@ -39,7 +37,11 @@ impl AppState {
 
             Team::insert(active_model).exec(&*self.db).await.unwrap();
 
-            Team::find_by_id(team_number).one(&*self.db).await.unwrap().unwrap()
+            Team::find_by_id(team_number)
+                .one(&*self.db)
+                .await
+                .unwrap()
+                .unwrap()
         }
     }
 
@@ -118,7 +120,10 @@ impl AppState {
         }
     }
 
-    pub async fn get_card_design_abilities(&self, card_design_id: i32) -> Vec<entity::card_ability::Model> {
+    pub async fn get_card_design_abilities(
+        &self,
+        card_design_id: i32,
+    ) -> Vec<entity::card_ability::Model> {
         CardAbility::find_by_id(card_design_id)
             .all(&*self.db)
             .await
