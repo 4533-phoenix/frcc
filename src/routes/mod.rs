@@ -38,6 +38,7 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/register", post(api::register))
         .route("/cards", get(api::get_cards).post(api::create_card))
         .route("/design/{id}", get(api::get_design)) //.put(api::modify_card))
+        .route("/design/{id}/generate", get(api::gen_card_back))
         .route("/scans", put(api::do_scan).get(api::get_scans))
         .route("/user/{username}", get(api::get_user).put(api::modify_user))
         .route("/users", get(api::get_users))

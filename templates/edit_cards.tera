@@ -480,11 +480,11 @@
                     
                     // Set level
                     const levelInput = abilityItem.querySelector('input[name="ability_level[]"]');
-                    levelInput.value = ability.stat;
+                    levelInput.value = ability.level;
                     
                     const indicators = abilityItem.querySelectorAll('.level-indicator');
                     indicators.forEach((ind, index) => {
-                        ind.classList.toggle('active', index < ability.stat);
+                        ind.classList.toggle('active', index < ability.level);
                     });
                     
                     setupAbilityLevelIndicators(abilityItem);

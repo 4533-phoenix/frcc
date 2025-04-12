@@ -4,23 +4,23 @@ use crate::{
     util::{optimize_and_save_image, optimize_and_save_model},
 };
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode, Uri, header},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
+    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
-    prelude::Expr,
 };
 
 use super::{
@@ -299,10 +299,10 @@ pub async fn create_card(
                     //}
                 }
                 Some("photo") => {
-                    photo = field.bytes().await.ok();
+                    photo = field.bytes().await.ok().filter(|x| !x.is_empty());
                 }
                 Some("model") => {
-                    model = field.bytes().await.ok();
+                    model = field.bytes().await.ok().filter(|x| !x.is_empty());
                 }
                 Some(_) | None => {}
             }
@@ -711,4 +711,38 @@ pub async fn get_scans(State(state): State<AppState>, Auth(user): Auth) -> impl 
         cards.push(CardData::from_card(cardd, state.clone(), true).await);
     }
     Json(cards).into_response()
+}
+
+pub async fn gen_card_back(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(design): Path<i32>,
+) -> impl IntoResponse {
+    if let Some(design) = CardDesign::find_by_id(design).one(&*state.db).await.unwrap() {
+        if Some(design.team) == state.get_user_team(&user.username).await.map(|t| t.number)
+            && state.is_team_admin(&user.username).await
+        {
+            let id = nanoid!(33);
+
+            Card::insert(entity::card::ActiveModel {
+                id: Set(id.clone()),
+                design: Set(design.id),
+            }).exec(&*state.db).await.unwrap();
+
+            Response::builder()
+                .status(StatusCode::OK)
+                .header(header::CONTENT_TYPE, "image/png")
+                .body(Body::from(
+                    frcc_card_gen::render_card(include_str!("../../cards/back/default.svg"), &id)
+                        .encode_png()
+                        .unwrap(),
+                ))
+                .unwrap()
+                .into_response()
+        } else {
+            StatusCode::FORBIDDEN.into_response()
+        }
+    } else {
+        StatusCode::NOT_FOUND.into_response()
+    }
 }
