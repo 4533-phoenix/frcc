@@ -50,6 +50,7 @@ enum CardAbility {
     Table,
     Card,
     Level,
+    Amount,
     Title,
     Description,
 }
@@ -232,7 +233,8 @@ impl MigrationTrait for Migration {
                     .table(CardAbility::Table)
                     .if_not_exists()
                     .col(unsigned(CardAbility::Card).primary_key())
-                    .col(small_unsigned(CardAbility::Level))
+                    .col(tiny_unsigned(CardAbility::Level))
+                    .col(string(CardAbility::Amount))
                     .col(string(CardAbility::Title))
                     .col(string(CardAbility::Description))
                     .foreign_key(

@@ -1,4 +1,8 @@
-use crate::{routes::structs::{CardAbilityData, UserData}, state::AppState, util::optimize_and_save_model};
+use crate::{
+    routes::structs::{CardAbilityData, UserData},
+    state::AppState,
+    util::optimize_and_save_model,
+};
 use argon2::{
     PasswordHasher,
     password_hash::{SaltString, rand_core::OsRng},
@@ -11,13 +15,13 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
     ActiveValue::{NotSet, Set},
-    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Unset,
+    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
     prelude::Expr,
 };
-use chrono::Datelike;
 
 use super::{
     structs::{
@@ -31,19 +35,22 @@ pub async fn login(
     mut jar: CookieJar,
     form: Form<LoginForm>,
 ) -> impl IntoResponse {
-    let user = User::find_by_id(&form.username)
+    if let Some(user) = User::find_by_id(&form.username)
         .one(&*state.db)
         .await
         .unwrap()
-        .unwrap();
-    if !state.check_user_password(&user.password, &form.password) {
-        Redirect::to("/signin?error=invalid").into_response()
-    } else {
-        let mut cookie = Cookie::new("token", state.register_token(&user.username).await);
-        cookie.set_path("/");
-        jar = jar.add(cookie);
+    {
+        if !state.check_user_password(&user.password, &form.password) {
+            Redirect::to("/signin?error=invalid").into_response()
+        } else {
+            let mut cookie = Cookie::new("token", state.register_token(&user.username).await);
+            cookie.set_path("/");
+            jar = jar.add(cookie);
 
-        (jar, Redirect::to("/dashboard").into_response()).into_response()
+            (jar, Redirect::to("/dashboard").into_response()).into_response()
+        }
+    } else {
+        Redirect::to("/signin?error=invalid").into_response()
     }
 }
 
@@ -62,7 +69,12 @@ pub async fn register(
     mut jar: CookieJar,
     form: Form<LoginForm>,
 ) -> impl IntoResponse {
-    if User::find_by_id(&form.username).one(&*state.db).await.unwrap().is_some() {
+    if User::find_by_id(&form.username)
+        .one(&*state.db)
+        .await
+        .unwrap()
+        .is_some()
+    {
         return Redirect::to("/signup?error=taken").into_response();
     }
 
@@ -179,7 +191,7 @@ pub async fn create_card(
                 }
                 Some("abilities") => {
                     if field.content_type() == Some("application/json") {
-                    abilities = field.text().await.ok();
+                        abilities = field.text().await.ok();
                     }
                 }
                 Some("photo") => {
@@ -200,7 +212,7 @@ pub async fn create_card(
 
         optimize_and_save_model(id.clone(), model.unwrap().to_vec());
 
-        CardDesign::insert(card_design::ActiveModel {
+        let design = CardDesign::insert(card_design::ActiveModel {
             team: Set(team.number),
             year: Set(chrono::Utc::now().year() as i16),
             name: Set(bot_name.unwrap()),
@@ -210,6 +222,19 @@ pub async fn create_card(
         .exec(&*state.db)
         .await
         .unwrap();
+
+        for ability in abilities {
+            CardAbility::insert(entity::card_ability::ActiveModel {
+                card: Set(design.last_insert_id),
+                level: Set(ability.level as i8),
+                amount: Set(ability.amount),
+                title: Set(ability.title),
+                description: Set(ability.description),
+            })
+            .exec(&*state.db)
+            .await
+            .unwrap();
+        }
     }
 }
 
@@ -229,7 +254,11 @@ pub async fn get_user(
             username: user.username.clone(),
             is_admin: user.is_admin,
             is_verified: user.is_verified,
-            team: None, //user.team().get(&state.db).await.unwrap().map(|t| t.name.clone()),
+            team: state
+                .get_user_team(&user.username)
+                .await
+                .map(|t| t.number.to_string()),
+            is_team_admin: Some(state.is_team_admin(&user.username).await),
         })
         .into_response()
     } else {
@@ -243,19 +272,21 @@ pub async fn get_user(
 
 pub async fn get_users(State(state): State<AppState>, Auth(user): Auth) -> impl IntoResponse {
     if user.is_admin {
-        let users = User::find().all(&*state.db).await.unwrap();
-        Json(
-            users
-                .iter()
-                .map(|u| UserData {
-                    username: u.username.clone(),
-                    is_admin: u.is_admin,
-                    is_verified: u.is_verified,
-                    team: None, //u.team
-                })
-                .collect::<Vec<_>>(),
-        )
-        .into_response()
+        let mut users = Vec::new();
+        for user in User::find().all(&*state.db).await.unwrap() {
+            users.push(UserData {
+                username: user.username.clone(),
+                is_admin: user.is_admin,
+                is_verified: user.is_verified,
+                team: state
+                    .get_user_team(&user.username)
+                    .await
+                    .map(|t| t.number.to_string()),
+                is_team_admin: Some(state.is_team_admin(&user.username).await),
+            });
+        }
+
+        Json(users).into_response()
     } else {
         Response::builder()
             .status(StatusCode::FORBIDDEN)
@@ -272,7 +303,7 @@ pub async fn modify_user(
     Json(data): Json<UserData>,
 ) -> impl IntoResponse {
     if user.is_admin {
-        let mut user = User::find_by_id(username)
+        let mut user = User::find_by_id(&username)
             .one(&*state.db)
             .await
             .unwrap()
@@ -281,6 +312,16 @@ pub async fn modify_user(
         user.is_admin = Set(data.is_admin);
         user.is_verified = Set(data.is_verified);
         User::update(user).exec(&*state.db).await.unwrap();
+
+        state
+            .set_user_team(
+                &username,
+                data.team.map(|t| t.parse().unwrap()),
+                data.is_team_admin.unwrap(),
+                None,
+            )
+            .await;
+
         Response::builder()
             .status(StatusCode::OK)
             .body("User updated".to_string())

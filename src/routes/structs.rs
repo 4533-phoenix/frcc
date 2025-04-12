@@ -10,7 +10,8 @@ pub struct LoginForm {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CardAbilityData {
-    pub stat: u8,
+    pub level: u8,
+    pub amount: String,
     pub title: String,
     pub description: String,
 }
@@ -28,6 +29,7 @@ pub struct UserData {
     pub is_admin: bool,
     pub is_verified: bool,
     pub team: Option<String>,
+    pub is_team_admin: Option<bool>,
 }
 
 #[derive(Deserialize)]
@@ -88,7 +90,8 @@ impl CardData {
                         .await
                         .into_iter()
                         .map(|a| CardAbilityData {
-                            stat: a.level as u8,
+                            level: a.level as u8,
+                            amount: a.amount,
                             title: a.title,
                             description: a.description,
                         })

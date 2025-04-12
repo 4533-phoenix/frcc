@@ -49,7 +49,7 @@ pub async fn build_context(user: Option<entity::user::Model>, state: AppState) -
         context.insert("username", &user.username);
         context.insert("is_site_admin", &user.is_admin);
         context.insert("is_verified", &user.is_verified); // Add this line
-        
+
         let team = UserTeam::find_by_id(&user.username)
             .one(&*state.db)
             .await

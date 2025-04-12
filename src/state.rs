@@ -87,7 +87,13 @@ impl AppState {
     }
 
     pub async fn create_invite_code(&self, inviter: &str) -> Option<String> {
-        let code = nanoid!(8, &::nanoid::alphabet::SAFE.into_iter().filter(|c| c.is_alphabetic()).collect::<Vec<char>>());
+        let code = nanoid!(
+            8,
+            &::nanoid::alphabet::SAFE
+                .into_iter()
+                .filter(|c| c.is_alphabetic())
+                .collect::<Vec<char>>()
+        );
 
         let invite = entity::invite::ActiveModel {
             code: Set(code.clone()),
@@ -129,5 +135,41 @@ impl AppState {
             .all(&*self.db)
             .await
             .unwrap()
+    }
+
+    pub async fn set_user_team(
+        &self,
+        username: &str,
+        team_number: Option<i32>,
+        team_admin: bool,
+        invite_code: Option<String>,
+    ) {
+        let existing_team = self.get_user_team(&username).await;
+        if existing_team.is_some() {
+            UserTeam::delete_by_id(username)
+                .exec(&*self.db)
+                .await
+                .unwrap();
+        }
+
+        match team_number {
+            Some(team_num) => {
+                // Ensure the team exists
+                let _team = self.get_team(team_num).await;
+
+                let active_model = entity::user_team::ActiveModel {
+                    user: Set(username.to_string()),
+                    team: Set(team_num),
+                    is_admin: Set(team_admin),
+                    invite: Set(invite_code),
+                };
+
+                UserTeam::insert(active_model)
+                    .exec(&*self.db)
+                    .await
+                    .unwrap();
+            }
+            None => {}
+        }
     }
 }

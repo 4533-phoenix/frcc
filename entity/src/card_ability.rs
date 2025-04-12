@@ -7,7 +7,8 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub card: i32,
-    pub level: i16,
+    pub level: i8,
+    pub amount: String,
     pub title: String,
     pub description: String,
 }
