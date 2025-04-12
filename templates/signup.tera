@@ -51,30 +51,35 @@
         </div>
     </div>
 </section>
+{% endblock content %}
 
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.querySelector('.auth-form');
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirmPassword');
 
-        form.addEventListener('submit', function (event) {
-            if (password.value !== confirmPassword.value) {
-                event.preventDefault();
-                confirmPassword.setCustomValidity("Passwords don't match");
-                confirmPassword.reportValidity();
-            } else {
-                confirmPassword.setCustomValidity('');
-            }
-        });
+        if (form && password && confirmPassword) {
+            form.addEventListener('submit', function (event) {
+                if (password.value !== confirmPassword.value) {
+                    event.preventDefault();
+                    confirmPassword.setCustomValidity("Passwords don't match");
+                    confirmPassword.reportValidity();
+                    FRCC.showNotification("Passwords don't match", "error");
+                } else {
+                    confirmPassword.setCustomValidity('');
+                }
+            });
 
-        confirmPassword.addEventListener('input', function () {
-            if (password.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity("Passwords don't match");
-            } else {
-                confirmPassword.setCustomValidity('');
-            }
-        });
+            confirmPassword.addEventListener('input', function () {
+                if (password.value !== confirmPassword.value) {
+                    confirmPassword.setCustomValidity("Passwords don't match");
+                } else {
+                    confirmPassword.setCustomValidity('');
+                }
+            });
+        }
     });
 </script>
-{% endblock content %}
+{% endblock scripts %}
