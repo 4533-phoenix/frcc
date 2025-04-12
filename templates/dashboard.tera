@@ -96,7 +96,7 @@
         <div class="stats-grid">
             <div class="stat-card shimmer">
                 <h3 class="stat-card-title">Cards Collected</h3>
-                <div class="stat-card-value">{{ cards_collected | length }}</div>
+                <div class="stat-card-value">{{ cards_collected }}</div>
                 <p class="stat-card-desc">Total cards in your collection</p>
             </div>
 

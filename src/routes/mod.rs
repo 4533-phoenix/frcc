@@ -14,7 +14,8 @@ use axum::{
 use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    prelude::Expr, sqlx::types::chrono, ActiveValue::Set, EntityTrait, IntoActiveModel, IntoIdentity, PaginatorTrait, QueryFilter
+    prelude::Expr, sqlx::types::chrono, ActiveValue::Set, EntityTrait, IntoActiveModel,
+    IntoIdentity, PaginatorTrait, QueryFilter, QueryOrder,
 };
 use std::path::PathBuf;
 use tera::Context;
@@ -44,11 +45,9 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/logout", get(logout))
         .route("/register", post(register))
         .route("/cards", get(get_cards).post(create_card))
-        .route("/scan", post(do_scan))
+        .route("/scans", put(do_scan).get(get_scans))
         .route("/user/{username}", get(get_user).put(modify_user))
         .route("/users", get(get_users))
-        //.route("/cards/:id", get(get_card).put(update_card).delete(delete_card))
-        //.route("/collection", get(get_collection).put(add_to_collection))
         .route("/invites", put(create_invite_code))
         .route("/account/join_team", post(join_team))
         .route("/account/leave_team", post(leave_team))
@@ -56,7 +55,7 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/team/{team_num}", get(get_team).post(modify_team))
         .route("/team/{team_num}/members", get(get_team_members))
         .route(
-            "/team/{team_num}/members/{username}",
+            "/team/{team_num}/member/{username}",
             put(modify_team_member),
         )
         .with_state(state)
@@ -143,37 +142,8 @@ async fn dashboard(Auth(user): Auth, State(state): State<AppState>) -> impl Into
         .await
         .unwrap();
 
-    let mut cards = Vec::new();
-
-    for scan in scans {
-        let card = Card::find_by_id(&scan.card)
-            .one(&*state.db)
-            .await
-            .unwrap()
-            .unwrap();
-        let design = CardDesign::find_by_id(card.design)
-            .one(&*state.db)
-            .await
-            .unwrap()
-            .unwrap();
-        cards.push(CardData {
-            design_id: design.id.to_string(),
-            card_id: Some(scan.card),
-            team_number: design.team as u64,
-            team_name: CardDesign::find_by_id(design.team)
-                .one(&*state.db)
-                .await
-                .unwrap()
-                .unwrap()
-                .name,
-            bot_name: Some(design.name),
-            year: design.year as u16,
-            abilities: None,
-        });
-    }
-
     context.insert("profile_pic", "/images/default-profile.png");
-    context.insert("cards_collected", &cards);
+    context.insert("cards_collected", &scans.len());
 
     let content = TEMPLATES.render("dashboard.tera", &context).unwrap();
     Response::builder()
@@ -380,15 +350,19 @@ async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
     let mut cards = Vec::new();
 
     for design in designs {
-        cards.push(CardData {
-            design_id: design.id.to_string(),
-            card_id: None,
-            team_number: design.team as u64,
-            team_name: state.get_team(design.team).await.name,
-            year: design.year as u16,
-            bot_name: Some(design.name.clone()),
-            abilities: None,
-        });
+        cards.push(
+            CardData::from_card(
+                Card::find()
+                    .filter(Expr::col(entity::card::Column::Design).eq(design.id))
+                    .one(&*state.db)
+                    .await
+                    .unwrap()
+                    .unwrap(),
+                state.clone(),
+                false,
+            )
+            .await,
+        );
     }
 
     Json(cards)
@@ -762,10 +736,33 @@ async fn do_scan(
             username: Set(user.username),
             card: Set(id),
             scan_time: Set(chrono::Utc::now()),
-        }).exec(&*state.db).await.unwrap();
+        })
+        .exec(&*state.db)
+        .await
+        .unwrap();
 
         Json(CardData::from_card(cardd, state, true).await).into_response()
     } else {
         StatusCode::NOT_FOUND.into_response()
     }
+}
+
+async fn get_scans(State(state): State<AppState>, Auth(user): Auth) -> impl IntoResponse {
+    let scans = Scan::find()
+        .filter(Expr::col(entity::scan::Column::Username).eq(user.username))
+        .order_by_desc(entity::scan::Column::ScanTime)
+        .all(&*state.db)
+        .await
+        .unwrap();
+
+    let mut cards = Vec::new();
+    for scan in scans {
+        let cardd = Card::find_by_id(&scan.card)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
+        cards.push(CardData::from_card(cardd, state.clone(), true).await);
+    }
+    Json(cards).into_response()
 }
