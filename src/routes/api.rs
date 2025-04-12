@@ -1,4 +1,4 @@
-use crate::{routes::structs::UserData, state::AppState, util::optimize_and_save_model};
+use crate::{routes::structs::{CardAbilityData, UserData}, state::AppState, util::optimize_and_save_model};
 use argon2::{
     PasswordHasher,
     password_hash::{SaltString, rand_core::OsRng},
@@ -16,8 +16,8 @@ use sea_orm::{
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Unset,
     prelude::Expr,
-    sqlx::types::chrono,
 };
+use chrono::Datelike;
 
 use super::{
     structs::{
@@ -164,6 +164,8 @@ pub async fn create_card(
         let id = nanoid!(33);
 
         let mut bot_name = None;
+        let mut note = None;
+        let mut abilities = None;
         let mut photo = None;
         let mut model = None;
 
@@ -171,6 +173,14 @@ pub async fn create_card(
             match field.name() {
                 Some("bot_name") => {
                     bot_name = field.text().await.ok();
+                }
+                Some("note") => {
+                    note = field.text().await.ok();
+                }
+                Some("abilities") => {
+                    if field.content_type() == Some("application/json") {
+                    abilities = field.text().await.ok();
+                    }
                 }
                 Some("photo") => {
                     photo = field.bytes().await.ok();
@@ -182,12 +192,19 @@ pub async fn create_card(
             }
         }
 
+        let abilities: Vec<CardAbilityData> = if let Some(abilities_str) = abilities {
+            serde_json::from_str(&abilities_str).unwrap()
+        } else {
+            Vec::new()
+        };
+
         optimize_and_save_model(id.clone(), model.unwrap().to_vec());
 
         CardDesign::insert(card_design::ActiveModel {
             team: Set(team.number),
+            year: Set(chrono::Utc::now().year() as i16),
             name: Set(bot_name.unwrap()),
-            year: Set(2025),
+            note: Set(note.unwrap_or_default()),
             ..Default::default()
         })
         .exec(&*state.db)

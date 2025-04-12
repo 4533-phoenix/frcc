@@ -87,7 +87,7 @@ impl AppState {
     }
 
     pub async fn create_invite_code(&self, inviter: &str) -> Option<String> {
-        let code = nanoid!(64);
+        let code = nanoid!(8, &::nanoid::alphabet::SAFE.into_iter().filter(|c| c.is_alphabetic()).collect::<Vec<char>>());
 
         let invite = entity::invite::ActiveModel {
             code: Set(code.clone()),

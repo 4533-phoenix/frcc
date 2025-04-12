@@ -24,6 +24,8 @@ entity = { version = "0.1.0", path = "./entity" }
 rust-embed = { version = "8.7.0", features = ["axum-ex", "mime-guess"] }
 once_cell = { version = "1.21.3", default-features = false, features = ["parking_lot"] }
 migration = { version = "0.1.0", path = "migration" }
+serde_json = { version = "1.0.140", features = ["preserve_order"] }
+chrono = "0.4.40"
 
 [workspace]
 members = ["crates/frcc_card_gen", "entity", "migration"]
