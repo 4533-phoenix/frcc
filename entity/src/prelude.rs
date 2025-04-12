@@ -2,6 +2,7 @@
 
 pub use super::auth_token::Entity as AuthToken;
 pub use super::card::Entity as Card;
+pub use super::card_ability::Entity as CardAbility;
 pub use super::card_design::Entity as CardDesign;
 pub use super::invite::Entity as Invite;
 pub use super::scan::Entity as Scan;

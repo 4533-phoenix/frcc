@@ -124,4 +124,11 @@ impl AppState {
             None => None,
         }
     }
+
+    pub async fn get_card_design_abilities(&self, card_design_id: i32) -> Vec<entity::card_ability::Model> {
+        CardAbility::find_by_id(card_design_id)
+            .all(&*self.db)
+            .await
+            .unwrap()
+    }
 }

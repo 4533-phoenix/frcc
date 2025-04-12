@@ -14,8 +14,7 @@ use axum::{
 use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    prelude::Expr, ActiveValue::Set, EntityTrait, IntoActiveModel, IntoIdentity, PaginatorTrait,
-    QueryFilter,
+    prelude::Expr, sqlx::types::chrono, ActiveValue::Set, EntityTrait, IntoActiveModel, IntoIdentity, PaginatorTrait, QueryFilter
 };
 use std::path::PathBuf;
 use tera::Context;
@@ -45,7 +44,7 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/logout", get(logout))
         .route("/register", post(register))
         .route("/cards", get(get_cards).post(create_card))
-        .route("/scan", post(scan_card))
+        .route("/scan", post(do_scan))
         .route("/user/{username}", get(get_user).put(modify_user))
         .route("/users", get(get_users))
         //.route("/cards/:id", get(get_card).put(update_card).delete(delete_card))
@@ -56,7 +55,10 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/account/change_password", post(change_password))
         .route("/team/{team_num}", get(get_team).post(modify_team))
         .route("/team/{team_num}/members", get(get_team_members))
-        .route("/team/{team_num}/members/{username}", put(modify_team_member))
+        .route(
+            "/team/{team_num}/members/{username}",
+            put(modify_team_member),
+        )
         .with_state(state)
 }
 
@@ -360,17 +362,6 @@ impl FromRequestParts<AppState> for Auth {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct CardData {
-    design_id: String,
-    card_id: Option<String>,
-    team_number: u64,
-    team_name: String,
-    year: u16,
-    bot_name: Option<String>,
-    abilities: Option<Vec<CardAbilityData>>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 struct CardAbilityData {
     stat: u8,
     title: String,
@@ -442,34 +433,6 @@ async fn create_card(
         .await
         .unwrap();
     }
-}
-
-async fn scan_card(
-    State(state): State<AppState>,
-    Auth(user): Auth,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
-    let card = Card::find_by_id(&id)
-        .one(&*state.db)
-        .await
-        .unwrap()
-        .unwrap();
-    let design = CardDesign::find_by_id(card.design)
-        .one(&*state.db)
-        .await
-        .unwrap()
-        .unwrap();
-    let team = state.get_user_team(&user.username).await;
-
-    Json(CardData {
-        bot_name: Some(design.name),
-        card_id: Some(id),
-        design_id: design.id.to_string(),
-        team_number: team.clone().map(|x| x.number).unwrap_or_default() as u64,
-        team_name: team.map(|x| x.name).unwrap_or_default().clone(),
-        year: design.year as u16,
-        abilities: None,
-    })
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -732,7 +695,10 @@ async fn modify_team_member(
 
         user_team_link.is_admin = Set(data.is_admin);
 
-        UserTeam::update(user_team_link).exec(&*state.db).await.unwrap();
+        UserTeam::update(user_team_link)
+            .exec(&*state.db)
+            .await
+            .unwrap();
 
         StatusCode::OK.into_response()
     } else {
@@ -740,13 +706,66 @@ async fn modify_team_member(
     }
 }
 
-//#[derive(Serialize, Deserialize)]
-//struct ScanData {
-//    card_id: String,
-//}
-//
-//async fn do_scan(State(state): State<AppState>, Auth(user): Auth, Path(id): Path<String>) -> impl IntoResponse {
-//    if let Some(cardd) = Card::find_by_id(id).one(&*state.db).await.unwrap() {
-//    let design = Design::find_by_id(cardd.).one(&*state.db).await.unwrap();
-//    let team = Team::find_by_id(design.team_id).one(&*state.db).await.unwrap();
-//}
+#[derive(Serialize, Deserialize)]
+struct CardData {
+    card_id: Option<String>,
+    card_design_id: i32,
+    team_number: i32,
+    year: u16,
+    team_name: String,
+    card_name: Option<String>,
+    card_note: Option<String>,
+    abilities: Option<Vec<CardAbilityData>>,
+}
+impl CardData {
+    async fn from_card(cardd: entity::card::Model, state: AppState, unlocked: bool) -> Self {
+        let design = CardDesign::find_by_id(cardd.design)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
+        Self {
+            card_id: if unlocked { Some(cardd.id) } else { None },
+            card_design_id: cardd.design,
+            team_number: design.team,
+            year: design.year as u16,
+            team_name: state.get_team(design.team).await.name,
+            card_name: if unlocked { Some(design.name) } else { None },
+            card_note: if unlocked { Some(design.note) } else { None },
+            abilities: if unlocked {
+                Some(
+                    state
+                        .get_card_design_abilities(cardd.design)
+                        .await
+                        .into_iter()
+                        .map(|a| CardAbilityData {
+                            stat: a.level as u8,
+                            title: a.title,
+                            description: a.description,
+                        })
+                        .collect::<Vec<_>>(),
+                )
+            } else {
+                None
+            },
+        }
+    }
+}
+
+async fn do_scan(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    if let Some(cardd) = Card::find_by_id(&id).one(&*state.db).await.unwrap() {
+        Scan::insert(entity::scan::ActiveModel {
+            username: Set(user.username),
+            card: Set(id),
+            scan_time: Set(chrono::Utc::now()),
+        }).exec(&*state.db).await.unwrap();
+
+        Json(CardData::from_card(cardd, state, true).await).into_response()
+    } else {
+        StatusCode::NOT_FOUND.into_response()
+    }
+}
