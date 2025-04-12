@@ -12,20 +12,20 @@
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
-    
+
     .stat-card {
         background: var(--background-primary);
         border-radius: var(--border-radius);
         padding: 1.5rem;
         box-shadow: var(--card-shadow);
     }
-    
+
     .action-cards {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 1.5rem;
     }
-    
+
     .team-badge {
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
@@ -42,13 +42,13 @@
         margin-left: 0.5rem;
         font-size: 0.75rem;
     }
-    
+
     .admin-badge-indicator svg {
         width: 12px;
         height: 12px;
         margin-right: 0.3rem;
     }
-    
+
     .site-admin-badge {
         background: rgba(255, 184, 77, 0.25);
         color: white;
@@ -56,7 +56,7 @@
         -webkit-backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 184, 77, 0.4);
     }
-    
+
     .profile-image-container {
         width: 100px;
         height: 100px;
@@ -74,7 +74,7 @@
         width: 80%;
         height: 80%;
     }
-    
+
     /* Badges container */
     .badges-container {
         display: flex;
@@ -82,7 +82,7 @@
         gap: 0.75rem;
         margin-top: 0.75rem;
     }
-    
+
     .badge {
         display: inline-flex;
         align-items: center;
@@ -92,7 +92,7 @@
         font-weight: 500;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
-    
+
     .badge svg {
         width: 16px;
         height: 16px;
@@ -115,30 +115,32 @@
             </div>
             <div class="user-info">
                 <h1>Welcome back, {{ username }}!</h1>
-                
+
                 <div class="badges-container">
                     {% if has_team %}
                     <div class="badge team-badge">
                         <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+                            <path
+                                d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
                         </svg>
                         Team {{ team_name }} #{{ team_number }}
-                        
+
                         {% if is_team_admin %}
                         <span class="admin-badge-indicator">
                             <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
                             </svg>
                             Admin
                         </span>
                         {% endif %}
                     </div>
                     {% endif %}
-                    
+
                     {% if is_site_admin %}
                     <div class="badge site-admin-badge">
                         <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                            <path
+                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
                         </svg>
                         Site Administrator
                     </div>
@@ -174,7 +176,8 @@
                     <div class="action-card-header">
                         <h3 class="action-card-title">My Cards</h3>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                            <path d="M5 6 h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1zm2 -2h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1zm2 -2h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1z"/>
+                            <path
+                                d="M5 6 h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1zm2 -2h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1zm2 -2h8 c1 0 1 0 1 1 v12 c0 1 0 1 -1 1 h-8 c-1 0 -1 0 -1 -1 v-12 c0 -1 0 -1 1 -1z" />
                         </svg>
                     </div>
                     <div class="action-card-body">
@@ -196,12 +199,13 @@
                         <a href="/scan" class="btn btn-primary">Scan Now</a>
                     </div>
                 </div>
-                
+
                 <div class="action-card">
                     <div class="action-card-header">
                         <h3 class="action-card-title">Account Settings</h3>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                     </div>
                     <div class="action-card-body">
@@ -209,17 +213,19 @@
                         <a href="/account" class="btn btn-primary">Manage Account</a>
                     </div>
                 </div>
-                
+
                 {% if is_site_admin %}
                 <div class="action-card">
                     <div class="action-card-header">
                         <h3 class="action-card-title">Admin Panel</h3>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                            <path
+                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
                         </svg>
                     </div>
                     <div class="action-card-body">
-                        <p class="action-card-desc">Access the administration panel to manage users, cards, and site settings.</p>
+                        <p class="action-card-desc">Access the administration panel to manage users, cards, and site
+                            settings.</p>
                         <a href="/admin" class="btn btn-primary">Admin Panel</a>
                     </div>
                 </div>
