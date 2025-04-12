@@ -211,12 +211,6 @@
                     <div class="stat-card-value">{{ cards_collected }}</div>
                     <p class="stat-card-desc">Total cards in your collection</p>
                 </div>
-
-                <div class="stat-card shimmer">
-                    <h3 class="stat-card-title">Roles</h3>
-                    <div class="stat-card-value" style="font-size: 1.5rem;">Admin of Team</div>
-                    <p class="stat-card-desc">Your permission levels</p>
-                </div>
             </div>
         </div>
 
