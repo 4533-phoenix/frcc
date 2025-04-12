@@ -513,7 +513,7 @@
             
             for (let i = 0; i < titles.length; i++) {
                 abilities.push({
-                    stat: parseInt(levels[i]),
+                    level: parseInt(levels[i]),
                     title: titles[i],
                     description: descriptions[i],
                     amount: amounts[i] || null

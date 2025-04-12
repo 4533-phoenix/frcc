@@ -26,6 +26,7 @@ once_cell = { version = "1.21.3", default-features = false, features = ["parking
 migration = { version = "0.1.0", path = "migration" }
 serde_json = { version = "1.0.140", features = ["preserve_order"] }
 chrono = "0.4.40"
+image = { version = "0.25.6", default-features = false, features = ["jpeg", "png"] }
 
 [workspace]
 members = ["crates/frcc_card_gen", "entity", "migration"]

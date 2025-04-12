@@ -1,6 +1,8 @@
 use crate::state::AppState;
 use axum::{
-    extract::DefaultBodyLimit, routing::{get, post, put}, Router
+    Router,
+    extract::DefaultBodyLimit,
+    routing::{get, post, put},
 };
 
 mod api;
@@ -32,7 +34,7 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/logout", get(api::logout))
         .route("/register", post(api::register))
         .route("/cards", get(api::get_cards).post(api::create_card))
-        .route("/design/{id}", get(api::get_design))
+        .route("/design/{id}", get(api::get_design)) //.put(api::modify_card))
         .route("/scans", put(api::do_scan).get(api::get_scans))
         .route("/user/{username}", get(api::get_user).put(api::modify_user))
         .route("/users", get(api::get_users))

@@ -163,7 +163,7 @@ pub async fn edit_cards(Auth(user): Auth, State(state): State<AppState>) -> impl
     if !state.is_team_admin(&user.username).await {
         return Redirect::to("/dashboard").into_response();
     }
-    
+
     let context = create_standard_context(true, Some(user), Some(state)).await;
     let content = TEMPLATES.render("edit_cards.tera", &context).unwrap();
     Response::builder()

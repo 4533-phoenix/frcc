@@ -102,7 +102,11 @@ impl CardData {
             },
         }
     }
-    pub async fn from_design(design: entity::card_design::Model, state: AppState, unlocked: bool) -> Self {
+    pub async fn from_design(
+        design: entity::card_design::Model,
+        state: AppState,
+        unlocked: bool,
+    ) -> Self {
         Self {
             card_id: None,
             card_design_id: design.id,
@@ -130,7 +134,6 @@ impl CardData {
             },
         }
     }
-
 }
 
 #[derive(Deserialize)]

@@ -4,23 +4,23 @@ use crate::{
     util::optimize_and_save_model,
 };
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
+    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{header, HeaderMap, StatusCode, Uri},
+    http::{HeaderMap, StatusCode, Uri, header},
     response::{IntoResponse, Redirect, Response},
-    Form, Json, Router,
 };
-use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
+use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
+    prelude::Expr,
 };
 
 use super::{
@@ -183,14 +183,99 @@ pub async fn get_cards(
     Json(cards)
 }
 
+//pub async fn modify_card(
+//    State(state): State<AppState>,
+//    Auth(user): Auth,
+//    Path(id): Path<i64>,
+//    mut multipart: Multipart,
+//) -> impl IntoResponse {
+//    let design = CardDesign::find_by_id(id as i32)
+//        .one(&*state.db)
+//        .await
+//        .unwrap()
+//        .unwrap();
+//    if let Some(team) = state.get_user_team(&user.username).await {
+//        if design.team == team.number && state.is_team_admin(&user.username).await {
+//            let mut bot_name = None;
+//            let mut note = None;
+//            let mut abilities = None;
+//            let mut photo = None;
+//            let mut model = None;
+//
+//            while let Some(field) = multipart.next_field().await.unwrap() {
+//                match field.name() {
+//                    Some("bot_name") => {
+//                        bot_name = field.text().await.ok();
+//                    }
+//                    Some("note") => {
+//                        note = field.text().await.ok();
+//                    }
+//                    Some("abilities") => {
+//                        if field.content_type() == Some("application/json") {
+//                            abilities = field.text().await.ok();
+//                        }
+//                    }
+//                    Some("photo") => {
+//                        photo = field.bytes().await.ok();
+//                    }
+//                    Some("model") => {
+//                        model = field.bytes().await.ok();
+//                    }
+//                    Some(_) | None => {}
+//                }
+//            }
+//
+//            let abilities: Vec<CardAbilityData> = if let Some(abilities_str) = abilities {
+//                serde_json::from_str(&abilities_str).unwrap()
+//            } else {
+//                Vec::new()
+//            };
+//
+//            optimize_and_save_model(id.to_string(), model.unwrap().to_vec()).await;
+//
+//            let design = CardDesign::insert(card_design::ActiveModel {
+//                team: Set(team.number),
+//                year: Set(chrono::Utc::now().year() as i16),
+//                name: Set(bot_name.unwrap()),
+//                note: Set(note.unwrap_or_default()),
+//                ..Default::default()
+//            })
+//            .exec(&*state.db)
+//            .await
+//            .unwrap();
+//
+//            for ability in abilities {
+//                CardAbility::insert(entity::card_ability::ActiveModel {
+//                    card: Set(design.last_insert_id),
+//                    level: Set(ability.level as i8),
+//                    amount: Set(ability.amount),
+//                    title: Set(ability.title),
+//                    description: Set(ability.description),
+//                })
+//                .exec(&*state.db)
+//                .await
+//                .unwrap();
+//            }
+//        }
+//    }
+//}
 pub async fn create_card(
     State(state): State<AppState>,
     Auth(user): Auth,
     mut multipart: Multipart,
 ) -> impl IntoResponse {
     if let Some(team) = state.get_user_team(&user.username).await {
-        let id = nanoid!(33);
+        if !state.is_team_admin(&user.username).await {
+            return Response::builder()
+                .status(StatusCode::FORBIDDEN)
+                .body(Body::from(
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                ))
+                .unwrap()
+                .into_response();
+        }
 
+        let mut card_id = None;
         let mut bot_name = None;
         let mut note = None;
         let mut abilities = None;
@@ -199,6 +284,9 @@ pub async fn create_card(
 
         while let Some(field) = multipart.next_field().await.unwrap() {
             match field.name() {
+                Some("card_id") => {
+                    card_id = field.text().await.ok().map(|x| x.parse::<i32>().ok());
+                }
                 Some("bot_name") => {
                     bot_name = field.text().await.ok();
                 }
@@ -206,9 +294,9 @@ pub async fn create_card(
                     note = field.text().await.ok();
                 }
                 Some("abilities") => {
-                    if field.content_type() == Some("application/json") {
-                        abilities = field.text().await.ok();
-                    }
+                    //if field.content_type() == Some("application/json") {
+                    abilities = field.text().await.ok();
+                    //}
                 }
                 Some("photo") => {
                     photo = field.bytes().await.ok();
@@ -226,32 +314,67 @@ pub async fn create_card(
             Vec::new()
         };
 
-        optimize_and_save_model(id.clone(), model.unwrap().to_vec()).await;
+        let design_;
+        if let Some(Some(id)) = card_id {
+            if let Some(design) = CardDesign::find_by_id(id).one(&*state.db).await.unwrap() {
+                if design.team == team.number && state.is_team_admin(&user.username).await {
+                    optimize_and_save_model(id.to_string(), model.unwrap().to_vec()).await;
+                    CardAbility::delete_many()
+                        .filter(Expr::col(entity::card_ability::Column::Card).eq(id))
+                        .exec(&*state.db)
+                        .await
+                        .unwrap();
 
-        let design = CardDesign::insert(card_design::ActiveModel {
-            team: Set(team.number),
-            year: Set(chrono::Utc::now().year() as i16),
-            name: Set(bot_name.unwrap()),
-            note: Set(note.unwrap_or_default()),
-            ..Default::default()
-        })
-        .exec(&*state.db)
-        .await
-        .unwrap();
+                    let mut design = design.into_active_model();
+                    design.name = Set(bot_name.unwrap());
+                    design.note = Set(note.unwrap());
+                    design_ = CardDesign::update(design).exec(&*state.db).await.unwrap();
+                } else {
+                    return StatusCode::FORBIDDEN.into_response();
+                }
+            } else {
+                return StatusCode::NOT_FOUND.into_response();
+            }
+        } else {
+            design_ = CardDesign::find_by_id(
+                CardDesign::insert(card_design::ActiveModel {
+                    team: Set(team.number),
+                    year: Set(chrono::Utc::now().year() as i16),
+                    name: Set(bot_name.unwrap()),
+                    note: Set(note.unwrap_or_default()),
+                    ..Default::default()
+                })
+                .exec(&*state.db)
+                .await
+                .unwrap()
+                .last_insert_id,
+            )
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap();
+        }
 
         for ability in abilities {
             CardAbility::insert(entity::card_ability::ActiveModel {
-                card: Set(design.last_insert_id),
+                card: Set(design_.id),
                 level: Set(ability.level as i8),
                 amount: Set(ability.amount),
                 title: Set(ability.title),
                 description: Set(ability.description),
+                ..Default::default()
             })
             .exec(&*state.db)
             .await
             .unwrap();
         }
     }
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .body(Body::from(""))
+        .unwrap()
+        .into_response()
 }
 
 pub async fn get_user(

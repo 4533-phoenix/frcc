@@ -3,8 +3,10 @@ use argon2::{
     password_hash::{SaltString, rand_core::OsRng},
 };
 use entity::{auth_token, prelude::*, user};
-use migration::{Migrator, MigratorTrait};
-use sea_orm::{ActiveValue::Set, Database, DatabaseConnection, EntityTrait, PaginatorTrait};
+use migration::{Expr, Migrator, MigratorTrait};
+use sea_orm::{
+    ActiveValue::Set, Database, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
+};
 
 use std::sync::Arc;
 
@@ -131,7 +133,8 @@ impl AppState {
         &self,
         card_design_id: i32,
     ) -> Vec<entity::card_ability::Model> {
-        CardAbility::find_by_id(card_design_id)
+        CardAbility::find()
+            .filter(Expr::col(entity::card_ability::Column::Card).eq(card_design_id))
             .all(&*self.db)
             .await
             .unwrap()

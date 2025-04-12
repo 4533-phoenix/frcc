@@ -48,6 +48,7 @@ enum CardDesign {
 #[derive(DeriveIden)]
 enum CardAbility {
     Table,
+    Id,
     Card,
     Level,
     Amount,
@@ -232,7 +233,8 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(CardAbility::Table)
                     .if_not_exists()
-                    .col(unsigned(CardAbility::Card).primary_key())
+                    .col(big_unsigned(CardAbility::Id).auto_increment().primary_key())
+                    .col(unsigned(CardAbility::Card))
                     .col(tiny_unsigned(CardAbility::Level))
                     .col(string(CardAbility::Amount))
                     .col(string(CardAbility::Title))
@@ -240,7 +242,7 @@ impl MigrationTrait for Migration {
                     .foreign_key(
                         ForeignKey::create()
                             .from(CardAbility::Table, CardAbility::Card)
-                            .to(Card::Table, Card::Id)
+                            .to(CardDesign::Table, CardDesign::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
