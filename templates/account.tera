@@ -174,7 +174,8 @@
                             <h3 class="form-title">Create Invite Code</h3>
                         </div>
 
-                        <p>Generate a special code that allows others to join any team as an admin.</p>
+                        <p>Generate a special code that allows others to join their team as an admin.</p>
+												<p>This is a special privilege. Do not abuse it.</p>
 
                         <div id="invite-code-container"
                             style="display: none; margin: 1.5rem 0; padding: 1rem; background: rgba(95, 190, 203, 0.1); border-radius: var(--border-radius);">
