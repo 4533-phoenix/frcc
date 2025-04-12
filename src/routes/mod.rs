@@ -1,17 +1,21 @@
 use crate::{state::AppState, templates::TEMPLATES, util::optimize_and_save_model};
-use argon2::{password_hash::{rand_core::OsRng, SaltString}, PasswordHasher};
+use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
+    PasswordHasher,
+};
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Redirect, Response},
     routing::{get, post, put},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    prelude::Expr, ActiveValue::Set, EntityTrait, IntoActiveModel, IntoIdentity, PaginatorTrait, QueryFilter
+    prelude::Expr, ActiveValue::Set, EntityTrait, IntoActiveModel, IntoIdentity, PaginatorTrait,
+    QueryFilter,
 };
 use std::path::PathBuf;
 use tera::Context;
@@ -50,6 +54,9 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/account/join_team", post(join_team))
         .route("/account/leave_team", post(leave_team))
         .route("/account/change_password", post(change_password))
+        .route("/team/{team_num}", get(get_team).post(modify_team))
+        .route("/team/{team_num}/members", get(get_team_members))
+        .route("/team/{team_num}/members/{username}", put(modify_team_member))
         .with_state(state)
 }
 
@@ -196,7 +203,11 @@ async fn build_context(user: Option<entity::user::Model>, state: AppState) -> Co
         context.insert("username", &user.username);
         context.insert("is_site_admin", &user.is_admin);
 
-        let team = UserTeam::find_by_id(&user.username).one(&*state.db).await.unwrap().map(|ut| { ut.team });
+        let team = UserTeam::find_by_id(&user.username)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .map(|ut| ut.team);
         context.insert("has_team", &team.is_some());
 
         if let Some(team) = team {
@@ -211,7 +222,7 @@ async fn build_context(user: Option<entity::user::Model>, state: AppState) -> Co
     context
 }
 
-async fn account(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse { 
+async fn account(Auth(user): Auth, State(state): State<AppState>) -> impl IntoResponse {
     let context = build_context(Some(user), state).await;
     let content = TEMPLATES.render("account.tera", &context).unwrap();
     Response::builder()
@@ -253,12 +264,19 @@ async fn login(
 
 async fn logout(State(state): State<AppState>, jar: CookieJar) -> impl IntoResponse {
     let token = jar.get("token").unwrap().value();
-    AuthToken::delete_by_id(token).exec(&*state.db).await.unwrap();
+    AuthToken::delete_by_id(token)
+        .exec(&*state.db)
+        .await
+        .unwrap();
 
     (jar, Redirect::to("/").into_response()).into_response()
 }
 
-async fn register(State(state): State<AppState>, mut jar: CookieJar, form: Form<LoginForm>) -> impl IntoResponse {
+async fn register(
+    State(state): State<AppState>,
+    mut jar: CookieJar,
+    form: Form<LoginForm>,
+) -> impl IntoResponse {
     state
         .create_user(None, &form.username, &form.password)
         .await;
@@ -375,8 +393,7 @@ async fn get_cards(State(state): State<AppState>) -> impl IntoResponse {
             design_id: design.id.to_string(),
             card_id: None,
             team_number: design.team as u64,
-            team_name: state.get_team(design.team).await
-                .name,
+            team_name: state.get_team(design.team).await.name,
             year: design.year as u16,
             bot_name: Some(design.name.clone()),
             abilities: None,
@@ -549,28 +566,37 @@ struct JoinTeamData {
     join_code: Option<String>,
 }
 
-async fn join_team(State(state): State<AppState>, Auth(user): Auth, Form(form): Form<JoinTeamData>) -> impl IntoResponse {
+async fn join_team(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Form(form): Form<JoinTeamData>,
+) -> impl IntoResponse {
     let team_num: i32 = form.team_number.parse().unwrap();
     let is_admin = UserTeam::find()
-            .filter(
-                Expr::col(
-                    entity::user_team::Column::Team
-                ).eq(team_num),
-            )
-            .count(&*state.db).await.unwrap() == 0;
+        .filter(Expr::col(entity::user_team::Column::Team).eq(team_num))
+        .count(&*state.db)
+        .await
+        .unwrap()
+        == 0;
     let _team = state.get_team(team_num).await;
     let active_model = entity::user_team::ActiveModel {
         user: Set(user.username),
         team: Set(team_num),
         is_admin: Set(is_admin),
     };
-    UserTeam::insert(active_model).exec(&*state.db).await.unwrap();
+    UserTeam::insert(active_model)
+        .exec(&*state.db)
+        .await
+        .unwrap();
 
     Redirect::to("/account")
 }
 
 async fn leave_team(State(state): State<AppState>, Auth(user): Auth) -> impl IntoResponse {
-    UserTeam::delete_by_id(user.username).exec(&*state.db).await.unwrap();
+    UserTeam::delete_by_id(user.username)
+        .exec(&*state.db)
+        .await
+        .unwrap();
 
     Redirect::to("/account")
 }
@@ -582,7 +608,11 @@ struct ChangePassword {
     confirm_password: String,
 }
 
-async fn change_password(State(state): State<AppState>, Auth(user): Auth, Form(form): Form<ChangePassword>) -> impl IntoResponse {
+async fn change_password(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Form(form): Form<ChangePassword>,
+) -> impl IntoResponse {
     if state.check_user_password(&user.password, &form.current_password) {
         let salt = SaltString::generate(OsRng::default());
         let hash = argon2::Argon2::default()
@@ -591,5 +621,132 @@ async fn change_password(State(state): State<AppState>, Auth(user): Auth, Form(f
         let mut userr = user.into_active_model();
         userr.password = Set(hash.to_string());
         User::update(userr).exec(&*state.db).await.unwrap();
+
+        Redirect::to("/account").into_response()
+    } else {
+        Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from("Incorrect password"))
+            .unwrap()
+            .into_response()
     }
 }
+
+#[derive(Serialize, Deserialize)]
+struct TeamData {
+    number: i32,
+    name: String,
+}
+
+async fn get_team(State(state): State<AppState>, Path(team_num): Path<u32>) -> impl IntoResponse {
+    let team = Team::find_by_id(team_num as i32)
+        .one(&*state.db)
+        .await
+        .unwrap();
+
+    if let Some(team) = team {
+        Json(TeamData {
+            number: team.number,
+            name: team.name,
+        })
+        .into_response()
+    } else {
+        StatusCode::NOT_FOUND.into_response()
+    }
+}
+
+async fn modify_team(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(team_num): Path<u32>,
+    Form(form): Form<TeamData>,
+) -> impl IntoResponse {
+    if user.is_admin
+        || (state.get_user_team(&user.username).await.unwrap().number == team_num as i32
+            && state.is_team_admin(&user.username).await)
+    {
+        let mut team = Team::find_by_id(team_num as i32)
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap()
+            .into_active_model();
+        team.name = Set(form.name);
+        Team::update(team).exec(&*state.db).await.unwrap();
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct UserTeamData {
+    username: String,
+    is_admin: bool,
+}
+
+async fn get_team_members(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(team_num): Path<u32>,
+) -> impl IntoResponse {
+    if user.is_admin
+        || (state.get_user_team(&user.username).await.unwrap().number == team_num as i32
+            && state.is_team_admin(&user.username).await)
+    {
+        let links = UserTeam::find()
+            .filter(Expr::col(entity::user_team::Column::Team).eq(team_num))
+            .all(&*state.db)
+            .await
+            .unwrap();
+
+        Json(
+            links
+                .into_iter()
+                .map(|l| UserTeamData {
+                    username: l.user,
+                    is_admin: l.is_admin,
+                })
+                .collect::<Vec<_>>(),
+        )
+        .into_response()
+    } else {
+        StatusCode::FORBIDDEN.into_response()
+    }
+}
+
+async fn modify_team_member(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path((team_num, username)): Path<(u32, String)>,
+    Json(data): Json<UserTeamData>,
+) -> impl IntoResponse {
+    if user.is_admin
+        || (state.get_user_team(&user.username).await.unwrap().number == team_num as i32
+            && state.is_team_admin(&user.username).await)
+    {
+        let mut user_team_link = UserTeam::find_by_id(username)
+            .filter(Expr::col(entity::user_team::Column::Team).eq(team_num))
+            .one(&*state.db)
+            .await
+            .unwrap()
+            .unwrap()
+            .into_active_model();
+
+        user_team_link.is_admin = Set(data.is_admin);
+
+        UserTeam::update(user_team_link).exec(&*state.db).await.unwrap();
+
+        StatusCode::OK.into_response()
+    } else {
+        StatusCode::FORBIDDEN.into_response()
+    }
+}
+
+//#[derive(Serialize, Deserialize)]
+//struct ScanData {
+//    card_id: String,
+//}
+//
+//async fn do_scan(State(state): State<AppState>, Auth(user): Auth, Path(id): Path<String>) -> impl IntoResponse {
+//    if let Some(cardd) = Card::find_by_id(id).one(&*state.db).await.unwrap() {
+//    let design = Design::find_by_id(cardd.).one(&*state.db).await.unwrap();
+//    let team = Team::find_by_id(design.team_id).one(&*state.db).await.unwrap();
+//}
