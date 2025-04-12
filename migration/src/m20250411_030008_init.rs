@@ -121,8 +121,6 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        
-
         manager
             .create_table(
                 Table::create()

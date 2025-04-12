@@ -5,23 +5,24 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use entity::prelude::*;
-use sea_orm::{
-    EntityTrait, QueryFilter,
-    prelude::Expr,
-};
+use sea_orm::{EntityTrait, QueryFilter, prelude::Expr};
 use tera::Context;
 
-use super::util::{build_context, Auth, IsAuth};
+use super::util::{Auth, IsAuth, build_context};
 
 // Helper function to ensure consistent context variables across all pages
-async fn create_standard_context(is_auth: bool, user: Option<entity::user::Model>, state: Option<AppState>) -> Context {
+async fn create_standard_context(
+    is_auth: bool,
+    user: Option<entity::user::Model>,
+    state: Option<AppState>,
+) -> Context {
     let mut context = Context::new();
     context.insert("is_auth", &is_auth);
-        
+
     // Add site name and version
     context.insert("site_name", "FRCC");
     context.insert("site_version", "1.0.0");
-    
+
     if let Some(user) = user {
         if let Some(state) = state {
             return build_context(Some(user), state).await;
@@ -30,7 +31,7 @@ async fn create_standard_context(is_auth: bool, user: Option<entity::user::Model
             context.insert("is_site_admin", &user.is_admin);
         }
     }
-    
+
     context
 }
 
@@ -140,4 +141,3 @@ pub async fn account(Auth(user): Auth, State(state): State<AppState>) -> impl In
         .body(content)
         .unwrap()
 }
-

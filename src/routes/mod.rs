@@ -39,7 +39,10 @@ pub fn get_api_router(state: AppState) -> Router {
         .route("/account/join_team", post(api::join_team))
         .route("/account/leave_team", post(api::leave_team))
         .route("/account/change_password", post(api::change_password))
-        .route("/team/{team_num}", get(api::get_team).post(api::modify_team))
+        .route(
+            "/team/{team_num}",
+            get(api::get_team).post(api::modify_team),
+        )
         .route("/team/{team_num}/members", get(api::get_team_members))
         .route(
             "/team/{team_num}/member/{username}",
@@ -47,4 +50,3 @@ pub fn get_api_router(state: AppState) -> Router {
         )
         .with_state(state)
 }
-
