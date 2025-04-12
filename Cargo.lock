@@ -44,21 +44,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
-name = "alloc-no-stdlib"
-version = "2.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc7bb162ec39d46ab1ca8c77bf72e890535becd1751bb45f64c597edb4c8c6b3"
-
-[[package]]
-name = "alloc-stdlib"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94fb8275041c72129eb51b7d0322c29b8387a0386127718b096429201a5d6ece"
-dependencies = [
- "alloc-no-stdlib",
-]
-
-[[package]]
 name = "allocator-api2"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -192,8 +177,6 @@ version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59a194f9d963d8099596278594b3107448656ba73831c9d8c783e613ce86da64"
 dependencies = [
- "brotli",
- "flate2",
  "futures-core",
  "memchr",
  "pin-project-lite",
@@ -562,27 +545,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.100",
-]
-
-[[package]]
-name = "brotli"
-version = "7.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc97b8f16f944bba54f0433f07e30be199b6dc2bd25937444bbad560bcea29bd"
-dependencies = [
- "alloc-no-stdlib",
- "alloc-stdlib",
- "brotli-decompressor",
-]
-
-[[package]]
-name = "brotli-decompressor"
-version = "4.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74fa05ad7d803d413eb8380983b092cbbaf9a85f151b871360e7b00cd7060b37"
-dependencies = [
- "alloc-no-stdlib",
- "alloc-stdlib",
 ]
 
 [[package]]
@@ -1302,12 +1264,12 @@ dependencies = [
  "axum-extra",
  "entity",
  "env_logger",
- "fastrand",
  "frcc_card_gen",
- "include_dir",
  "log",
+ "migration",
  "nanoid",
  "once_cell",
+ "rust-embed",
  "sea-orm",
  "serde",
  "tera",
@@ -1650,12 +1612,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "http-range-header"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9171a2ea8a68358193d15dd5d70c1c10a2afc3e7e4c5bc92bc9f025cebd7359c"
-
-[[package]]
 name = "httparse"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1911,25 +1867,6 @@ name = "imagesize"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edcd27d72f2f071c64249075f42e205ff93c9a4c5f6c6da53e79ed9f9832c285"
-
-[[package]]
-name = "include_dir"
-version = "0.7.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "923d117408f1e49d914f1a379a309cffe4f18c05cf4e3d12e613a15fc81bd0dd"
-dependencies = [
- "include_dir_macros",
-]
-
-[[package]]
-name = "include_dir_macros"
-version = "0.7.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cab85a7ed0bd5f0e76d93846e0147172bed2e2d3f859bcc33a8d9699cad1a75"
-dependencies = [
- "proc-macro2",
- "quote",
-]
 
 [[package]]
 name = "indexmap"
@@ -2324,6 +2261,9 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+dependencies = [
+ "parking_lot_core",
+]
 
 [[package]]
 name = "ordered-float"
@@ -2913,6 +2853,44 @@ dependencies = [
  "spki",
  "subtle",
  "zeroize",
+]
+
+[[package]]
+name = "rust-embed"
+version = "8.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5fbc0ee50fcb99af7cebb442e5df7b5b45e9460ffa3f8f549cd26b862bec49d"
+dependencies = [
+ "axum",
+ "mime_guess",
+ "rust-embed-impl",
+ "rust-embed-utils",
+ "tokio",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-impl"
+version = "8.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bf418c9a2e3f6663ca38b8a7134cc2c2167c9d69688860e8961e3faa731702e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "rust-embed-utils",
+ "syn 2.0.100",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-utils"
+version = "8.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08d55b95147fe01265d06b3955db798bdaed52e60e2211c41137701b3aba8e21"
+dependencies = [
+ "mime_guess",
+ "sha2",
+ "walkdir",
 ]
 
 [[package]]
@@ -4045,21 +4023,13 @@ dependencies = [
  "bitflags 2.9.0",
  "bytes",
  "futures-core",
- "futures-util",
  "http",
  "http-body",
- "http-body-util",
- "http-range-header",
- "httpdate",
- "mime",
- "mime_guess",
- "percent-encoding",
  "pin-project-lite",
  "tokio",
  "tokio-util",
  "tower-layer",
  "tower-service",
- "tracing",
 ]
 
 [[package]]

@@ -6,7 +6,7 @@ use argon2::{
 use axum::{
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
     routing::{get, post, put},
     Form, Json, Router,
@@ -15,12 +15,14 @@ use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
     prelude::Expr, sqlx::types::chrono, ActiveValue::Set, EntityTrait, IntoActiveModel,
-    IntoIdentity, PaginatorTrait, QueryFilter, QueryOrder,
+    PaginatorTrait, QueryFilter, QueryOrder,
 };
 use std::path::PathBuf;
 use tera::Context;
 
-use tower_http::services::ServeDir;
+#[derive(RustEmbed)]
+#[folder = "public"]
+struct Assets;
 
 pub fn get_router(state: AppState) -> Router {
     Router::new()
@@ -36,7 +38,23 @@ pub fn get_router(state: AppState) -> Router {
         .route("/account", get(account))
         .with_state(state.clone())
         .nest("/api", get_api_router(state))
-        .fallback_service(ServeDir::new(PathBuf::from("public")))
+        .fallback_service(get(static_handler))
+}
+
+async fn static_handler(uri: Uri) -> impl IntoResponse {
+    if let Some(asset) = Assets::get(uri.path().trim_start_matches('/')) {
+        Response::builder()
+            .header(header::CONTENT_TYPE, asset.metadata.mimetype())
+            .body(Body::from(asset.data.to_vec()))
+            .unwrap()
+            .into_response()
+    } else {
+        Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(Body::from("Not found".as_bytes().to_vec()))
+            .unwrap()
+            .into_response()
+    }
 }
 
 pub fn get_api_router(state: AppState) -> Router {

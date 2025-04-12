@@ -22,10 +22,7 @@ enum User {
     Table,
     Username,
     Password,
-    Team,
     InvitedWithCode,
-    Scans,
-    AuthTokens,
     IsAdmin,
     IsVerified,
 }
@@ -92,7 +89,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        println!("done");
 
         manager
             .create_table(
@@ -125,7 +121,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        println!("done");
 
         manager.create_table(Table::create()
             .table(UserTeam::Table)
@@ -165,7 +160,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        println!("done");
 
         manager
             .create_table(
@@ -193,7 +187,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        println!("done");
 
         manager
             .create_table(
@@ -257,7 +250,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        println!("done");
 
         manager
             .create_table(
@@ -276,7 +268,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        println!("done");
 
         Ok(())
     }

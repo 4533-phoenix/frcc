@@ -7,11 +7,15 @@ extern crate log;
 extern crate axum;
 extern crate entity;
 extern crate env_logger;
-extern crate once_cell;
 extern crate sea_orm;
 extern crate tera;
 extern crate tokio;
 extern crate tower_http;
+extern crate argon2;
+extern crate tmf;
+extern crate axum_extra;
+#[macro_use]
+extern crate rust_embed;
 
 use std::env;
 
@@ -22,13 +26,10 @@ use tower_http::compression::CompressionLayer;
 mod routes;
 mod state;
 mod templates;
-//mod db;
 mod util;
 
 #[tokio::main]
 async fn main() {
-    //frcc_card_gen::test();
-
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
         .format_timestamp(None)
@@ -40,9 +41,6 @@ async fn main() {
     info!("Starting server on {}", addr);
 
     let comression_layer = CompressionLayer::new()
-        .br(true)
-        .deflate(true)
-        .gzip(true)
         .zstd(true);
 
     let state = AppState::new().await;

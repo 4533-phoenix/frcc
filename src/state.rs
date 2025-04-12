@@ -3,8 +3,9 @@ use argon2::{
     password_hash::{SaltString, rand_core::OsRng},
 };
 use entity::{auth_token, prelude::*, user};
+use migration::{Migrator, MigratorTrait};
 use sea_orm::{
-    ActiveValue::Set, Database, DatabaseConnection, EntityTrait, QueryFilter, prelude::Expr,
+    ActiveValue::Set, Database, DatabaseConnection, EntityTrait,
 };
 
 use std::sync::Arc;
@@ -21,18 +22,10 @@ impl AppState {
                 .await
                 .unwrap(),
         );
-        let state = Self { db };
 
-        if User::find_by_id("admin")
-            .one(&*state.db)
-            .await
-            .unwrap()
-            .is_none()
-        {
-            state.create_user(None, "admin", "admin").await;
-        }
+        Migrator::up(&*db, None).await.unwrap();
 
-        state
+        Self { db }
     }
 
     pub async fn get_team(&self, team_number: i32) -> entity::team::Model {
