@@ -162,13 +162,13 @@
                     
                     <div class="form-container">
                         <div class="form-header">
-                            <h3 class="form-title">Create Team Admin Invite</h3>
+                            <h3 class="form-title">Create Invite Code</h3>
                         </div>
                         
-                        <p>Generate a special code that allows others to join your team with admin privileges.</p>
+                        <p>Generate a special code that allows others to join any team as an admin.</p>
                         
                         <div id="invite-code-container" style="display: none; margin: 1.5rem 0; padding: 1rem; background: rgba(95, 190, 203, 0.1); border-radius: var(--border-radius);">
-                            <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Your Invite Code:</h4>
+                            <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Invite Code:</h4>
                             <div style="display: flex; align-items: center; gap: 1rem;">
                                 <code id="invite-code" style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 4px; font-family: monospace; font-size: 1rem;">...</code>
                                 <button id="copy-invite-code" class="btn btn-secondary">Copy</button>
@@ -311,7 +311,10 @@
         
         if (generateInviteBtn && inviteCodeContainer && inviteCodeElement) {
             generateInviteBtn.addEventListener('click', function() {
-                fetch('/api/account/create_invite')
+                // Update to use the correct API endpoint with PUT method
+                fetch('/api/invites', {
+                    method: 'PUT',
+                })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Failed to create invite code');
@@ -332,10 +335,24 @@
                 copyInviteBtn.addEventListener('click', function() {
                     const inviteCode = inviteCodeElement.textContent;
                     if (inviteCode && inviteCode !== '...') {
+                        // Store original button text
+                        const originalText = this.textContent;
+                        
                         FRCC.copyToClipboard(inviteCode)
                             .then(success => {
                                 if (success) {
+                                    // Change button text and add success class
+                                    this.textContent = "Copied!";
+                                    this.classList.add("btn-success");
+                                    
+                                    // Show notification
                                     FRCC.showNotification('Invite code copied to clipboard', 'success');
+                                    
+                                    // Reset button after delay
+                                    setTimeout(() => {
+                                        this.textContent = originalText;
+                                        this.classList.remove("btn-success");
+                                    }, 1500);
                                 } else {
                                     throw new Error('Failed to copy to clipboard');
                                 }
