@@ -19,7 +19,7 @@ sea-orm = { version = "1.1.0", features = ["sqlx-sqlite", "runtime-tokio-rustls"
 tera = "1.20.0"
 tmf = { version = "0.2.1", features = ["tokio_runtime"] }
 tokio = { version = "1.44.2", features = ["rt-multi-thread", "macros", "signal"] }
-tower-http = { version = "0.6.2", features = ["compression-zstd"] }
+tower-http = { version = "0.6.2", features = ["compression-zstd", "fs"] }
 entity = { version = "0.1.0", path = "./entity" }
 rust-embed = { version = "8.7.0", features = ["axum-ex", "mime-guess"] }
 once_cell = { version = "1.21.3", default-features = false, features = ["parking_lot"] }

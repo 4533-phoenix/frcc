@@ -4,6 +4,7 @@ use axum::{
     extract::DefaultBodyLimit,
     routing::{get, post, put},
 };
+use tower_http::services::ServeDir;
 
 mod api;
 mod frontend;
@@ -25,6 +26,8 @@ pub fn get_router(state: AppState) -> Router {
         .route("/edit_cards", get(frontend::edit_cards))
         .with_state(state.clone())
         .nest("/api", get_api_router(state))
+        .nest_service("/images", ServeDir::new("images"))
+        .nest_service("/models", ServeDir::new("models"))
         .fallback_service(get(util::static_handler))
 }
 

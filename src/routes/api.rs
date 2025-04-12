@@ -1,7 +1,7 @@
 use crate::{
     routes::structs::{CardAbilityData, UserData},
     state::AppState,
-    util::optimize_and_save_model,
+    util::{optimize_and_save_image, optimize_and_save_model},
 };
 use argon2::{
     PasswordHasher,
@@ -318,7 +318,6 @@ pub async fn create_card(
         if let Some(Some(id)) = card_id {
             if let Some(design) = CardDesign::find_by_id(id).one(&*state.db).await.unwrap() {
                 if design.team == team.number && state.is_team_admin(&user.username).await {
-                    optimize_and_save_model(id.to_string(), model.unwrap().to_vec()).await;
                     CardAbility::delete_many()
                         .filter(Expr::col(entity::card_ability::Column::Card).eq(id))
                         .exec(&*state.db)
@@ -353,6 +352,13 @@ pub async fn create_card(
             .await
             .unwrap()
             .unwrap();
+        }
+
+        if let Some(photo) = photo {
+            optimize_and_save_image(design_.id.to_string(), photo.to_vec()).await;
+        }
+        if let Some(model) = model {
+            optimize_and_save_model(design_.id.to_string(), model.to_vec()).await;
         }
 
         for ability in abilities {
