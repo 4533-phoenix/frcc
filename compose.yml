@@ -1,0 +1,11 @@
+services:
+  frcc:
+    build: ./
+    restart: unless-stopped
+    container_name: "frcc"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./models:/models"
+      - "./images:/images"
+      - "./data.db:/frcc.db"
