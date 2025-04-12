@@ -5,118 +5,21 @@
 {% block head %}
 {{ super() }}
 <style>
-    .page-header {
-        background: var(--gradient-primary);
-        padding: 3rem 0;
-        margin-bottom: 2rem;
-        color: white;
-    }
-
-    .content-box {
-        background-color: var(--background-primary);
-        border-radius: var(--border-radius);
-        box-shadow: var(--card-shadow);
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        color: var(--primary);
-        font-weight: 600;
-        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
-        padding-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .admin-icon {
-        display: inline-block;
-        width: 28px;
-        height: 28px;
-        background-color: var(--primary);
-        mask-size: contain;
-        -webkit-mask-size: contain;
-        mask-repeat: no-repeat;
-        -webkit-mask-repeat: no-repeat;
-        mask-position: center;
-        -webkit-mask-position: center;
-    }
-
-    .users-icon {
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
-    }
-
-    .code-list {
-        margin-top: 1.5rem;
-        padding: 1rem;
-        background-color: rgba(95, 190, 203, 0.1);
-        border-radius: var(--border-radius);
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .code-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem;
-        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
-    }
-
-    .code-item:last-child {
-        border-bottom: none;
-    }
-
-    .code {
-        font-family: monospace;
-        font-size: 1rem;
-        color: var(--primary);
-    }
-
-    .copy-button {
-        background: none;
-        border: none;
-        color: var(--primary);
-        cursor: pointer;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.9rem;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-    }
-
-    .copy-button:hover {
-        background-color: rgba(95, 190, 203, 0.1);
-    }
-
+    /* Only keeping essential admin-specific styles */
     .user-search {
         display: flex;
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
-
+    
     .user-search input {
         flex: 1;
-        padding: 0.75rem;
-        border: 1px solid rgba(95, 190, 203, 0.3);
-        border-radius: var(--border-radius);
-        font-size: 1rem;
-    }
-
-    .user-search button {
-        padding: 0.75rem 1.5rem;
-    }
-
-    .user-results {
-        margin-top: 2rem;
     }
 
     .user-table {
         width: 100%;
         border-collapse: collapse;
+        margin-top: 1.5rem;
     }
 
     .user-table th,
@@ -134,127 +37,19 @@
     .user-table tr:hover {
         background-color: rgba(95, 190, 203, 0.05);
     }
-
-    .user-edit-form {
-        margin-top: 2rem;
-        padding: 1.5rem;
-        background-color: rgba(95, 190, 203, 0.1);
-        border-radius: var(--border-radius);
-        display: none;
-    }
-
-    .form-row {
-        margin-bottom: 1rem;
+    
+    /* Checkbox styles - keeping only what's needed */
+    .checkbox-wrapper {
         display: flex;
-        gap: 1rem;
+        align-items: center;
+        gap: 0.7rem;
+        margin-top: 0.75rem;
     }
-
-    .form-group {
-        flex: 1;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid rgba(95, 190, 203, 0.3);
-        border-radius: var(--border-radius);
-        font-size: 1rem;
-    }
-
-    .role-toggle {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .role-toggle button {
-        flex: 1;
-        padding: 0.5rem;
-        border: 1px solid rgba(95, 190, 203, 0.3);
-        background: var(--background-primary);
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .role-toggle button.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-    }
-
-    .admin-alert {
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: var(--border-radius);
-        background-color: rgba(95, 190, 203, 0.1);
-        border-left: 4px solid var(--primary);
-        display: none;
-    }
-
-    .admin-alert.success {
-        background-color: rgba(76, 175, 80, 0.1);
-        border-left-color: #4CAF50;
-    }
-
-    .admin-alert.error {
-        background-color: rgba(244, 67, 54, 0.1);
-        border-left-color: #F44336;
-    }
-
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
-    }
-
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 34px;
-    }
-
-    .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-
-    input:checked + .toggle-slider {
-        background-color: var(--primary);
-    }
-
-    input:focus + .toggle-slider {
-        box-shadow: 0 0 1px var(--primary);
-    }
-
-    input:checked + .toggle-slider:before {
-        transform: translateX(26px);
+    
+    .checkbox-wrapper input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
     }
 </style>
 {% endblock head %}
@@ -270,16 +65,18 @@
 
 <section class="section">
     <div class="container">
-        <!-- Alert message area -->
-        <div id="alertBox" class="admin-alert"></div>
-        
         <!-- User Management Section -->
         <div class="content-box">
-            <h2 class="section-title"><span class="admin-icon users-icon"></span> User Management</h2>
+            <h2 class="section-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)" style="margin-right: 0.5rem;">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                User Management
+            </h2>
             <p>Search for users and manage their accounts.</p>
             
             <div class="user-search">
-                <input type="text" id="userSearchInput" placeholder="Search by username">
+                <input type="text" id="userSearchInput" placeholder="Search by username" class="form-control">
                 <button id="userSearchBtn" class="btn btn-primary">Search</button>
             </div>
             
@@ -300,48 +97,53 @@
             </div>
             
             <!-- User Edit Form (initially hidden) -->
-            <div id="userEditForm" class="user-edit-form">
-                <h3>Edit User</h3>
-                <form id="editUserForm">
+            <div id="userEditForm" class="content-box" style="display: none; margin-top: 2rem; border-left: 4px solid var(--primary);">
+                <h2 class="section-title">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="var(--primary)">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Edit User: <span id="editUserTitle"></span>
+                </h2>
+                
+                <form id="editUserForm" class="auth-form">
                     <input type="hidden" id="editUserId">
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="editUsername">Username</label>
-                            <input type="text" id="editUsername" name="username" required>
+                            <input type="text" id="editUsername" name="username" required class="form-control">
+                            <p class="help-text">User's login identifier</p>
                         </div>
                         
                         <div class="form-group">
-                            <label for="editTeam">Team</label>
-                            <select id="editTeam" name="team">
-                                <option value="">No Team</option>
-                                <!-- Teams will be populated dynamically -->
-                            </select>
+                            <label for="editTeam">Team Number</label>
+                            <input type="number" id="editTeam" name="team" placeholder="Enter team number" class="form-control">
+                            <p class="help-text">Leave empty for no team</p>
                         </div>
                     </div>
                     
                     <div class="form-row">
-											<div class="form-group">
-                            <div style="padding-top: 0.5rem;">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="is_verified" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span style="margin-left: 0.5rem;">Verified</span>
+                        <div class="form-group">
+                            <label>User Permissions</label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="is_team_admin">
+                                <label for="is_team_admin">Team Administrator</label>
                             </div>
-                      </div>
-											<div class="form-group">
-                            <div style="padding-top: 0.5rem;">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="is_admin" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span style="margin-left: 0.5rem;">Site admin</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Special Permissions</label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="is_verified">
+                                <label for="is_verified">Verified User (can create invite codes)</label>
+                            </div>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="is_admin">
+                                <label for="is_admin">Site Administrator</label>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="form-row" style="justify-content: flex-end; margin-top: 1rem;">
+                    <div class="btn-row">
                         <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
@@ -362,44 +164,37 @@
         const userEditForm = document.getElementById('userEditForm');
         const editUserForm = document.getElementById('editUserForm');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const alertBox = document.getElementById('alertBox');
-        
-        // Show alert message
-        function showAlert(message, type = 'info') {
-            alertBox.textContent = message;
-            alertBox.className = 'admin-alert';
-            alertBox.classList.add(type);
-            alertBox.style.display = 'block';
-            
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Copy text to clipboard
-        function copyToClipboard(text) {
-            FRCC.copyToClipboard(text).then(success => {
-                if (success) {
-                    showAlert('Copied to clipboard!', 'success');
-                } else {
-                    showAlert('Failed to copy to clipboard', 'error');
-                }
-            });
-        }
+        const editUserTitle = document.getElementById('editUserTitle');
         
         // Search Users
-        userSearchBtn.addEventListener('click', async function() {
+        userSearchBtn.addEventListener('click', fetchUsers);
+        userSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchUsers();
+            }
+        });
+        
+        // Fetch users from API
+        async function fetchUsers() {
             const searchTerm = userSearchInput.value.trim();
             if (!searchTerm) {
-                showAlert('Please enter a search term', 'error');
+                FRCC.showNotification('Please enter a search term', 'error');
                 return;
             }
             
-            // Get users from API
-            const users = (await (await fetch('/api/users')).json());
-
-						console.log(users);
-            
+            try {
+                const response = await fetch('/api/users');
+                if (!response.ok) throw new Error('Failed to fetch users');
+                
+                const users = await response.json();
+                displayUsers(users);
+            } catch (error) {
+                FRCC.showNotification(error.message, 'error');
+            }
+        }
+        
+        // Display users in table
+        function displayUsers(users) {
             userTableBody.innerHTML = '';
             
             if (users.length === 0) {
@@ -411,8 +206,8 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.username}</td>
-                    <td>${user.team ? user.team : 'No Team'}</td>
-                    <td>${user.is_admin ? 'Site Admin' : (user.is_verified ? 'Team Admin' : 'User')}</td>
+                    <td>${user.team || 'No Team'}</td>
+                    <td>${getRoleLabel(user)}</td>
                     <td>
                         <button class="btn btn-secondary edit-user-btn" data-user-id="${user.username}">Edit</button>
                     </td>
@@ -420,44 +215,46 @@
                 userTableBody.appendChild(row);
             });
             
-            // Add edit button event listeners
+            // Add click handlers to edit buttons
             document.querySelectorAll('.edit-user-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const userId = this.getAttribute('data-user-id');
                     loadUserForEdit(userId);
                 });
             });
-            
-            // Removed "Users found" notification
-        });
+        }
+        
+        // Get role label based on user permissions
+        function getRoleLabel(user) {
+            if (user.is_admin) return 'Site Admin';
+            if (user.is_verified) return 'Verified User';
+            if (user.is_team_admin) return 'Team Administrator';
+            return 'Standard User';
+        }
         
         // Load User for Edit
         async function loadUserForEdit(username) {
-            // Get user details from API
-            const userDetails = (await (await fetch(`/api/user/${username}`)).json());
-            
-            // Populate form with user data
-            document.getElementById('editUserId').value = userDetails.username;
-            document.getElementById('editUsername').value = userDetails.username;
-            
-            const teamSelect = document.getElementById('editTeam');
-            teamSelect.innerHTML = '<option value="">No Team</option>';
-            // Add the user's team if they have one
-            if (userDetails.team) {
-                const option = document.createElement('option');
-                option.value = userDetails.team;
-                option.textContent = userDetails.team;
-                option.selected = true;
-                teamSelect.appendChild(option);
+            try {
+                const response = await fetch(`/api/user/${username}`);
+                if (!response.ok) throw new Error('Failed to load user details');
+                
+                const userDetails = await response.json();
+                
+                // Fill form fields
+                document.getElementById('editUserId').value = userDetails.username;
+                document.getElementById('editUsername').value = userDetails.username;
+                document.getElementById('editTeam').value = userDetails.team || '';
+                document.getElementById('is_team_admin').checked = userDetails.is_team_admin || false;
+                document.getElementById('is_verified').checked = userDetails.is_verified;
+                document.getElementById('is_admin').checked = userDetails.is_admin;
+                
+                // Update title and show form
+                editUserTitle.textContent = userDetails.username;
+                userEditForm.style.display = 'block';
+                userEditForm.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                FRCC.showNotification(error.message, 'error');
             }
-            
-            // Set role
-            document.getElementById('is_verified').checked = userDetails.is_verified;
-            document.getElementById('is_admin').checked = userDetails.is_admin;
-            
-            // Show form
-            userEditForm.style.display = 'block';
-            userEditForm.scrollIntoView({ behavior: 'smooth' });
         }
         
         // Cancel Edit
@@ -470,28 +267,39 @@
             event.preventDefault();
             
             const userId = document.getElementById('editUserId').value;
-            const formData = JSON.stringify({
+            const formData = {
                 username: document.getElementById('editUsername').value,
-                team: null, //document.getElementById('editTeam').value || null,
+                team: document.getElementById('editTeam').value || null,
+                is_team_admin: document.getElementById('is_team_admin').checked,
                 is_verified: document.getElementById('is_verified').checked,
                 is_admin: document.getElementById('is_admin').checked
-            });
+            };
             
-            // Update user via API
-            await fetch(`/api/user/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: formData,
-            });
-            
-            showAlert('User updated successfully!', 'success');
-            userEditForm.style.display = 'none';
-            
-            // Refresh the user table
-            userSearchBtn.click();
+            try {
+                const response = await fetch(`/api/user/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
+                
+                if (!response.ok) throw new Error('Failed to update user');
+                
+                FRCC.showNotification('User updated successfully', 'success');
+                userEditForm.style.display = 'none';
+                
+                // Refresh user list
+                fetchUsers();
+            } catch (error) {
+                FRCC.showNotification(error.message, 'error');
+            }
         });
+        
+        // Initialize with a default search if input has value
+        if (userSearchInput.value.trim()) {
+            fetchUsers();
+        }
     });
 </script>
 {% endblock scripts %}
