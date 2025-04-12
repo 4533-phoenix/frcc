@@ -420,6 +420,62 @@
         box-shadow: 0 0 0 3px rgba(95, 190, 203, 0.2);
     }
     
+    /* Textarea styling */
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid rgba(95, 190, 203, 0.3);
+        border-radius: var(--border-radius);
+        background-color: var(--background-primary);
+        color: var(--text);
+        transition: var(--transition);
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+        max-height: 200px;
+    }
+    
+    textarea:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(95, 190, 203, 0.2);
+    }
+    
+    /* File upload styling */
+    input[type="file"] {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: rgba(95, 190, 203, 0.05);
+        border: 1px dashed rgba(95, 190, 203, 0.3);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--text);
+    }
+    
+    input[type="file"]::file-selector-button {
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        border: none;
+        background: var(--gradient-primary);
+        color: white;
+        cursor: pointer;
+        margin-right: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    input[type="file"]::file-selector-button:hover {
+        background: var(--gradient-secondary);
+    }
+    
+    /* Help text styling */
+    .help-text {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
     /* Disabled form elements */
     .auth-form input:disabled, 
     .auth-form select:disabled, 

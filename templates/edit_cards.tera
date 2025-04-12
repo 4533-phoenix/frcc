@@ -1,0 +1,550 @@
+{% extends "base.tera" %}
+
+{% block title %}Manage Team Cards{% endblock title %}
+
+{% block head %}
+{{ super() }}
+<style>
+    /* Only keeping styles specific to card editing functionality */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .card-image {
+        width: 100%;
+        height: 180px;
+        background-color: #2a3240;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #5fbecc;
+        font-size: 3rem;
+    }
+
+    /* New card and empty state styling */
+    .new-card, .empty-state {
+        border: 2px dashed rgba(95, 190, 203, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        height: 100%;
+        min-height: 280px;
+        background: rgba(95, 190, 203, 0.05);
+        border-radius: var(--border-radius);
+    }
+    
+    .new-card {
+        cursor: pointer;
+    }
+    
+    .new-card:hover {
+        background-color: rgba(95, 190, 203, 0.08);
+        transform: translateY(-3px);
+    }
+
+    .new-card svg, .empty-state svg {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 1.5rem;
+        fill: var(--primary);
+        opacity: 0.7;
+    }
+
+    .new-card h3, .empty-state h3 {
+        margin: 0 0 0.5rem 0;
+        color: var(--primary);
+        font-size: 1.4rem;
+    }
+
+    .new-card p, .empty-state p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        max-width: 300px;
+    }
+
+    /* List styling */
+    .abilities-list {
+        margin-top: 0.5rem;
+        padding-left: 1.25rem;
+    }
+
+    .abilities-list li {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    /* Form overlay */
+    .form-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .card-form {
+        background: var(--background-primary);
+        border-radius: var(--border-radius);
+        width: 100%;
+        max-width: 650px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .close-form {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+    }
+
+    /* Ability items */
+    .ability-item {
+        background: rgba(95, 190, 203, 0.1);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .ability-item textarea {
+        min-height: 60px;
+        max-height: 120px;
+    }
+
+    .remove-ability {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+    }
+
+    .ability-level {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .level-indicator {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-color: var(--primary);
+        border-radius: 50%;
+        opacity: 0.3;
+        cursor: pointer;
+    }
+
+    .level-indicator.active {
+        opacity: 1;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Manage Team Cards</h1>
+        <p>Create and edit cards for Team {{ team_name }} #{{ team_number }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="content-box">
+            <h2 class="section-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)" style="margin-right: 0.5rem;">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                </svg>
+                Team Cards
+            </h2>
+            <p>View, create, and edit cards for your robotics team.</p>
+
+            <div class="cards-grid">
+                <!-- Create New Card Button -->
+                <div class="card-item new-card" id="createCardBtn">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    </svg>
+                    <h3>Create New Card</h3>
+                    <p>Add a new robot card for your team</p>
+                </div>
+
+                <!-- Existing Cards (will be populated by JavaScript) -->
+                <div id="teamCardsList">
+                    <!-- Cards will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Card Form Dialog (initially hidden) -->
+<div class="form-overlay hidden" id="cardFormOverlay">
+    <div class="card-form">
+        <div class="form-header">
+            <h2 id="formTitle">Create New Card</h2>
+            <button type="button" class="close-form" id="closeFormBtn">&times;</button>
+        </div>
+        
+        <form id="cardForm" enctype="multipart/form-data" class="auth-form">
+            <input type="hidden" id="cardId" name="card_id">
+            
+            <div class="form-group">
+                <label for="botName">Robot Name</label>
+                <input type="text" id="botName" name="bot_name" required placeholder="Enter your robot's name">
+            </div>
+            
+            <div class="form-group">
+                <label for="botNote">Description</label>
+                <textarea id="botNote" name="note" rows="3" placeholder="Describe your robot's features and capabilities"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="botPhoto">Robot Photo</label>
+                <input type="file" id="botPhoto" name="photo" accept="image/*">
+                <p class="help-text">Upload a clear image of your robot (JPEG or PNG recommended)</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="botModel">3D Model (Optional)</label>
+                <input type="file" id="botModel" name="model" accept=".obj">
+                <p class="help-text">Upload a 3D model in OBJ format</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Robot Abilities</label>
+                <p class="help-text">Define up to 3 special abilities for your robot card</p>
+                
+                <div id="abilitiesContainer">
+                    <!-- Ability items will be added here -->
+                </div>
+                
+                <button type="button" id="addAbilityBtn" class="btn btn-secondary" style="margin-top: 0.5rem;">
+                    Add Ability
+                </button>
+            </div>
+            
+            <div class="btn-row">
+                <button type="button" id="cancelFormBtn" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Card</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Ability Template (hidden) -->
+<template id="abilityTemplate">
+    <div class="ability-item">
+        <button type="button" class="remove-ability">&times;</button>
+        
+        <div class="form-group">
+            <label>Ability Level</label>
+            <div class="ability-level">
+                <span class="level-indicator active" data-level="1"></span>
+                <span class="level-indicator" data-level="2"></span>
+                <span class="level-indicator" data-level="3"></span>
+                <span class="level-indicator" data-level="4"></span>
+                <span class="level-indicator" data-level="5"></span>
+                <input type="hidden" name="ability_level[]" value="1">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Ability Title</label>
+            <input type="text" name="ability_title[]" required placeholder="Enter ability name">
+        </div>
+        
+        <div class="form-group">
+            <label>Ability Amount</label>
+            <input type="text" name="ability_amount[]" placeholder="E.g. 500lbs, 10ft, 3 seconds">
+            <p class="help-text">Specify quantity, distance, weight, time, etc.</p>
+        </div>
+        
+        <div class="form-group">
+            <label>Ability Description</label>
+            <textarea name="ability_description[]" rows="2" required placeholder="Describe what this ability does"></textarea>
+        </div>
+    </div>
+</template>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const elements = {
+            createBtn: document.getElementById('createCardBtn'),
+            formOverlay: document.getElementById('cardFormOverlay'),
+            closeBtn: document.getElementById('closeFormBtn'),
+            cancelBtn: document.getElementById('cancelFormBtn'),
+            form: document.getElementById('cardForm'),
+            formTitle: document.getElementById('formTitle'),
+            cardsList: document.getElementById('teamCardsList'),
+            abilitiesContainer: document.getElementById('abilitiesContainer'),
+            addAbilityBtn: document.getElementById('addAbilityBtn'),
+            abilityTemplate: document.getElementById('abilityTemplate')
+        };
+        
+        // Event handlers
+        function setupEventListeners() {
+            // Show form for creating a new card
+            elements.createBtn.addEventListener('click', showCreateForm);
+            
+            // Close form handlers
+            [elements.closeBtn, elements.cancelBtn].forEach(btn => 
+                btn.addEventListener('click', hideForm));
+            
+            // Add ability button
+            elements.addAbilityBtn.addEventListener('click', addAbility);
+            
+            // Form submission
+            elements.form.addEventListener('submit', handleFormSubmit);
+        }
+        
+        // Toggle form visibility
+        function showCreateForm() {
+            elements.form.reset();
+            document.getElementById('cardId').value = '';
+            elements.formTitle.textContent = 'Create New Card';
+            elements.abilitiesContainer.innerHTML = '';
+            showForm();
+        }
+        
+        function showForm() {
+            elements.formOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function hideForm() {
+            elements.formOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        // Add ability to form
+        function addAbility() {
+            if (elements.abilitiesContainer.children.length >= 3) {
+                FRCC.showNotification('Maximum 3 abilities allowed per card', 'error');
+                return;
+            }
+            
+            const newAbility = elements.abilityTemplate.content.cloneNode(true);
+            elements.abilitiesContainer.appendChild(newAbility);
+            
+            const abilityItem = elements.abilitiesContainer.lastElementChild;
+            setupAbilityLevelIndicators(abilityItem);
+            
+            abilityItem.querySelector('.remove-ability').addEventListener('click', function() {
+                this.closest('.ability-item').remove();
+            });
+        }
+        
+        // Setup ability level indicators
+        function setupAbilityLevelIndicators(abilityItem) {
+            const indicators = abilityItem.querySelectorAll('.level-indicator');
+            const levelInput = abilityItem.querySelector('input[name="ability_level[]"]');
+            
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', function() {
+                    const level = parseInt(this.getAttribute('data-level'));
+                    levelInput.value = level;
+                    
+                    indicators.forEach((ind, index) => {
+                        ind.classList.toggle('active', index < level);
+                    });
+                });
+            });
+        }
+        
+        // Load team cards
+        async function loadTeamCards() {
+            try {
+                const response = await fetch(`/api/cards?team={{ team_number }}`);
+                if (!response.ok) throw new Error('Failed to load team cards');
+                
+                const cards = await response.json();
+                displayTeamCards(cards);
+            } catch (error) {
+                FRCC.showNotification('Error loading cards: ' + error.message, 'error');
+            }
+        }
+        
+        // Display team cards
+        function displayTeamCards(cards) {
+            elements.cardsList.innerHTML = '';
+            
+            if (cards.length === 0) {
+                const noCardsMsg = document.createElement('div');
+                noCardsMsg.className = 'card-item empty-state';
+                noCardsMsg.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M11 15h2v2h-2v-2zm0-8h2v6h-2V7zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                    </svg>
+                    <h3>No Cards Found</h3>
+                    <p>Your team doesn't have any cards yet. Create your first card using the "Create New Card" button.</p>
+                `;
+                
+                elements.cardsList.appendChild(noCardsMsg);
+                return;
+            }
+            
+            cards.forEach(card => {
+                const cardElement = createCardElement(card);
+                elements.cardsList.appendChild(cardElement);
+                
+                const editBtn = cardElement.querySelector('.edit-card-btn');
+                if (editBtn) {
+                    editBtn.addEventListener('click', () => {
+                        const cardId = editBtn.getAttribute('data-card-id');
+                        editCard(cards.find(c => c.card_id === cardId));
+                    });
+                }
+            });
+        }
+        
+        // Create card element
+        function createCardElement(card) {
+            const element = document.createElement('div');
+            element.className = 'card-item';
+            element.innerHTML = `
+                <div class="card-image">
+                    ${card.team_number}
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${card.card_name || 'Unnamed Robot'}</h3>
+                    <p class="card-info">Team ${card.team_name} #${card.team_number} | ${card.year}</p>
+                    ${card.abilities ? 
+                        `<ul class="abilities-list">
+                            ${card.abilities.map(ability => 
+                                `<li><strong>${ability.title}</strong>${ability.amount ? ` (${ability.amount})` : ''}: ${ability.description}</li>`
+                            ).join('')}
+                        </ul>` : ''}
+                    <div class="card-actions">
+                        <button class="btn btn-secondary edit-card-btn" data-card-id="${card.card_id}">Edit Card</button>
+                    </div>
+                </div>
+            `;
+            return element;
+        }
+        
+        // Edit existing card
+        function editCard(card) {
+            elements.formTitle.textContent = 'Edit Card: ' + card.card_name;
+            
+            document.getElementById('cardId').value = card.card_id;
+            document.getElementById('botName').value = card.card_name || '';
+            document.getElementById('botNote').value = card.card_note || '';
+            
+            elements.abilitiesContainer.innerHTML = '';
+            
+            if (card.abilities && card.abilities.length > 0) {
+                card.abilities.forEach(ability => {
+                    const newAbility = elements.abilityTemplate.content.cloneNode(true);
+                    elements.abilitiesContainer.appendChild(newAbility);
+                    
+                    const abilityItem = elements.abilitiesContainer.lastElementChild;
+                    
+                    // Set values
+                    abilityItem.querySelector('input[name="ability_title[]"]').value = ability.title;
+                    abilityItem.querySelector('textarea[name="ability_description[]"]').value = ability.description;
+                    
+                    if (ability.amount) {
+                        abilityItem.querySelector('input[name="ability_amount[]"]').value = ability.amount;
+                    }
+                    
+                    // Set level
+                    const levelInput = abilityItem.querySelector('input[name="ability_level[]"]');
+                    levelInput.value = ability.stat;
+                    
+                    const indicators = abilityItem.querySelectorAll('.level-indicator');
+                    indicators.forEach((ind, index) => {
+                        ind.classList.toggle('active', index < ability.stat);
+                    });
+                    
+                    setupAbilityLevelIndicators(abilityItem);
+                    
+                    abilityItem.querySelector('.remove-ability').addEventListener('click', function() {
+                        this.closest('.ability-item').remove();
+                    });
+                });
+            }
+            
+            showForm();
+        }
+        
+        // Handle form submission
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Process abilities into JSON
+            const abilities = [];
+            const titles = formData.getAll('ability_title[]');
+            const descriptions = formData.getAll('ability_description[]');
+            const levels = formData.getAll('ability_level[]');
+            const amounts = formData.getAll('ability_amount[]');
+            
+            for (let i = 0; i < titles.length; i++) {
+                abilities.push({
+                    stat: parseInt(levels[i]),
+                    title: titles[i],
+                    description: descriptions[i],
+                    amount: amounts[i] || null
+                });
+            }
+            
+            // Remove individual ability fields and add JSON
+            ['ability_title[]', 'ability_description[]', 'ability_level[]', 'ability_amount[]'].forEach(
+                field => formData.delete(field)
+            );
+            formData.append('abilities', JSON.stringify(abilities));
+            
+            try {
+                const response = await fetch('/api/cards', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Failed to save card');
+                
+                FRCC.showNotification('Card saved successfully', 'success');
+                hideForm();
+                loadTeamCards();
+            } catch (error) {
+                FRCC.showNotification('Error saving card: ' + error.message, 'error');
+            }
+        }
+        
+        // Initialize
+        setupEventListeners();
+        loadTeamCards();
+    });
+</script>
+{% endblock scripts %}
