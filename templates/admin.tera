@@ -5,25 +5,28 @@
 {% block head %}
 {{ super() }}
 <style>
-    .admin-header {
+    .page-header {
         background: var(--gradient-primary);
         padding: 3rem 0;
         margin-bottom: 2rem;
         color: white;
     }
 
-    .admin-card {
-        margin-bottom: 2rem;
-        padding: 2rem;
+    .content-box {
+        background-color: var(--background-primary);
         border-radius: var(--border-radius);
         box-shadow: var(--card-shadow);
-        background-color: var(--background-primary);
+        padding: 2rem;
+        margin-bottom: 2rem;
     }
-
-    .admin-card h2 {
-        margin-top: 0;
+    
+    .section-title {
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
         color: var(--primary);
+        font-weight: 600;
+        border-bottom: 1px solid rgba(95, 190, 203, 0.2);
+        padding-bottom: 0.75rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -40,11 +43,6 @@
         -webkit-mask-repeat: no-repeat;
         mask-position: center;
         -webkit-mask-position: center;
-    }
-
-    .invite-icon {
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z'/%3E%3C/svg%3E");
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z'/%3E%3C/svg%3E");
     }
 
     .users-icon {
@@ -263,7 +261,7 @@
 
 {% block content %}
 <!-- Admin Header -->
-<section class="admin-header">
+<section class="page-header">
     <div class="container">
         <h1>Administration Panel</h1>
         <p>Manage users, invite codes, and site settings</p>
@@ -276,8 +274,13 @@
         <div id="alertBox" class="admin-alert"></div>
 
         <!-- Invite Codes Section -->
-        <div class="admin-card">
-            <h2><span class="admin-icon invite-icon"></span> Invite Codes</h2>
+        <div class="content-box">
+            <h2 class="section-title">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--primary)" style="margin-right: 0.5rem;">
+                    <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+                Invite Codes
+            </h2>
             <p>Generate new invite codes for users to join the platform.</p>
             
             <div class="flex flex-gap">
@@ -292,8 +295,8 @@
         </div>
         
         <!-- User Management Section -->
-        <div class="admin-card">
-            <h2><span class="admin-icon users-icon"></span> User Management</h2>
+        <div class="content-box">
+            <h2 class="section-title"><span class="admin-icon users-icon"></span> User Management</h2>
             <p>Search for users and manage their accounts.</p>
             
             <div class="user-search">
@@ -368,7 +371,9 @@
         </div>
     </div>
 </section>
+{% endblock content %}
 
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Elements
@@ -396,42 +401,53 @@
         
         // Copy text to clipboard
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showAlert('Copied to clipboard!', 'success');
-            }).catch(() => {
-                showAlert('Failed to copy to clipboard', 'error');
+            FRCC.copyToClipboard(text).then(success => {
+                if (success) {
+                    showAlert('Copied to clipboard!', 'success');
+                } else {
+                    showAlert('Failed to copy to clipboard', 'error');
+                }
             });
         }
         
         // Generate Invite Code
         generateInviteBtn.addEventListener('click', async function() {
-            // Mock API call - This will be replaced with a real API call
-						const code = await (await fetch('/api/invites', {
-							method: 'PUT',
-						})).text();
-            
-            // Clear "no codes" message if it's there
-            if (inviteCodesList.innerHTML.includes('No invite codes generated yet')) {
-                inviteCodesList.innerHTML = '';
+            try {
+                const response = await fetch('/api/invites', {
+                    method: 'PUT',
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate invite code');
+                }
+                
+                const code = await response.text();
+                
+                // Clear "no codes" message if it's there
+                if (inviteCodesList.innerHTML.includes('No invite codes generated yet')) {
+                    inviteCodesList.innerHTML = '';
+                }
+                
+                // Create new code item
+                const codeItem = document.createElement('div');
+                codeItem.className = 'code-item';
+                codeItem.innerHTML = `
+                    <span class="code">${code}</span>
+                    <button class="copy-button" data-code="${code}">Copy</button>
+                `;
+                
+                // Add to the top of the list
+                inviteCodesList.insertBefore(codeItem, inviteCodesList.firstChild);
+                
+                // Add copy event listener
+                codeItem.querySelector('.copy-button').addEventListener('click', function() {
+                    copyToClipboard(this.getAttribute('data-code'));
+                });
+                
+                showAlert('Invite code generated successfully!', 'success');
+            } catch (error) {
+                showAlert('Error generating invite code: ' + error.message, 'error');
             }
-            
-            // Create new code item
-            const codeItem = document.createElement('div');
-            codeItem.className = 'code-item';
-            codeItem.innerHTML = `
-                <span class="code">${code}</span>
-                <button class="copy-button" data-code="${code}">Copy</button>
-            `;
-            
-            // Add to the top of the list
-            inviteCodesList.insertBefore(codeItem, inviteCodesList.firstChild);
-            
-            // Add copy event listener
-            codeItem.querySelector('.copy-button').addEventListener('click', function() {
-                copyToClipboard(this.getAttribute('data-code'));
-            });
-            
-            showAlert('Invite code generated successfully!', 'success');
         });
         
         // Search Users
@@ -544,4 +560,4 @@
         });
     });
 </script>
-{% endblock content %}
+{% endblock scripts %}

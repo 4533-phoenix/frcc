@@ -69,18 +69,6 @@
     .control-icon {
         width: 24px;
         height: 24px;
-        background-color: white;
-    }
-
-    .switch-camera-icon {
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z'/%3E%3C/svg%3E");
-        mask-size: contain;
-        -webkit-mask-size: contain;
-        mask-repeat: no-repeat;
-        -webkit-mask-repeat: no-repeat;
-        mask-position: center;
-        -webkit-mask-position: center;
     }
 
     .camera-loading {
@@ -219,7 +207,9 @@
 
         <div class="camera-controls">
             <button class="control-btn" id="switchCameraBtn" aria-label="Switch camera">
-                <span class="control-icon switch-camera-icon"></span>
+                <svg class="control-icon" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z"/>
+                </svg>
             </button>
         </div>
     </div>
@@ -262,7 +252,9 @@
         </div>
     </div>
 </section>
+{% endblock content %}
 
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const elements = {
@@ -565,4 +557,4 @@
         start();
     });
 </script>
-{% endblock content %}
+{% endblock scripts %}
