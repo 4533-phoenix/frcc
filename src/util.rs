@@ -8,7 +8,8 @@ use tmf::{
     VertexPrecisionMode,
 };
 
-pub fn optimize_and_save_model(id: String, obj_buf: Vec<u8>) {
+pub async fn optimize_and_save_model(id: String, obj_buf: Vec<u8>) {
+    tokio::task::spawn_blocking(move || {
     let mut obj_buf = Cursor::new(obj_buf);
 
     let mesh = TMFMesh::read_from_obj_one(&mut obj_buf).unwrap();
@@ -27,4 +28,5 @@ pub fn optimize_and_save_model(id: String, obj_buf: Vec<u8>) {
             id,
         )
         .unwrap();
+        }).await.unwrap();
 }

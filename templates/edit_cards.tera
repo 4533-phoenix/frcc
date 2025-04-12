@@ -422,7 +422,7 @@
                 if (editBtn) {
                     editBtn.addEventListener('click', () => {
                         const cardId = editBtn.getAttribute('data-card-id');
-                        editCard(cards.find(c => c.card_id === cardId));
+                        editCard(cards.find(c => c.card_design_id == cardId));
                     });
                 }
             });
@@ -446,7 +446,7 @@
                             ).join('')}
                         </ul>` : ''}
                     <div class="card-actions">
-                        <button class="btn btn-secondary edit-card-btn" data-card-id="${card.card_id}">Edit Card</button>
+                        <button class="btn btn-secondary edit-card-btn" data-card-id="${card.card_design_id}">Edit Card</button>
                     </div>
                 </div>
             `;
@@ -457,7 +457,7 @@
         function editCard(card) {
             elements.formTitle.textContent = 'Edit Card: ' + card.card_name;
             
-            document.getElementById('cardId').value = card.card_id;
+            document.getElementById('cardId').value = card.card_design_id;
             document.getElementById('botName').value = card.card_name || '';
             document.getElementById('botNote').value = card.card_note || '';
             

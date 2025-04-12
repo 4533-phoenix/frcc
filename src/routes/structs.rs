@@ -102,6 +102,35 @@ impl CardData {
             },
         }
     }
+    pub async fn from_design(design: entity::card_design::Model, state: AppState, unlocked: bool) -> Self {
+        Self {
+            card_id: None,
+            card_design_id: design.id,
+            team_number: design.team,
+            year: design.year as u16,
+            team_name: state.get_team(design.team).await.name,
+            card_name: if unlocked { Some(design.name) } else { None },
+            card_note: if unlocked { Some(design.note) } else { None },
+            abilities: if unlocked {
+                Some(
+                    state
+                        .get_card_design_abilities(design.id)
+                        .await
+                        .into_iter()
+                        .map(|a| CardAbilityData {
+                            level: a.level as u8,
+                            amount: a.amount,
+                            title: a.title,
+                            description: a.description,
+                        })
+                        .collect::<Vec<_>>(),
+                )
+            } else {
+                None
+            },
+        }
+    }
+
 }
 
 #[derive(Deserialize)]

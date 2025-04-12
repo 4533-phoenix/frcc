@@ -4,23 +4,23 @@ use crate::{
     util::optimize_and_save_model,
 };
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode, Uri, header},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
+    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
-    prelude::Expr,
 };
 
 use super::{
@@ -107,8 +107,29 @@ pub async fn create_invite_code(
     }
 }
 
+pub async fn get_design(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(id): Path<i64>,
+) -> impl IntoResponse {
+    let design = CardDesign::find_by_id(id as i32)
+        .one(&*state.db)
+        .await
+        .unwrap()
+        .unwrap();
+    Json(
+        CardData::from_design(
+            design.clone(),
+            state.clone(),
+            design.team == state.get_user_team(&user.username).await.unwrap().number,
+        )
+        .await,
+    )
+}
+
 pub async fn get_cards(
     State(state): State<AppState>,
+    Auth(user): Auth,
     Query(params): Query<GetCardsParams>,
 ) -> impl IntoResponse {
     let mut cards = Vec::new();
@@ -149,15 +170,10 @@ pub async fn get_cards(
 
         for design in designs {
             cards.push(
-                CardData::from_card(
-                    Card::find()
-                        .filter(Expr::col(entity::card::Column::Design).eq(design.id))
-                        .one(&*state.db)
-                        .await
-                        .unwrap()
-                        .unwrap(),
+                CardData::from_design(
+                    design,
                     state.clone(),
-                    false,
+                    state.get_user_team(&user.username).await.map(|t| t.number) == params.team,
                 )
                 .await,
             );
@@ -210,7 +226,7 @@ pub async fn create_card(
             Vec::new()
         };
 
-        optimize_and_save_model(id.clone(), model.unwrap().to_vec());
+        optimize_and_save_model(id.clone(), model.unwrap().to_vec()).await;
 
         let design = CardDesign::insert(card_design::ActiveModel {
             team: Set(team.number),
