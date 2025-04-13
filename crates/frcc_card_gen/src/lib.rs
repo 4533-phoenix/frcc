@@ -1,5 +1,7 @@
 //! Card generation library for FRCC
 
+pub mod printout;
+
 use std::io::{Error, ErrorKind};
 
 // External crate imports

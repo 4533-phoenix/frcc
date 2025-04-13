@@ -1289,7 +1289,10 @@ version = "0.1.0"
 dependencies = [
  "resvg",
  "rxing",
+ "serde",
+ "serde_json",
  "svg",
+ "tempfile",
 ]
 
 [[package]]
