@@ -134,65 +134,146 @@
 
         <div class="cards-stats">
             <div class="stat-item">
-                <div class="stat-value">3</div>
+                <div class="stat-value" id="total-cards">0</div>
                 <div class="stat-label">Total Cards</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">1</div>
+                <div class="stat-value" id="total-seasons">0</div>
                 <div class="stat-label">Seasons</div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <!-- 2025 Cards Section -->
-        <h2 class="section-title">2025 Season Cards</h2>
-        <div class="cards-grid">
-            <!-- Example unlocked card with new format -->
-            <div class="collection-card"
-                style="background: linear-gradient(135deg, #8a2387 0%, #e94057 50%, #f27121 100%);"
-                onclick="showCardDetails(1241, 2025)">
-                <div class="collection-card-info">
-                    <p class="collection-card-title">Team 1241 - Theory6</p>
-                    <p class="collection-card-subtitle">Hyperion</p>
-                </div>
-            </div>
-
-            <!-- Locked cards -->
-            <div class="collection-card locked"
-                style="background: linear-gradient(135deg, #0cebeb 0%, #20e3b2 50%, #29ffc6 100%);"
-                onclick="showCardDetails(180, 2025)">
-                <div class="collection-card-info">
-                    <p class="collection-card-title">Team 180 - S.P.A.M.</p>
-                    <p class="collection-card-subtitle">Crusader</p>
-                </div>
-            </div>
-
-            <div class="collection-card locked" style="background: linear-gradient(135deg, #b91d73 0%, #f953c6 100%);"
-                onclick="showCardDetails(67, 2025)">
-                <div class="collection-card-info">
-                    <p class="collection-card-title">Team 67 - The HOT Team</p>
-                    <p class="collection-card-subtitle">Blitz</p>
-                </div>
-            </div>
-        </div>
+<section class="section" id="cards-container">
+    <!-- Cards will be loaded dynamically by JavaScript -->
+    <div class="container text-center" id="loading">
+        <p>Loading cards...</p>
     </div>
 </section>
 
 <script>
-    function showCardDetails(teamNumber, year) {
-        // Don't process clicks on locked cards (added as a safeguard, though pointer-events:none should prevent this)
+    // Fetch cards from API and render them
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            const response = await fetch('/api/cards');
+            if (!response.ok) {
+                throw new Error('Failed to fetch cards');
+            }
+            
+            const cards = await response.json();
+            renderCards(cards);
+        } catch (error) {
+            console.error('Error fetching cards:', error);
+            document.getElementById('loading').innerHTML = `
+                <div class="empty-state">
+                    <h3>Unable to load cards</h3>
+                    <p>Please try again later</p>
+                </div>
+            `;
+        }
+    });
+
+    function renderCards(cards) {
+        const container = document.getElementById('cards-container');
+        const loadingElement = document.getElementById('loading');
+        
+        // Remove loading indicator
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        
+        // Calculate stats
+        document.getElementById('total-cards').textContent = cards.length;
+        
+        // Group cards by year
+        const cardsByYear = {};
+        cards.forEach(cardResponse => {
+            const card = cardResponse.card;
+            const year = card.year || 'Unknown';
+            
+            if (!cardsByYear[year]) {
+                cardsByYear[year] = [];
+            }
+            
+            cardsByYear[year].push({
+                ...card,
+                unlocked: cardResponse.unlocked
+            });
+        });
+        
+        document.getElementById('total-seasons').textContent = Object.keys(cardsByYear).length;
+        
+        // Sort years in descending order
+        const sortedYears = Object.keys(cardsByYear).sort((a, b) => b - a);
+        
+        // If no cards, show empty state
+        if (sortedYears.length === 0) {
+            container.innerHTML = `
+                <div class="container">
+                    <div class="empty-state">
+                        <h3>No cards found</h3>
+                        <p>Check back later for new cards!</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Build HTML for each year section
+        let cardsHTML = '';
+        
+        sortedYears.forEach(year => {
+            const yearCards = cardsByYear[year];
+            
+            cardsHTML += `
+                <div class="container">
+                    <h2 class="section-title">${year} Season Cards</h2>
+                    <div class="cards-grid">
+            `;
+            
+            yearCards.forEach(card => {
+                // Create a gradient background based on team number (for consistent coloring)
+                const teamNumber = card.team_number || 0;
+                const hue1 = (teamNumber * 5) % 360;
+                const hue2 = (hue1 + 40) % 360;
+                const hue3 = (hue2 + 40) % 360;
+                const gradient = `linear-gradient(135deg, hsl(${hue1}, 70%, 40%) 0%, hsl(${hue2}, 70%, 45%) 50%, hsl(${hue3}, 70%, 50%) 100%)`;
+                
+                cardsHTML += `
+                    <div class="collection-card ${!card.unlocked ? 'locked' : ''}"
+                        style="background: ${gradient};"
+                        onclick="showCardDetails(${card.id}, ${year})">
+                        <div class="collection-card-info">
+                            <p class="collection-card-title">Team ${card.team_number} - ${card.team_name || ''}</p>
+                            <p class="collection-card-subtitle">${card.name}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cardsHTML += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = cardsHTML;
+    }
+
+    function showCardDetails(cardId, year) {
+        // Don't process clicks on locked cards
         const clickedCard = event.currentTarget;
         if (clickedCard.classList.contains('locked')) {
             return;
         }
 
-        // Placeholder for card detail view functionality
-        console.log(`Viewing Team ${teamNumber} from ${year}`);
-        // In a real implementation, this would open a modal or navigate to a detail page
-        alert(`Viewing card for Team ${teamNumber} (${year})`);
+        // Navigate to a detail page or open a modal
+        console.log(`Viewing card ${cardId} from ${year}`);
+        
+        // You could implement a modal here or redirect to a details page
+        // For now, let's redirect to the design page
+        window.location.href = `/design/${cardId}`;
     }
 </script>
 {% endblock content %}
