@@ -4,23 +4,23 @@ use crate::{
     util::{optimize_and_save_image, optimize_and_save_model},
 };
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
+    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{header, HeaderMap, StatusCode, Uri},
+    http::{HeaderMap, StatusCode, Uri, header},
     response::{IntoResponse, Redirect, Response},
-    Form, Json, Router,
 };
-use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
+use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
-    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
+    prelude::Expr,
 };
 
 use super::{
@@ -718,7 +718,11 @@ pub async fn gen_card_back(
     Auth(user): Auth,
     Path(design): Path<i32>,
 ) -> impl IntoResponse {
-    if let Some(design) = CardDesign::find_by_id(design).one(&*state.db).await.unwrap() {
+    if let Some(design) = CardDesign::find_by_id(design)
+        .one(&*state.db)
+        .await
+        .unwrap()
+    {
         if Some(design.team) == state.get_user_team(&user.username).await.map(|t| t.number)
             && state.is_team_admin(&user.username).await
         {
@@ -727,15 +731,22 @@ pub async fn gen_card_back(
             Card::insert(entity::card::ActiveModel {
                 id: Set(id.clone()),
                 design: Set(design.id),
-            }).exec(&*state.db).await.unwrap();
+            })
+            .exec(&*state.db)
+            .await
+            .unwrap();
 
             Response::builder()
                 .status(StatusCode::OK)
                 .header(header::CONTENT_TYPE, "image/png")
                 .body(Body::from(
-                    frcc_card_gen::render_back_card(include_str!("../../cards/back/default.svg"), &id, None)
-                        .encode_png()
-                        .unwrap(),
+                    frcc_card_gen::render_back_card(
+                        include_str!("../../cards/back/default.svg"),
+                        &id,
+                        None,
+                    )
+                    .encode_png()
+                    .unwrap(),
                 ))
                 .unwrap()
                 .into_response()
@@ -752,7 +763,11 @@ pub async fn gen_card_front(
     Auth(user): Auth,
     Path(design): Path<i32>,
 ) -> impl IntoResponse {
-    if let Some(design) = CardDesign::find_by_id(design).one(&*state.db).await.unwrap() {
+    if let Some(design) = CardDesign::find_by_id(design)
+        .one(&*state.db)
+        .await
+        .unwrap()
+    {
         if Some(design.team) == state.get_user_team(&user.username).await.map(|t| t.number)
             && state.is_team_admin(&user.username).await
         {
@@ -767,9 +782,9 @@ pub async fn gen_card_front(
                     amount: a.amount,
                 })
                 .collect();
-                
+
             let team = state.get_team(design.team).await;
-            
+
             // Get image path if exists
             let image_path = format!("images/{}.png", design.id);
             let image_path = if std::path::Path::new(&image_path).exists() {
@@ -788,8 +803,10 @@ pub async fn gen_card_front(
                         &team.number.to_string(),
                         &image_path,
                         &ability_data,
-                        None
-                    ).encode_png().unwrap(),
+                        None,
+                    )
+                    .encode_png()
+                    .unwrap(),
                 ))
                 .unwrap()
                 .into_response()

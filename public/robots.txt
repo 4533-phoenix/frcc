@@ -1,4 +1,4 @@
-# robots.txt for First Card Competition (FCC) Website
+# robots.txt for First Robotics Card Competition (FRCC) Website
 
 #  \_\
 #    (_**)
