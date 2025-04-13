@@ -28,7 +28,6 @@ pub fn get_router(state: AppState) -> Router {
         .nest("/api", get_api_router(state))
         .nest_service("/fronts", ServeDir::new("fronts"))
         .nest_service("/printouts", ServeDir::new("printouts"))
-        .nest_service("/images", ServeDir::new("images"))
         .nest_service("/models", ServeDir::new("models"))
         .fallback_service(get(util::static_handler))
 }

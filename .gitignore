@@ -1,3 +1,6 @@
 /target
 /*.db
-test.png
+/images/*.png
+/models/*.tmf
+/fronts/*.png
+/printouts/*.pdf
