@@ -3,13 +3,13 @@
  */
 
 #set page("us-letter", margin: 0.0in)
-#let card_width  = 2.000in
-#let card_height = 3.000in
+#let card_width  = 63mm
+#let card_height = 88mm
 #let card_pad    = 0.125in
 
 #align(center,
 	layout(size => {
-		let cards = json("./cards.json");
+		let cards = json("./config.json");
 		let page_cols  = int(size.width / (card_width + card_pad));
 		let page_rows  = int(size.height / (card_height + card_pad));
 		let page_index = 0;

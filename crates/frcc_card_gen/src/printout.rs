@@ -29,7 +29,7 @@ pub async fn generate_printout(
     let printout_id = printout_id.into();
 
     let temp = TempDir::new().unwrap().into_path();
-    let printout_path = format!("printouts/{printout_id}.png");
+    let printout_path = format!("printouts/{printout_id}.pdf");
 
     render_front_card(
         include_str!("../../../cards/front/default.svg"),
@@ -53,11 +53,20 @@ pub async fn generate_printout(
         });
     }
 
-    let mut wr = File::create(temp.join("config.json")).unwrap();
-    serde_json::to_writer(&mut wr, &printout_config).unwrap();
+    {
+        let mut wr = File::create(temp.join("config.json")).unwrap();
+        serde_json::to_writer(&mut wr, &printout_config).unwrap();
+        wr.flush().unwrap();
+    }
 
     let mut cmd = Command::new("typst")
-        .args(["-", "printout.pdf"])
+        .args([
+            "compile",
+            "--root",
+            temp.to_str().unwrap(),
+            "-",
+            &printout_path,
+        ])
         .stdin(Stdio::piped())
         .spawn()
         .unwrap();
@@ -68,5 +77,7 @@ pub async fn generate_printout(
 
     cmd.wait().unwrap();
 
-    printout_path
+    std::fs::remove_dir_all(temp).unwrap();
+
+    printout_id
 }

@@ -282,7 +282,7 @@
         
         <div class="form-group">
             <label>Ability Amount</label>
-            <input type="text" name="ability_amount[]" placeholder="E.g. 500lbs, 10ft, 3 seconds">
+            <input type="text" name="ability_amount[]" required placeholder="E.g. 500lbs, 10ft, 3 seconds">
             <p class="help-text">Specify quantity, distance, weight, time, etc.</p>
         </div>
         
@@ -534,7 +534,12 @@
                 
                 if (!response.ok) throw new Error('Failed to save card');
                 
-                FRCC.showNotification('Card saved successfully', 'success');
+                FRCC.showNotification('Generating front...', 'success');
+
+								await fetch(`/api/design/${formData.get("card_id")}/generate/front`);
+
+                FRCC.showNotification('Card saved successfully!', 'success');
+
                 hideForm();
                 loadTeamCards();
             } catch (error) {

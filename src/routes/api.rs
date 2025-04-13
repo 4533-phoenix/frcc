@@ -4,23 +4,23 @@ use crate::{
     util::{optimize_and_save_image, optimize_and_save_model},
 };
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode, Uri, header},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
+    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
-    prelude::Expr,
 };
 
 use super::{
@@ -803,13 +803,86 @@ pub async fn gen_card_front(
                         &team.number.to_string(),
                         &image_path,
                         &ability_data,
-                        None,
+                        Some(&format!("fronts/{}.png", design.id)),
                     )
                     .encode_png()
                     .unwrap(),
                 ))
                 .unwrap()
                 .into_response()
+        } else {
+            StatusCode::FORBIDDEN.into_response()
+        }
+    } else {
+        StatusCode::NOT_FOUND.into_response()
+    }
+}
+
+pub async fn gen_printout(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path((design, card_count)): Path<(i32, usize)>,
+) -> impl IntoResponse {
+    if let Some(design) = CardDesign::find_by_id(design)
+        .one(&*state.db)
+        .await
+        .unwrap()
+    {
+        if Some(design.team) == state.get_user_team(&user.username).await.map(|t| t.number)
+            && state.is_team_admin(&user.username).await
+        {
+            let printout_id = nanoid!(64);
+
+            // Get the abilities for this design
+            let abilities = state.get_card_design_abilities(design.id).await;
+            let ability_data: Vec<frcc_card_gen::Ability> = abilities
+                .into_iter()
+                .map(|a| frcc_card_gen::Ability {
+                    name: a.title,
+                    description: a.description,
+                    level: a.level,
+                    amount: a.amount,
+                })
+                .collect();
+
+            let team = state.get_team(design.team).await;
+
+            // Get image path if exists
+            let image_path = format!("images/{}.png", design.id);
+            let image_path = if std::path::Path::new(&image_path).exists() {
+                image_path
+            } else {
+                "images/default_robot.png".to_string()
+            };
+
+            let mut ids = Vec::new();
+            for _ in 0..card_count {
+                let id = nanoid!(33);
+
+                Card::insert(entity::card::ActiveModel {
+                    id: Set(id.clone()),
+                    design: Set(design.id),
+                })
+                .exec(&*state.db)
+                .await
+                .unwrap();
+
+                ids.push(id);
+            }
+            let printout_id = frcc_card_gen::printout::generate_printout(
+                ids.into_iter(),
+                design.name.clone(),
+                design.team.to_string(),
+                image_path.clone(),
+                ability_data.into_iter().clone(),
+                printout_id,
+            )
+            .await;
+
+            Json(serde_json::json!({
+                "printout_id": printout_id
+            }))
+            .into_response()
         } else {
             StatusCode::FORBIDDEN.into_response()
         }
