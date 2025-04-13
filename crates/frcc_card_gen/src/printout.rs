@@ -6,7 +6,7 @@ use std::{
 
 use tempfile::TempDir;
 
-use crate::{render_back_card, Ability};
+use crate::{Ability, render_back_card};
 
 use super::render_front_card;
 use serde::Serialize;
