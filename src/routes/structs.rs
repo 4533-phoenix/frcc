@@ -58,6 +58,12 @@ pub struct UserTeamData {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct CardResonse {
+    pub card: CardData,
+    pub unlocked: bool,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct CardData {
     pub card_id: Option<String>,
     pub card_design_id: i32,
