@@ -1,26 +1,28 @@
+use std::io::Cursor;
+
 use crate::{
     routes::structs::{CardAbilityData, UserData},
     state::AppState,
     util::{optimize_and_save_image, optimize_and_save_model},
 };
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode, Uri, header},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
+    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
-    prelude::Expr,
 };
 
 use super::{
@@ -736,18 +738,19 @@ pub async fn gen_card_back(
             .await
             .unwrap();
 
+            let img = frcc_card_gen::render_back_card(
+                include_str!("../../cards/back/default.svg"),
+                &id,
+                None,
+            );
+            let mut png_bytes: Vec<u8> = Vec::new();
+            img.write_to(&mut Cursor::new(&mut png_bytes), image::ImageFormat::Png)
+                .unwrap();
+
             Response::builder()
                 .status(StatusCode::OK)
                 .header(header::CONTENT_TYPE, "image/png")
-                .body(Body::from(
-                    frcc_card_gen::render_back_card(
-                        include_str!("../../cards/back/default.svg"),
-                        &id,
-                        None,
-                    )
-                    .encode_png()
-                    .unwrap(),
-                ))
+                .body(Body::from(png_bytes))
                 .unwrap()
                 .into_response()
         } else {

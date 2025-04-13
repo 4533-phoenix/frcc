@@ -2,17 +2,30 @@
 
 pub mod printout;
 
+static OPTIONS: Lazy<Options> = Lazy::new(|| {
+    let mut options = Options::default();
+
+    options.shape_rendering = ShapeRendering::CrispEdges;
+    options.text_rendering = TextRendering::GeometricPrecision;
+    options.image_rendering = ImageRendering::CrispEdges;
+
+    options.fontdb_mut().load_system_fonts();
+
+    options
+});
+
 use std::io::{Error, ErrorKind};
 
 // External crate imports
+use image::{GenericImage, ImageBuffer, Rgba, RgbaImage};
+use once_cell::sync::Lazy;
 use resvg::{
     tiny_skia::{self, BlendMode, IntSize, Pixmap, Transform},
-    usvg::{self, Options, Tree},
+    usvg::{self, ImageRendering, Options, ShapeRendering, TextRendering, Tree},
 };
 use rxing::{BarcodeFormat, EncodeHints, Writer};
 
-/// Generates an Aztec code fiducial mark as SVG
-pub fn gen_fiducial(id: String) -> String {
+pub fn gen_fiducial(id: String) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let wr = rxing::aztec::AztecWriter;
     let bit_matrix = wr
         .encode_with_hints(
@@ -29,20 +42,19 @@ pub fn gen_fiducial(id: String) -> String {
         .unwrap();
 
     // Fix: Properly convert to svg::Document without generic parameter
-    let fiducial_svg: svg::Document = (&bit_matrix).into();
-    fiducial_svg.to_string()
+    let fiducial_img: image::DynamicImage = (&bit_matrix).into();
+
+    fiducial_img.to_rgba8()
 }
 
 /// Common setup for card rendering
 fn setup_card(svg_content: &str) -> (Pixmap, usvg::Size) {
-    let mut options = Options::default();
-    options.fontdb_mut().load_system_fonts();
-
-    let tree = Tree::from_str(svg_content, &options).unwrap();
+    let tree = Tree::from_str(svg_content, &OPTIONS).unwrap();
     let size = tree.size();
     let mut pixmap = Pixmap::new(size.width() as u32, size.height() as u32).unwrap();
 
     resvg::render(&tree, Transform::identity(), &mut pixmap.as_mut());
+
     (pixmap, size)
 }
 
@@ -79,26 +91,23 @@ fn load_image(path: &str) -> (Pixmap, u32, u32) {
 }
 
 /// Renders the back of a card with a fiducial mark
-pub fn render_back_card(card_template: &str, id: &str, output_path: Option<&str>) -> Pixmap {
-    let (mut pixmap, card_size) = setup_card(card_template);
+pub fn render_back_card(card_template: &str, id: &str, output_path: Option<&str>) -> RgbaImage {
+    let (pixmap, card_size) = setup_card(card_template);
 
     // Render fiducial mark
-    let fiducial_svg = gen_fiducial(id.to_owned());
-    let tree = Tree::from_str(&fiducial_svg, &Options::default()).unwrap();
+    let fiducial_img = gen_fiducial(id.to_owned());
     let x_pos = (card_size.width() / 2.0) - 100.0;
     let y_pos = (card_size.height() / 2.0) - 100.0;
 
-    resvg::render(
-        &tree,
-        Transform::identity().pre_translate(x_pos, y_pos),
-        &mut pixmap.as_mut(),
-    );
+    let mut img = RgbaImage::from_vec(card_size.width() as u32, card_size.height() as u32, pixmap.data().to_vec()).unwrap();
+
+    img.sub_image(x_pos as u32, y_pos as u32, 200, 200).copy_from(&fiducial_img, 0, 0).unwrap();
 
     if let Some(path) = output_path {
-        save_card(&pixmap, path).unwrap();
+        img.save_with_format(path, image::ImageFormat::Png).unwrap();
     }
 
-    pixmap
+    img
 }
 
 /// Renders the front of a card with team and robot details
