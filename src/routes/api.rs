@@ -733,9 +733,63 @@ pub async fn gen_card_back(
                 .status(StatusCode::OK)
                 .header(header::CONTENT_TYPE, "image/png")
                 .body(Body::from(
-                    frcc_card_gen::render_card(include_str!("../../cards/back/default.svg"), &id)
+                    frcc_card_gen::render_back_card(include_str!("../../cards/back/default.svg"), &id, None)
                         .encode_png()
                         .unwrap(),
+                ))
+                .unwrap()
+                .into_response()
+        } else {
+            StatusCode::FORBIDDEN.into_response()
+        }
+    } else {
+        StatusCode::NOT_FOUND.into_response()
+    }
+}
+
+pub async fn gen_card_front(
+    State(state): State<AppState>,
+    Auth(user): Auth,
+    Path(design): Path<i32>,
+) -> impl IntoResponse {
+    if let Some(design) = CardDesign::find_by_id(design).one(&*state.db).await.unwrap() {
+        if Some(design.team) == state.get_user_team(&user.username).await.map(|t| t.number)
+            && state.is_team_admin(&user.username).await
+        {
+            // Get the abilities for this design
+            let abilities = state.get_card_design_abilities(design.id).await;
+            let ability_data: Vec<frcc_card_gen::Ability> = abilities
+                .into_iter()
+                .map(|a| frcc_card_gen::Ability {
+                    name: a.title,
+                    description: a.description,
+                    level: a.level,
+                    amount: a.amount,
+                })
+                .collect();
+                
+            let team = state.get_team(design.team).await;
+            
+            // Get image path if exists
+            let image_path = format!("images/{}.png", design.id);
+            let image_path = if std::path::Path::new(&image_path).exists() {
+                image_path
+            } else {
+                "images/default_robot.png".to_string()
+            };
+
+            Response::builder()
+                .status(StatusCode::OK)
+                .header(header::CONTENT_TYPE, "image/png")
+                .body(Body::from(
+                    frcc_card_gen::render_front_card(
+                        include_str!("../../cards/front/default.svg"),
+                        &design.name,
+                        &team.number.to_string(),
+                        &image_path,
+                        &ability_data,
+                        None
+                    ).encode_png().unwrap(),
                 ))
                 .unwrap()
                 .into_response()

@@ -35,6 +35,8 @@ async fn main() {
         .format_timestamp(None)
         .init();
 
+    frcc_card_gen::test();
+
     let port = env::var("PORT").unwrap_or("3000".to_string());
     let host = env::var("HOST").unwrap_or("0.0.0.0".to_string());
     let addr = format!("{}:{}", host, port);
