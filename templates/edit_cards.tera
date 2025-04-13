@@ -414,7 +414,8 @@
                 return;
             }
             
-            cards.forEach(card => {
+            cards.forEach(cardd => {
+								const card = cardd.card;
                 const cardElement = createCardElement(card);
                 elements.cardsList.appendChild(cardElement);
                 
@@ -422,7 +423,7 @@
                 if (editBtn) {
                     editBtn.addEventListener('click', () => {
                         const cardId = editBtn.getAttribute('data-card-id');
-                        editCard(cards.find(c => c.card_design_id == cardId));
+                        editCard(cards.find(c => c.card.card_design_id == cardId).card);
                     });
                 }
             });
