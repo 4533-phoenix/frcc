@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 image = "0.25.6"
 once_cell = { version = "1.21.3", features = ["parking_lot"] }
+rayon = "1.10.0"
 resvg = { version = "0.45.0", default-features = false, features = ["image-webp", "text", "raster-images", "system-fonts"] }
 rxing = { version = "0.7.1", default-features = false, features = ["client_support", "image"] }
 serde = { version = "1.0.219", features = ["derive"] }

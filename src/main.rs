@@ -40,10 +40,10 @@ async fn main() {
     let addr = format!("{}:{}", host, port);
     info!("Starting server on {}", addr);
 
-    let comression_layer = CompressionLayer::new().zstd(true);
+    let compression_layer = CompressionLayer::new().zstd(true);
 
     let state = AppState::new().await;
-    let app = routes::get_router(state).layer(comression_layer);
+    let app = routes::get_router(state).layer(compression_layer);
     let listener = TcpListener::bind(&addr).await.unwrap();
 
     info!("Listening at {}", addr);

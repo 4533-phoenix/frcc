@@ -1,9 +1,10 @@
 use std::{
     fs::File,
     io::Write,
-    process::{Command, Stdio},
+    process::{Command, Stdio}, sync::{Arc, Mutex},
 };
 
+use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 use tempfile::TempDir;
 
 use crate::{Ability, render_back_card};
@@ -19,7 +20,7 @@ struct PrintoutCfgCard {
 }
 
 pub async fn generate_printout(
-    ids: impl Iterator<Item = String>,
+    ids: Vec<String>,
     robot_name: impl Into<String>,
     team_num: impl Into<String>,
     image_path: impl Into<String>,
@@ -40,18 +41,18 @@ pub async fn generate_printout(
         Some(temp.join("front.png").to_str().unwrap()),
     );
 
-    let mut printout_config: PrintoutCfg = Vec::new();
-    for id in ids {
+    let printout_config: Arc<Mutex<PrintoutCfg>> = Arc::new(Mutex::new(Vec::new()));
+    ids.into_par_iter().for_each(|id| { 
         render_back_card(
             include_str!("../../../cards/back/default.svg"),
             &id,
             Some(temp.join(format!("{id}.png")).to_str().unwrap()),
         );
-        printout_config.push(PrintoutCfgCard {
+        (*printout_config.lock().unwrap()).push(PrintoutCfgCard {
             front: String::from("front.png"),
             back: format!("{id}.png"),
         });
-    }
+    });
 
     {
         let mut wr = File::create(temp.join("config.json")).unwrap();

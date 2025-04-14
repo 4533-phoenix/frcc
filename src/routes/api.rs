@@ -27,7 +27,7 @@ use sea_orm::{
 
 use super::{
     structs::{
-        CardData, CardResonse, ChangePassword, GetCardsParams, JoinTeamData, LoginForm, TeamData,
+        CardData, CardResponse, ChangePassword, GetCardsParams, JoinTeamData, LoginForm, TeamData,
         UserTeamData,
     },
     util::Auth,
@@ -198,7 +198,7 @@ pub async fn get_cards(
     for design in designs {
         let unlocked = state.get_user_team(&user.username).await.map(|t| t.number) == params.team;
 
-        cards.push(CardResonse {
+        cards.push(CardResponse {
             card: CardData::from_design(design, state.clone(), unlocked).await,
             unlocked,
         });
@@ -895,7 +895,7 @@ pub async fn gen_printout(
                 ids.push(id);
             }
             let printout_id = frcc_card_gen::printout::generate_printout(
-                ids.into_iter(),
+                ids,
                 design.name.clone(),
                 design.team.to_string(),
                 image_path.clone(),

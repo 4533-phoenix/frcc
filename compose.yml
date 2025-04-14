@@ -8,4 +8,5 @@ services:
     volumes:
       - "./models:/models"
       - "./images:/images"
+      - "./fronts:/fronts"
       - "./data.db:/frcc.db"

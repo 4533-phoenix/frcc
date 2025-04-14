@@ -58,7 +58,7 @@ pub struct UserTeamData {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct CardResonse {
+pub struct CardResponse {
     pub card: CardData,
     pub unlocked: bool,
 }
