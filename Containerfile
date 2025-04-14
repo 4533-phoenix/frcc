@@ -8,7 +8,7 @@ RUN cargo build --release
 
 FROM docker.io/library/alpine:latest
 
-RUN apk add --no-cache -U font-noto
+RUN apk add font-noto typst
 COPY --from=builder /usr/src/frcc/target/release/frcc /usr/local/bin/frcc
 
 CMD ["/usr/local/bin/frcc"]
