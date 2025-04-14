@@ -29,7 +29,7 @@ pub fn gen_fiducial(id: String) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let wr = rxing::aztec::AztecWriter;
     let bit_matrix = wr
         .encode_with_hints(
-            &id,
+            &format!("FRCC-{id}"),
             &BarcodeFormat::AZTEC,
             200,
             200,
