@@ -849,7 +849,9 @@
             }, 3000);
 
             // Make a request to the backend API
-            fetch(`/api/scan/${cardId}`)
+            fetch(`/api/scan/${cardId}`, {
+							method: 'PUT',
+						})
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Card not found');
@@ -857,7 +859,7 @@
                     return response.json();
                 })
                 .then(cardData => {
-                    displayCardData(cardData);
+                    displayCardData(cardData.card);
                 })
                 .catch(error => {
                     console.error('Error fetching card data:', error);
