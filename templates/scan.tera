@@ -186,6 +186,144 @@
         font-weight: 600;
         color: var(--primary);
     }
+    
+    /* Mobile optimization styles */
+    .panel-toggle {
+        display: none;
+        width: 40px;
+        height: 5px;
+        background-color: rgba(95, 190, 203, 0.3);
+        border-radius: 5px;
+        margin: 10px auto;
+        cursor: grab;
+        position: relative;
+    }
+    
+    .panel-toggle::before {
+        content: "";
+        position: absolute;
+        width: 25px;
+        height: 5px;
+        background-color: rgba(95, 190, 203, 0.3);
+        border-radius: 5px;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    /* Mobile styles (portrait orientation) */
+    @media (max-width: 768px) {
+        .scan-container {
+            flex-direction: column;
+            height: calc(100vh - 80px);
+        }
+        
+        .camera-container {
+            flex: 1;
+            height: 60vh;
+        }
+        
+        .info-panel {
+            width: 100%;
+            height: auto;
+            max-height: 40vh;
+            min-height: 60px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            padding: 0 1rem 1rem;
+            position: relative;
+            transition: transform 0.2s ease;
+            transform: translateY(0);
+            will-change: transform;
+            touch-action: none;
+        }
+        
+        .info-panel.dragging {
+            transition: none;
+        }
+        
+        .info-panel-content {
+            padding-top: 1rem;
+            overflow-y: auto;
+            max-height: calc(40vh - 25px);
+        }
+        
+        .panel-toggle {
+            display: block;
+            touch-action: none;
+        }
+        
+        .control-btn {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .camera-controls {
+            bottom: 15px;
+        }
+        
+        .scan-instructions {
+            padding: 0.5rem 0;
+        }
+        
+        .scan-instructions img {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .card-image {
+            height: 150px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+    
+    /* Mobile styles (landscape orientation) */
+    @media (max-width: 768px) and (orientation: landscape) {
+        .scan-container {
+            flex-direction: row;
+            height: calc(100vh - 80px);
+        }
+        
+        .camera-container {
+            flex: 1;
+            height: 100%;
+        }
+        
+        .info-panel {
+            width: 280px;
+            min-width: 50px;
+            height: 100%;
+            max-height: none;
+            transform: translateX(0);
+            padding: 1rem;
+            padding-left: 25px;
+        }
+        
+        .info-panel-content {
+            height: 100%;
+            max-height: calc(100vh - 80px);
+            padding-top: 0;
+            overflow-y: auto;
+        }
+        
+        .panel-toggle {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%) rotate(90deg);
+            margin: 0;
+            width: 40px;
+            height: 5px;
+        }
+        
+        .panel-toggle::before {
+            top: -10px;
+        }
+    }
 </style>
 {% endblock head %}
 
@@ -216,39 +354,43 @@
     </div>
 
     <div class="info-panel" id="infoPanel">
-        <div class="scan-instructions" id="scanInstructions">
-            <img src="/images/aztec.svg" alt="Scan icon" aria-hidden="true">
-            <h2>Scan a Card</h2>
-            <p>Point your camera at any FCC card to view its details and AR content.</p>
-        </div>
-
-        <div class="card-info" id="cardInfo">
-            <h2 id="teamName">Team Name</h2>
-            <h3 id="teamNumber">Team Number</h3>
-
-            <div class="card-image" id="cardImage"></div>
-
-            <p id="cardDescription">Information about the team and their robot will appear here when you scan a card.
-            </p>
-
-            <div class="card-stats">
-                <div class="stat-row">
-                    <span class="stat-label">Year</span>
-                    <span id="cardYear">2023</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Competition</span>
-                    <span id="cardCompetition">Championship</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Awards</span>
-                    <span id="cardAwards">Innovation Award</span>
-                </div>
+        <div class="panel-toggle" id="panelToggle"></div>
+        
+        <div class="info-panel-content">
+            <div class="scan-instructions" id="scanInstructions">
+                <img src="/images/aztec.svg" alt="Scan icon" aria-hidden="true">
+                <h2>Scan a Card</h2>
+                <p>Point your camera at any FCC card to view its details and AR content.</p>
             </div>
 
-            <div class="button-container">
-                <button class="btn btn-primary" id="viewArBtn">View in AR</button>
-                <button class="btn btn-secondary" id="addToCollectionBtn">Add to Collection</button>
+            <div class="card-info" id="cardInfo">
+                <h2 id="teamName">Team Name</h2>
+                <h3 id="teamNumber">Team Number</h3>
+
+                <div class="card-image" id="cardImage"></div>
+
+                <p id="cardDescription">Information about the team and their robot will appear here when you scan a card.
+                </p>
+
+                <div class="card-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Year</span>
+                        <span id="cardYear">2023</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Competition</span>
+                        <span id="cardCompetition">Championship</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Awards</span>
+                        <span id="cardAwards">Innovation Award</span>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button class="btn btn-primary" id="viewArBtn">View in AR</button>
+                    <button class="btn btn-secondary" id="addToCollectionBtn">Add to Collection</button>
+                </div>
             </div>
         </div>
     </div>
@@ -258,6 +400,224 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Device and orientation detection
+        const isMobile = {
+            Android: function() {
+                return navigator.userAgent.match(/Android/i);
+            },
+            iOS: function() {
+                return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+            },
+            any: function() {
+                return (isMobile.Android() || isMobile.iOS());
+            }
+        };
+        
+        const isPortrait = () => window.matchMedia("(orientation: portrait)").matches;
+        
+        // Set up draggable panel for mobile
+        const setupDraggablePanel = () => {
+            const infoPanel = document.getElementById('infoPanel');
+            const panelToggle = document.getElementById('panelToggle');
+            const isMobileDevice = window.innerWidth <= 768 || isMobile.any();
+            
+            if (!infoPanel || !panelToggle) return;
+            
+            // Variables for dragging
+            let isDragging = false;
+            let startY = 0;
+            let startX = 0;
+            let currentY = 0;
+            let currentX = 0;
+            let startTransform = 0;
+            let minPosition, maxPosition;
+            
+            // Element initial states
+            if (isMobileDevice) {
+                document.body.classList.add('mobile-device');
+                
+                // Initial position and boundaries depend on orientation
+                if (isPortrait()) {
+                    infoPanel.classList.add('portrait-mode');
+                    infoPanel.classList.remove('landscape-mode');
+                    
+                    // Default to partially collapsed in portrait mode
+                    const panelHeight = infoPanel.offsetHeight;
+                    minPosition = -panelHeight + 60; // Collapsed (showing only the handle)
+                    maxPosition = 0; // Fully expanded
+                    
+                    // Start partially collapsed
+                    infoPanel.style.transform = `translateY(${minPosition * 0.7}px)`;
+                } else {
+                    infoPanel.classList.remove('portrait-mode');
+                    infoPanel.classList.add('landscape-mode');
+                    
+                    // Default to partially collapsed in landscape mode
+                    const panelWidth = infoPanel.offsetWidth;
+                    minPosition = -panelWidth + 50; // Collapsed (showing only the handle)
+                    maxPosition = 0; // Fully expanded
+                    
+                    // Start partially collapsed
+                    infoPanel.style.transform = `translateX(${minPosition * 0.7}px)`;
+                }
+                
+                // Touch events for dragging
+                panelToggle.addEventListener('touchstart', handleDragStart, { passive: false });
+                infoPanel.addEventListener('touchstart', handleDragStart, { passive: false });
+                document.addEventListener('touchmove', handleDragMove, { passive: false });
+                document.addEventListener('touchend', handleDragEnd);
+                
+                // Mouse events (for testing on desktop)
+                panelToggle.addEventListener('mousedown', handleDragStart);
+                infoPanel.addEventListener('mousedown', handleDragStart);
+                document.addEventListener('mousemove', handleDragMove);
+                document.addEventListener('mouseup', handleDragEnd);
+            } else {
+                document.body.classList.remove('mobile-device');
+                infoPanel.classList.remove('portrait-mode', 'landscape-mode');
+                infoPanel.style.transform = '';
+                
+                // Remove event listeners if exists
+                panelToggle.removeEventListener('touchstart', handleDragStart);
+                infoPanel.removeEventListener('touchstart', handleDragStart);
+                document.removeEventListener('touchmove', handleDragMove);
+                document.removeEventListener('touchend', handleDragEnd);
+                
+                panelToggle.removeEventListener('mousedown', handleDragStart);
+                infoPanel.removeEventListener('mousedown', handleDragStart);
+                document.removeEventListener('mousemove', handleDragMove);
+                document.removeEventListener('mouseup', handleDragEnd);
+            }
+            
+            // Drag start handler
+            function handleDragStart(e) {
+                // Only process drag from the panel or handle
+                if (e.target !== infoPanel && e.target !== panelToggle && !infoPanel.contains(e.target)) return;
+                
+                // Prevent default to avoid text selection and scrolling
+                e.preventDefault();
+                
+                isDragging = true;
+                infoPanel.classList.add('dragging');
+                
+                // Get touch/mouse coordinates
+                if (e.type === 'touchstart') {
+                    startY = e.touches[0].clientY;
+                    startX = e.touches[0].clientX;
+                } else {
+                    startY = e.clientY;
+                    startX = e.clientX;
+                }
+                
+                // Get current transform values
+                const transform = window.getComputedStyle(infoPanel).getPropertyValue('transform');
+                const matrix = new DOMMatrixReadOnly(transform);
+                
+                // Extract current translation
+                if (isPortrait()) {
+                    startTransform = matrix.m42; // Y translation
+                    
+                    // Recalculate boundaries based on current size
+                    const panelHeight = infoPanel.offsetHeight;
+                    minPosition = -panelHeight + 60;
+                    maxPosition = 0;
+                } else {
+                    startTransform = matrix.m41; // X translation
+                    
+                    // Recalculate boundaries based on current size
+                    const panelWidth = infoPanel.offsetWidth;
+                    minPosition = -panelWidth + 50;
+                    maxPosition = 0;
+                }
+                
+                currentY = startTransform;
+                currentX = startTransform;
+            }
+            
+            // Drag move handler
+            function handleDragMove(e) {
+                if (!isDragging) return;
+                
+                // Prevent default to avoid scrolling
+                e.preventDefault();
+                
+                let clientY, clientX;
+                if (e.type === 'touchmove') {
+                    clientY = e.touches[0].clientY;
+                    clientX = e.touches[0].clientX;
+                } else {
+                    clientY = e.clientY;
+                    clientX = e.clientX;
+                }
+                
+                // Calculate movement
+                const deltaY = clientY - startY;
+                const deltaX = clientX - startX;
+                
+                if (isPortrait()) {
+                    // Update position with bounds check
+                    currentY = Math.min(Math.max(startTransform + deltaY, minPosition), maxPosition);
+                    infoPanel.style.transform = `translateY(${currentY}px)`;
+                } else {
+                    // Update position with bounds check
+                    currentX = Math.min(Math.max(startTransform + deltaX, minPosition), maxPosition);
+                    infoPanel.style.transform = `translateX(${currentX}px)`;
+                }
+            }
+            
+            // Drag end handler
+            function handleDragEnd() {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                infoPanel.classList.remove('dragging');
+                
+                // Snap to nearest position (open or closed)
+                if (isPortrait()) {
+                    // Calculate threshold for snapping
+                    const threshold = minPosition / 2;
+                    
+                    if (currentY < threshold) {
+                        // Snap to collapsed
+                        infoPanel.style.transform = `translateY(${minPosition}px)`;
+                    } else {
+                        // Snap to expanded
+                        infoPanel.style.transform = `translateY(${maxPosition}px)`;
+                    }
+                } else {
+                    // Calculate threshold for snapping
+                    const threshold = minPosition / 2;
+                    
+                    if (currentX < threshold) {
+                        // Snap to collapsed
+                        infoPanel.style.transform = `translateX(${minPosition}px)`;
+                    } else {
+                        // Snap to expanded
+                        infoPanel.style.transform = `translateX(${maxPosition}px)`;
+                    }
+                }
+            }
+            
+            // Method to expand panel programmatically (used when card is detected)
+            window.expandInfoPanel = function() {
+                if (isPortrait()) {
+                    infoPanel.style.transform = `translateY(${maxPosition}px)`;
+                } else {
+                    infoPanel.style.transform = `translateX(${maxPosition}px)`;
+                }
+            };
+            
+            // Method to collapse panel programmatically
+            window.collapseInfoPanel = function() {
+                if (isPortrait()) {
+                    infoPanel.style.transform = `translateY(${minPosition}px)`;
+                } else {
+                    infoPanel.style.transform = `translateX(${minPosition}px)`;
+                }
+            };
+        };
+
+        // Rest of the existing code for scan functionality
         const elements = {
             video: document.getElementById('video'),
             loading: document.getElementById('cameraLoading'),
@@ -272,7 +632,8 @@
             competition: document.getElementById('cardCompetition'),
             awards: document.getElementById('cardAwards'),
             arButton: document.getElementById('viewArBtn'),
-            collectionButton: document.getElementById('addToCollectionBtn')
+            collectionButton: document.getElementById('addToCollectionBtn'),
+            infoPanel: document.getElementById('infoPanel')
         };
 
         const state = {
@@ -282,7 +643,8 @@
             currentCamera: 0,
             scanning: false,
             lastScannedId: null,
-            lastScanTime: 0
+            lastScanTime: 0,
+            isMobileDevice: isMobile.any()
         };
 
         // ===== CAMERA INITIALIZATION =====
@@ -335,16 +697,35 @@
             }
 
             try {
-                const constraints = {
+                // Set appropriate camera constraints for device type and orientation
+                let constraints = {
                     video: {
-                        facingMode: 'environment',
-                        deviceId: state.cameras.length > 0 && state.currentCamera >= 0 ?
-                            { ideal: state.cameras[state.currentCamera].deviceId } : undefined
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
                     }
                 };
+                
+                // For mobile, prefer back camera and adjust for orientation
+                if (state.isMobileDevice) {
+                    constraints.video.facingMode = { ideal: 'environment' };
+                    
+                    // Adjust dimensions based on orientation
+                    if (isPortrait()) {
+                        constraints.video.width = { ideal: 720 };
+                        constraints.video.height = { ideal: 1280 };
+                    }
+                }
+                
+                // Use specific device if available
+                if (state.cameras.length > 0 && state.currentCamera >= 0) {
+                    constraints.video.deviceId = { ideal: state.cameras[state.currentCamera].deviceId };
+                }
 
                 state.stream = await navigator.mediaDevices.getUserMedia(constraints);
                 elements.video.srcObject = state.stream;
+                
+                // Adjust video display based on current orientation
+                adjustVideoDisplay();
 
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 state.cameras = devices.filter(device => device.kind === 'videoinput');
@@ -364,6 +745,35 @@
             await startCamera();
             startScanning();
         }
+
+        // Adjust video display based on orientation
+        const adjustVideoDisplay = () => {
+            const video = document.getElementById('video');
+            if (!video) return;
+            
+            // For mobile devices, adjust the video constraints based on orientation
+            if (isMobile.any()) {
+                const isLandscape = !isPortrait();
+                const videoTrack = state.stream?.getVideoTracks()[0];
+                
+                if (videoTrack && videoTrack.getConstraints) {
+                    const constraints = videoTrack.getConstraints();
+                    if (isLandscape && constraints.height?.ideal > constraints.width?.ideal) {
+                        // Switch to landscape-optimized constraints if needed
+                        videoTrack.applyConstraints({
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }).catch(err => console.log('Could not apply video constraints', err));
+                    } else if (!isLandscape && constraints.width?.ideal > constraints.height?.ideal) {
+                        // Switch to portrait-optimized constraints if needed
+                        videoTrack.applyConstraints({
+                            width: { ideal: 720 },
+                            height: { ideal: 1280 }
+                        }).catch(err => console.log('Could not apply video constraints', err));
+                    }
+                }
+            }
+        };
 
         // ===== BARCODE SCANNING =====
 
@@ -507,6 +917,13 @@
             // Show card info and hide instructions
             elements.instructions.style.display = 'none';
             elements.cardInfo.classList.add('visible');
+            
+            // For mobile devices: expand the panel when card is detected
+            if (state.isMobileDevice || window.innerWidth <= 768) {
+                if (typeof window.expandInfoPanel === 'function') {
+                    window.expandInfoPanel();
+                }
+            }
 
             // Pause scanning while showing card
             clearInterval(state.scanInterval);
@@ -553,8 +970,27 @@
             };
         }
 
+        // Event listeners
         elements.switchBtn.addEventListener('click', switchCamera);
-
+        
+        // Handle orientation changes
+        window.addEventListener('orientationchange', function() {
+            // Short delay to allow the browser to complete orientation change
+            setTimeout(function() {
+                setupDraggablePanel();
+                adjustVideoDisplay();
+            }, 300);
+        });
+        
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            setupDraggablePanel();
+        });
+        
+        // Initialize draggable panel
+        setupDraggablePanel();
+        
+        // Start camera
         start();
     });
 </script>
