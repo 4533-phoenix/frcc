@@ -859,7 +859,7 @@
                     return response.json();
                 })
                 .then(cardData => {
-                    displayCardData(cardData.card);
+                    displayCardData(cardData);
                 })
                 .catch(error => {
                     console.error('Error fetching card data:', error);
