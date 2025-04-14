@@ -8,6 +8,6 @@ RUN cargo build --release
 
 FROM docker.io/library/alpine:latest
 
-COPY --from=builder /usr/src/searched/target/release/frcc /usr/local/bin/frcc
+COPY --from=builder /usr/src/frcc/target/release/frcc /usr/local/bin/frcc
 
 CMD ["/usr/local/bin/frcc"]
