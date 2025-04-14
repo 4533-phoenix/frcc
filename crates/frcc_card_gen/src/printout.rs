@@ -1,7 +1,8 @@
 use std::{
     fs::File,
     io::Write,
-    process::{Command, Stdio}, sync::{Arc, Mutex},
+    process::{Command, Stdio},
+    sync::{Arc, Mutex},
 };
 
 use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
@@ -42,7 +43,7 @@ pub async fn generate_printout(
     );
 
     let printout_config: Arc<Mutex<PrintoutCfg>> = Arc::new(Mutex::new(Vec::new()));
-    ids.into_par_iter().for_each(|id| { 
+    ids.into_par_iter().for_each(|id| {
         render_back_card(
             include_str!("../../../cards/back/default.svg"),
             &id,

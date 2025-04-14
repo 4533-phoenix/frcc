@@ -99,9 +99,16 @@ pub fn render_back_card(card_template: &str, id: &str, output_path: Option<&str>
     let x_pos = (card_size.width() / 2.0) - 100.0;
     let y_pos = (card_size.height() / 2.0) - 100.0;
 
-    let mut img = RgbaImage::from_vec(card_size.width() as u32, card_size.height() as u32, pixmap.data().to_vec()).unwrap();
+    let mut img = RgbaImage::from_vec(
+        card_size.width() as u32,
+        card_size.height() as u32,
+        pixmap.data().to_vec(),
+    )
+    .unwrap();
 
-    img.sub_image(x_pos as u32, y_pos as u32, 200, 200).copy_from(&fiducial_img, 0, 0).unwrap();
+    img.sub_image(x_pos as u32, y_pos as u32, 200, 200)
+        .copy_from(&fiducial_img, 0, 0)
+        .unwrap();
 
     if let Some(path) = output_path {
         img.save_with_format(path, image::ImageFormat::Png).unwrap();
