@@ -5,9 +5,9 @@ pub mod printout;
 static OPTIONS: Lazy<Options> = Lazy::new(|| {
     let mut options = Options::default();
 
-    options.shape_rendering = ShapeRendering::CrispEdges;
-    options.text_rendering = TextRendering::GeometricPrecision;
-    options.image_rendering = ImageRendering::CrispEdges;
+    options.shape_rendering = ShapeRendering::GeometricPrecision;
+    options.text_rendering = TextRendering::OptimizeLegibility;
+    options.image_rendering = ImageRendering::HighQuality;
 
     options.fontdb_mut().load_system_fonts();
 
