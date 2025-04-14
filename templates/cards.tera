@@ -243,10 +243,10 @@
                 cardsHTML += `
                     <div class="collection-card ${!card.unlocked ? 'locked' : ''}"
                         style="background: ${gradient};"
-                        onclick="showCardDetails(${card.id}, ${year})">
+                        onclick="showCardDetails(${card.card_design_id}, ${year})">
                         <div class="collection-card-info">
                             <p class="collection-card-title">Team ${card.team_number} - ${card.team_name || ''}</p>
-                            <p class="collection-card-subtitle">${card.name}</p>
+                            <p class="collection-card-subtitle">${card.card_name || ''}</p>
                         </div>
                     </div>
                 `;
