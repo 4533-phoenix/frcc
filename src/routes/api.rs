@@ -6,23 +6,23 @@ use crate::{
     util::{optimize_and_save_image, optimize_and_save_model},
 };
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use axum::{
-    Form, Json, Router,
     body::Body,
     extract::{FromRequestParts, Path, Query, State},
-    http::{HeaderMap, StatusCode, Uri, header},
+    http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Redirect, Response},
+    Form, Json, Router,
 };
-use axum_extra::extract::{CookieJar, Multipart, cookie::Cookie};
+use axum_extra::extract::{cookie::Cookie, CookieJar, Multipart};
 use chrono::Datelike;
 use entity::{card_design, prelude::*, user};
 use sea_orm::{
+    prelude::Expr,
     ActiveValue::{NotSet, Set},
     EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
-    prelude::Expr,
 };
 
 use super::{
@@ -149,8 +149,28 @@ pub async fn get_cards(
 
     let designs = sel.all(&*state.db).await.unwrap();
 
+    let mut user_scans = Vec::new();
+
+    for scan in Scan::find()
+        .filter(Expr::col(entity::scan::Column::Username).eq(&user.username))
+        .order_by_desc(entity::scan::Column::ScanTime)
+        .all(&*state.db)
+        .await
+        .unwrap()
+    {
+        user_scans.push(
+            Card::find_by_id(scan.card)
+                .one(&*state.db)
+                .await
+                .unwrap()
+                .unwrap()
+                .design,
+        );
+    }
+
     for design in designs {
-        let unlocked = state.get_user_team(&user.username).await.map(|t| t.number) == params.team;
+        let unlocked = state.get_user_team(&user.username).await.map(|t| t.number) == params.team
+            || user_scans.contains(&design.id);
 
         cards.push(CardResponse {
             card: CardData::from_design(design, state.clone(), unlocked).await,

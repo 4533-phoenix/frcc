@@ -874,7 +874,7 @@
 
             // Set card image if available
             if (cardData.image_path) {
-                elements.cardImage.style.background = `url('${cardData.image_path}') no-repeat center/cover`;
+                elements.cardImage.style.background = `url('/fronts/${cardData.card_design_id}.png') no-repeat center/cover`;
             } else {
                 elements.cardImage.style.background = 'var(--gradient-primary)';
             }
