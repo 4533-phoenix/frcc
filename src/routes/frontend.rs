@@ -5,7 +5,8 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use entity::prelude::*;
-use sea_orm::{EntityTrait, QueryFilter, prelude::Expr};
+use migration::Func;
+use sea_orm::{prelude::Expr, EntityTrait, QueryFilter, QuerySelect};
 use tera::Context;
 
 use super::{
@@ -47,11 +48,15 @@ pub async fn scan(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
         .unwrap()
 }
 
-pub async fn hero(IsAuth(is_auth): IsAuth) -> impl IntoResponse {
+pub async fn hero(State(state): State<AppState>, IsAuth(is_auth): IsAuth) -> impl IntoResponse {
     if is_auth {
         Redirect::to("/dashboard").into_response()
     } else {
-        let context = create_standard_context(is_auth, None, None).await;
+        let mut context = create_standard_context(is_auth, None, None).await;
+
+        let random = CardDesign::find().expr(Func::random()).one(&*state.db).await.unwrap().map(|design| design.id);
+        context.insert("random_design", &random);
+
         let content = TEMPLATES.render("hero.tera", &context).unwrap();
         Response::builder()
             .header("Content-Type", "text/html")
