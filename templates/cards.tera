@@ -287,6 +287,7 @@
             `;
             
             yearCards.forEach(card => {
+							console.log(card);
                 // Create a gradient background based on team number (for fallback)
                 const teamNumber = card.team_number || 0;
                 const hue1 = (teamNumber * 5) % 360;
@@ -311,7 +312,7 @@
                             : ''}
                         <div class="collection-card-info">
                             <p class="collection-card-title">Team ${card.team_number} - ${card.team_name || ''}</p>
-                            <p class="collection-card-subtitle">${card.robot_name || ''}</p>
+                            <p class="collection-card-subtitle">${card.card_name || ''}</p>
                         </div>
                     </div>
                 `;

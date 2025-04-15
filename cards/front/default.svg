@@ -64,14 +64,14 @@
    id="robot_name"
    x="64.444859"
    y="84.444859"
-   style="font-family:Arial;font-size:24px;fill:white">ROBOT_NAME</text>
+   style="font-family:Coolwonder;font-size:24px;fill:white">ROBOT_NAME</text>
    
   <!-- Team number text - adjusted vertical position for centering -->
   <text
    id="team_number"
    x="545.5554"
    y="89.444859"
-   style="font-family:Arial;font-weight:bold;font-size:36px;fill:#ffffff;text-anchor:end">NUMBER</text>
+   style="font-family:Coolwonder;font-weight:bold;font-size:36px;fill:#ffffff;text-anchor:end">NUMBER</text>
    
   <!-- Image placeholder space - full width, connects to header, increased height -->
   <rect
@@ -95,17 +95,17 @@
      id="ability1_amount"
      x="545.5554"
      y="42"
-     style="font-family:Arial;font-weight:bold;font-size:30px;fill:#2f6e76;text-anchor:end">AMOUNT_1</text>
+     style="font-family:Coolwonder;font-weight:bold;font-size:30px;fill:#2f6e76;text-anchor:end">AMOUNT_1</text>
     <text
      id="ability1_name"
      x="84.444859"
      y="35"
-     style="font-family:Arial;font-size:18px;fill:white">ABILITY 1</text>
+     style="font-family:Coolwonder;font-size:18px;fill:white">ABILITY 1</text>
     <text
      id="ability1_desc"
      x="84.444859"
      y="60"
-     style="font-family:Arial;font-size:14px;fill:#cccccc">DESCRIPTION 1</text>
+     style="font-family:Coolwonder;font-size:14px;fill:#cccccc">DESCRIPTION 1</text>
   </g>
   
   <!-- Ability 2 placeholder -->
@@ -121,17 +121,17 @@
      id="ability2_amount"
      x="545.5554"
      y="42"
-     style="font-family:Arial;font-weight:bold;font-size:30px;fill:#2f6e76;text-anchor:end">AMOUNT_2</text>
+     style="font-family:Coolwonder;font-weight:bold;font-size:30px;fill:#2f6e76;text-anchor:end">AMOUNT_2</text>
     <text
      id="ability2_name"
      x="84.444859"
      y="35"
-     style="font-family:Arial;font-size:18px;fill:white">ABILITY 2</text>
+     style="font-family:Coolwonder;font-size:18px;fill:white">ABILITY 2</text>
     <text
      id="ability2_desc"
      x="84.444859"
      y="60"
-     style="font-family:Arial;font-size:14px;fill:#cccccc">DESCRIPTION 2</text>
+     style="font-family:Coolwonder;font-size:14px;fill:#cccccc">DESCRIPTION 2</text>
   </g>
   
   <!-- Ability 3 placeholder -->
@@ -147,17 +147,17 @@
      id="ability3_amount"
      x="545.5554"
      y="42"
-     style="font-family:Arial;font-weight:bold;font-size:30px;fill:#2f6e76;text-anchor:end">AMOUNT_3</text>
+     style="font-family:Coolwonder;font-weight:bold;font-size:30px;fill:#2f6e76;text-anchor:end">AMOUNT_3</text>
     <text
      id="ability3_name"
      x="84.444859"
      y="35"
-     style="font-family:Arial;font-size:18px;fill:white">ABILITY 3</text>
+     style="font-family:Coolwonder;font-size:18px;fill:white">ABILITY 3</text>
     <text
      id="ability3_desc"
      x="84.444859"
      y="60"
-     style="font-family:Arial;font-size:14px;fill:#cccccc">DESCRIPTION 3</text>
+     style="font-family:Coolwonder;font-size:14px;fill:#cccccc">DESCRIPTION 3</text>
   </g>
   
   <!-- FRCC watermark with solid color instead of gradient -->
@@ -165,7 +165,7 @@
    id="frcc_watermark"
    x="314.5"
    y="835"
-   style="font-family:Arial;font-weight:bold;font-size:120px;fill:#2f6e76;fill-opacity:0.2;text-anchor:middle;letter-spacing:15px;opacity:0.4">FRCC</text>
+   style="font-family:Coolwonder;font-weight:bold;font-size:120px;fill:#2f6e76;fill-opacity:0.2;text-anchor:middle;letter-spacing:15px;opacity:0.4">FRCC</text>
   
   <rect
    style="fill:none;fill-opacity:1;stroke:#101818;stroke-width:50.4696;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"

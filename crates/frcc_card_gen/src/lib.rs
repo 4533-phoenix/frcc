@@ -9,7 +9,7 @@ static OPTIONS: Lazy<Options> = Lazy::new(|| {
     options.text_rendering = TextRendering::OptimizeLegibility;
     options.image_rendering = ImageRendering::HighQuality;
 
-    options.fontdb_mut().load_system_fonts();
+    options.fontdb_mut().load_font_data(include_bytes!("../assets/coolwonder.ttf").to_vec());
 
     options
 });
@@ -149,8 +149,8 @@ pub fn render_front_card(
     // Hide unused ability placeholders
     for i in abilities.len() + 1..=3 {
         template = template.replace(
-            &format!("<g id=\"ability{}\">", i),
-            &format!("<g id=\"ability{}\" visibility=\"hidden\">", i),
+            &format!("<g id=\"ability{}\"", i),
+            &format!("<g id=\"ability{}\" visibility=\"hidden\"", i),
         );
     }
 
