@@ -387,10 +387,10 @@
                     </div>
                 </div>
 
-                <div class="button-container">
+                <!--<div class="button-container">
                     <button class="btn btn-primary" id="viewArBtn">View in AR</button>
                     <button class="btn btn-secondary" id="addToCollectionBtn">Add to Collection</button>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
@@ -883,8 +883,8 @@
             elements.description.textContent = cardData.note || "No description available";
 
             // Set other details
-            elements.year.textContent = cardData.card_year || "N/A";
-            elements.competition.textContent = "FIRST Championship"; // This could come from the backend in the future
+            elements.year.textContent = cardData.year || "N/A";
+            //elements.competition.textContent = "FIRST Championship"; // This could come from the backend in the future
 
             // Create abilities display
             if (cardData.abilities && cardData.abilities.length > 0) {
@@ -899,7 +899,7 @@
                     const abilityItem = document.createElement('div');
                     abilityItem.className = 'ability-item';
                     abilityItem.innerHTML = `
-                        <span class="ability-title">${ability.title} (${ability.quantity})</span>
+                        <span class="ability-title">${ability.title} (${ability.amount})</span>
                         <span class="ability-desc">${ability.description}</span>
                     `;
                     abilitiesList.appendChild(abilityItem);
@@ -912,9 +912,9 @@
             }
 
             // Update AR button to use 3D model path if available
-            if (cardData.model_3d_path) {
-                elements.arButton.dataset.modelPath = cardData.model_3d_path;
-            }
+            //if (cardData.model_3d_path) {
+            //    elements.arButton.dataset.modelPath = cardData.model_3d_path;
+            //}
 
             // Show card info and hide instructions
             elements.instructions.style.display = 'none';
@@ -943,33 +943,33 @@
         }
 
         function setupCardButtons(cardData) {
-            elements.collectionButton.onclick = function () {
-                this.disabled = true;
-                this.textContent = "Added to Collection";
-                this.classList.remove('btn-secondary');
-                this.classList.add('btn-primary');
+            //elements.collectionButton.onclick = function () {
+            //    this.disabled = true;
+            //    this.textContent = "Added to Collection";
+            //    this.classList.remove('btn-secondary');
+            //    this.classList.add('btn-primary');
 
-                // Here you would make a call to add the card to the user's collection
-                fetch('/api/collection/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ team_number: cardData.team_number, year: cardData.card_year })
-                }).catch(error => {
-                    console.error('Error adding card to collection:', error);
-                });
-            };
+            //    // Here you would make a call to add the card to the user's collection
+            //    fetch('/api/collection/add', {
+            //        method: 'POST',
+            //        headers: {
+            //            'Content-Type': 'application/json'
+            //        },
+            //        body: JSON.stringify({ team_number: cardData.team_number, year: cardData.year })
+            //    }).catch(error => {
+            //        console.error('Error adding card to collection:', error);
+            //    });
+            //};
 
-            elements.arButton.onclick = function () {
-                // Use the 3D model path from the card data if available
-                const modelPath = this.dataset.modelPath || null;
-                if (modelPath) {
-                    window.location.href = `/ar?model=${encodeURIComponent(modelPath)}&team=${cardData.team_number}`;
-                } else {
-                    alert(`AR view not available for Team ${cardData.team_number}`);
-                }
-            };
+            //elements.arButton.onclick = function () {
+            //    // Use the 3D model path from the card data if available
+            //    const modelPath = this.dataset.modelPath || null;
+            //    if (modelPath) {
+            //        window.location.href = `/ar?model=${encodeURIComponent(modelPath)}&team=${cardData.team_number}`;
+            //    } else {
+            //        alert(`AR view not available for Team ${cardData.team_number}`);
+            //    }
+            //};
         }
 
         // Event listeners
