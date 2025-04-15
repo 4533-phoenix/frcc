@@ -337,9 +337,9 @@
         console.log(`Viewing design ${designId} from ${year}`);
         
         // Redirect to the design page if we have a design ID
-        if (designId) {
-            window.location.href = `/design/${designId}`;
-        }
+        //if (designId) {
+        //    window.location.href = `/design/${designId}`;
+        //}
     }
 </script>
 {% endblock content %}
