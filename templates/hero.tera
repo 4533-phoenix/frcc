@@ -352,7 +352,7 @@
             </div>
 
             <div class="hero-cards" aria-label="Interactive card display">
-                <div class="hero-card card-front" onclick="openModal('/images/front.webp')" tabindex="0" role="button"
+                <div class="hero-card card-front" onclick="openModal('/fronts/{{ random_design }}.png')" tabindex="0" role="button"
                     aria-label="View front of FRCC card" onkeydown="handleCardKeyDown(event, '/fronts/{{ random_design }}.png')">
                     <img src="/fronts/{{ random_design }}.png"
                         alt="FIRST Robotics Card Competition card front - showing robot design and team information">

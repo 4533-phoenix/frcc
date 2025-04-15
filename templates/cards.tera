@@ -206,7 +206,19 @@
     </div>
 </section>
 
+<div class="modal" id="imageModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-content" role="document">
+        <button class="close-modal" onclick="closeModal()" aria-label="Close image view">&times;</button>
+        <h2 id="modalTitle" class="sr-only">Card Image View</h2>
+        <img id="modalImage" src="" alt="Card full view">
+    </div>
+</div>
+
 <script>
+		const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    let lastFocus = null;
+
     // Fetch cards from API and render them
     document.addEventListener('DOMContentLoaded', async function() {
         try {
@@ -327,6 +339,21 @@
         container.innerHTML = cardsHTML;
     }
 
+		function closeModal() {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (lastFocus) {
+            lastFocus.focus();
+        }
+    }
+
+		modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
     function showCardDetails(designId, year) {
         // Don't process clicks on locked cards
         const clickedCard = event.currentTarget;
@@ -336,6 +363,16 @@
 
         // Navigate to a detail page or open a modal
         console.log(`Viewing design ${designId} from ${year}`);
+
+				modalImg.src = `/fronts/${designId}.png`;
+				modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        lastFocus = document.activeElement;
+        setTimeout(() => {
+            document.querySelector('.close-modal').focus();
+        }, 50);
+
         
         // Redirect to the design page if we have a design ID
         //if (designId) {
@@ -343,4 +380,18 @@
         //}
     }
 </script>
+
+<style>
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+</style>
 {% endblock content %}
