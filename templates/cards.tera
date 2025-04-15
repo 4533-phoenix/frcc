@@ -305,7 +305,7 @@
                         ${imageUrl ? 
                             `<img src="${imageUrl}" 
                                  class="collection-card-image image-loading" 
-                                 alt="Team ${card.team_number} - ${card.team_name || ''}" 
+                                 alt="Team ${card.team_number}" 
                                  onload="this.classList.remove('image-loading')"
                                  onerror="this.style.display='none'">` 
                             : ''}
