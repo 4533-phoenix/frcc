@@ -311,7 +311,7 @@
                             : ''}
                         <div class="collection-card-info">
                             <p class="collection-card-title">Team ${card.team_number} - ${card.team_name || ''}</p>
-                            <p class="collection-card-subtitle">${card.bot_name || ''}</p>
+                            <p class="collection-card-subtitle">${card.robot_name || ''}</p>
                         </div>
                     </div>
                 `;
