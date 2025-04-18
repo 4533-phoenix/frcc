@@ -22,7 +22,18 @@ pub async fn optimize_and_save_model(id: String, obj_buf: Vec<u8>) {
     tokio::task::spawn_blocking(move || {
         let mut obj_buf = Cursor::new(obj_buf);
 
-        let mesh = TMFMesh::read_from_obj_one(&mut obj_buf).unwrap();
+        //match threemf::read(&mut obj_buf) {
+        //    Ok(models) => {
+        //        let model = models.first().unwrap();
+        //        dbg!(model.resources.object.iter().map(|object| object.components.unwrap().component));
+        //        dbg!(model.metadata.iter().map(|meta| (&meta.name, &meta.value)).collect::<Vec<_>>());
+        //    }
+        //    Err(err) => {
+        //        panic!("{err:?}");
+        //    }
+        //}
+
+        let meshes = TMFMesh::read_from_obj(&mut obj_buf).unwrap();
 
         let prec_info = TMFPrecisionInfo {
             normal_precision: NormalPrecisionMode::from_deg_dev(2.0),
@@ -31,13 +42,12 @@ pub async fn optimize_and_save_model(id: String, obj_buf: Vec<u8>) {
             tangent_prec: TangentPrecisionMode::from_deg_dev(2.0),
         };
 
-        mesh.0
-            .write_tmf_one(
-                &mut File::create(format!("models/{id}.tmf")).unwrap(),
-                &prec_info,
-                id,
-            )
-            .unwrap();
+        TMFMesh::write_tmf(
+            &meshes,
+            &mut File::create(format!("models/{id}.tmf")).unwrap(),
+            &prec_info,
+        )
+        .unwrap();
     })
     .await
     .unwrap();
